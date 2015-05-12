@@ -61,6 +61,7 @@ import de.unkrig.commons.lang.protocol.TransformerUtil;
 import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.commons.util.collections.CollectionUtil;
 import de.unkrig.commons.util.collections.IterableUtil;
+import de.unkrig.commons.util.collections.MapUtil;
 import de.unkrig.doclet.javadoc.Doccs.AbstractDocc;
 import de.unkrig.doclet.javadoc.Doccs.ClassDocc;
 import de.unkrig.doclet.javadoc.Doccs.Docc;
@@ -92,7 +93,13 @@ class JavadocDoclet {
     public static int
     optionLength(String option) {
 
-        if ("-d".equals(option)) return 2;
+        if ("-d".equals(option))           return 2;
+        if ("-windowtitle".equals(option)) return 2;
+        if ("-doctitle".equals(option))    return 2;
+        if ("-header".equals(option))      return 2;
+        if ("-footer".equals(option))      return 2;
+        if ("-top".equals(option))         return 2;
+        if ("-bottom".equals(option))      return 2;
 
         return 0;
     }
@@ -106,11 +113,30 @@ class JavadocDoclet {
     public static boolean
     start(final RootDoc rootDoc) throws IOException {
 
-        File destination = new File(".");
+        File                destination = new File(".");
+        Map<String, Object> dataModel   = new HashMap<String, Object>();
 
         for (String[] option : rootDoc.options()) {
             if ("-d".equals(option[0])) {
                 destination = new File(option[1]);
+            } else
+            if ("-windowtitle".equals(option[0])) {
+                dataModel.put("windowTitle", option[1]);
+            } else
+            if ("-doctitle".equals(option[0])) {
+                dataModel.put("docTitle", option[1]);
+            } else
+            if ("-header".equals(option[0])) {
+                dataModel.put("header", option[1]);
+            } else
+            if ("-footer".equals(option[0])) {
+                dataModel.put("footer", option[1]);
+            } else
+            if ("-top".equals(option[0])) {
+                dataModel.put("top", option[1]);
+            } else
+            if ("-bottom".equals(option[0])) {
+                dataModel.put("bottom", option[1]);
             } else
             {
 
@@ -120,7 +146,9 @@ class JavadocDoclet {
             }
         }
 
-        new JavadocDoclet(rootDoc, destination).start2();
+        dataModel.put("generationDate", new Date());
+
+        new JavadocDoclet(rootDoc, destination).start2(dataModel);
 
         return true;
     }
@@ -139,7 +167,7 @@ class JavadocDoclet {
     }
 
     private void
-    start2() throws IOException {
+    start2(Map<String, Object> dataModel) throws IOException {
 
         Set<PackageDocc> allPackages;
         Set<ClassDocc>   allClassesAndInterfaces;
@@ -167,41 +195,41 @@ class JavadocDoclet {
         }
 
         {
-            final Map<String, Object> dataModel = new HashMap<String, Object>();
+            Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
+                "allClassesAndInterfaces", allClassesAndInterfaces,
+                "allPackages",             allPackages
+            ));
 
-            dataModel.put("allClassesAndInterfaces", allClassesAndInterfaces);
-            dataModel.put("allPackages",             allPackages);
-            dataModel.put("generationDate", new Date());
-
-            this.generate("index.html",              dataModel);
-            this.generate("overview-frame.html",     dataModel);
-            this.generate("stylesheet.css",          dataModel);
-            this.generate("allclasses-frame.html",   dataModel);
-            this.generate("allclasses-noframe.html", dataModel);
-            this.generate("constant-values.html",    dataModel);
-            this.generate("overview-summary.html",   dataModel);
-            this.generate("script.js",               dataModel);
+            this.generate("index.html",              dm);
+            this.generate("overview-frame.html",     dm);
+            this.generate("stylesheet.css",          dm);
+            this.generate("allclasses-frame.html",   dm);
+            this.generate("allclasses-noframe.html", dm);
+            this.generate("constant-values.html",    dm);
+            this.generate("overview-summary.html",   dm);
+            this.generate("script.js",               dm);
         }
 
         for (PackageDocc packageDocc : allPackages) {
             String packageName = packageDocc.getName();
 
-            final Map<String, Object> dataModel = new HashMap<String, Object>();
-            dataModel.put("generationDate", new Date());
-            dataModel.put("home", StringUtil.repeat(packageName.split("\\.").length, "../"));
-            dataModel.put("package", packageDocc);
+            Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
+                "home",    StringUtil.repeat(packageName.split("\\.").length, "../"),
+                "package", packageDocc
+            ));
 
-            this.generate(packageName.replace('.',  '/') + "/package-frame.html", "package-frame.html.ftl", dataModel);
+            this.generate(packageName.replace('.',  '/') + "/package-frame.html", "package-frame.html.ftl", dm);
         }
 
         for (ClassDocc classDocc : allClassesAndInterfaces) {
             String qualifiedClassName = classDocc.getQualifiedName();
 
-            final Map<String, Object> dataModel = new HashMap<String, Object>();
-            dataModel.put("generationDate", new Date());
-            dataModel.put("home", StringUtil.repeat(qualifiedClassName.split("\\.").length - 1, "../"));
-            dataModel.put("class", classDocc);
-            this.generate(qualifiedClassName.replace('.',  '/') + ".html", "class-frame.html.ftl", dataModel);
+            Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
+                "home",  StringUtil.repeat(qualifiedClassName.split("\\.").length - 1, "../"),
+                "class", classDocc
+            ));
+
+            this.generate(qualifiedClassName.replace('.',  '/') + ".html", "class-frame.html.ftl", dm);
         }
     }
 
@@ -377,11 +405,31 @@ class JavadocDoclet {
                     String cpn = containingPackage.name();
                     if (!cpn.isEmpty()) sb.append(cpn.replace('.', '/')).append('/');
 
-                    sb.append(containingClass.name()).append(".html#").append(methodDoc.name());
-                    for (Parameter p : methodDoc.parameters()) {
-                        sb.append('-').append(p.typeName());
+                    sb.append(containingClass.name()).append(".html#");
+                    sb.append(methodDoc.name());
+                    if (methodDoc.parameters().length == 0) {
+                        sb.append("--");
+                    } else {
+                        for (Parameter p : methodDoc.parameters()) {
+                            sb.append('-').append(p.type().qualifiedTypeName());
+                        }
+                        sb.append('-');
                     }
 
+                    return sb.toString();
+                }
+
+                @Override public String
+                getFragment() {
+
+                    if (methodDoc.parameters().length == 0) {
+                        return methodDoc.name() + "--";
+                    }
+
+                    StringBuilder sb = new StringBuilder(methodDoc.name());
+                    for (Parameter p : methodDoc.parameters()) {
+                        sb.append('-').append(p.type().qualifiedTypeName());
+                    }
                     return sb.append('-').toString();
                 }
 
@@ -486,16 +534,15 @@ class JavadocDoclet {
         final Template template = JavadocDoclet.FREEMARKER_CONFIGURATION.getTemplate(templateName);
 
         try {
+
+            File file = new File(this.destination, fileName);
+            System.out.println("Generating " + file + "...");
+
             FileUtil.printToFile(
-                new File(this.destination, fileName),
+                file,
                 Charset.forName("ISO-8859-1"),
                 new ConsumerWhichThrows<PrintWriter, Exception>() {
-
-                    @Override public void
-                    consume(PrintWriter pw) throws Exception {
-
-                        template.process(dataModel, pw);
-                    }
+                    @Override public void consume(PrintWriter pw) throws Exception { template.process(dataModel, pw); }
                 }
             );
         } catch (Exception e) {
