@@ -153,6 +153,11 @@ class Doccs {
          * @return The "{@code @throws}" tags of the method
          */
         Collection<ThrowsTag> getThrowsTags();
+
+        /**
+         * @return The "fragment identifier"; usable for "{@code <a name="x">}" and "{@code <a href="...#x">}"
+         */
+        String getFragment();
     }
 
     /**
@@ -217,10 +222,10 @@ class Doccs {
          * @see MethodDocc#compareTo(Docc)
          */
         @Override public int
-        compareTo(@Nullable Docc o) {
-            assert o != null;
-            assert o.getClass() == this.getClass();
-            return this.getName().compareTo(o.getName());
+        compareTo(@Nullable Docc that) {
+            assert that != null;
+            assert that.getClass() == this.getClass();
+            return this.getName().compareTo(that.getName());
         }
 
         @Override public final Doc
