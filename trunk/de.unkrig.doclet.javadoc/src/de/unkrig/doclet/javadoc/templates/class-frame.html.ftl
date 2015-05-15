@@ -20,7 +20,11 @@
     catch(err) {
     }
 //-->
-var methods = {"i0":9,"i1":9,"i2":9,"i3":9,"i4":9,"i5":9,"i6":9,"i7":9};
+var methods = {[#rt]
+[#list class.methodsSorted as m]
+ "i${m_index}":9${m_has_next?string(",", "")}[#t]
+[/#list]
+[#lt]};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -56,8 +60,16 @@ ${top}
 </div>
 <div class="subNav">
 <ul class="navList">
+[#if previousClass??]
+<li><a href="${home}${previousClass.href}" title="class in ${previousClass.doc.containingPackage().name()}"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+[#else]
 <li>Prev&nbsp;Class</li>
-<li><a href="${home}de/unkrig/commons/lang/ExceptionUtil.html" title="class in ${class.doc.containingPackage().name()}"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+[/#if]
+[#if nextClass??]
+<li><a href="${home}${nextClass.href}" title="class in ${nextClass.doc.containingPackage().name()}"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+[#else]
+<li>Next&nbsp;Class</li>
+[/#if]
 </ul>
 <ul class="navList">
 <li><a href="${home}index.html?${class.href}" target="_top">Frames</a></li>
@@ -118,7 +130,7 @@ ${top}
 <br>
 <pre>public final class <span class="typeNameLabel">${class.name}</span>
 extends java.lang.Object</pre>
-<div class="block">Various assertion-related utility methods.</div>
+<div class="block">${class.description}</div>
 </li>
 </ul>
 </div>
@@ -145,18 +157,31 @@ ${m.doc.isStatic()?string("static ", "")}[#rt]
  [#if m.doc.typeParameters()?size > 0]
   &lt;[#t]
   [#list m.doc.typeParameters() as tp]
-   ${tp?string?html}${tp_has_next?string(", ", "")}[#t]
+   ${tp?string?html}${tp_has_next?string(",", "")}[#t]
   [/#list]
-  &gt;&nbsp;[#t]
+  &gt;[#t]
+  [#if m.doc.typeParameters()[0]?string?length > 10 || m.doc.typeParameters()?size > 1]
+  <br>[#t]
+  [#else]
+  &nbsp;[#t]
+  [/#if]
  [/#if]
-${m.doc.returnType().toString()?html}</code></td>
+${m.doc.returnType().asTypeVariable()???string(m.doc.returnType().qualifiedTypeName()?html, m.doc.returnType()?html)}</code></td>
 <td class="colLast"><code><span class="memberNameLink"><a href="${home}${m.href}">${m.name}</a></span>([#rt]
  [#list m.doc.parameters() as p]
-${p.type()?html}&nbsp;${p.name()}[#t]
-${p_has_next?string(",&nbsp;", "")}[#t]
+  ${p.type().asTypeVariable()???string(p.type().qualifiedTypeName()?html, p.type()?html)}&nbsp;${p.name()}[#t]
+  [#if p_has_next]
+,
+${""?left_pad(m.name?length)}[#rt]
+  [/#if]
  [/#list]
-)</code>
+)</code>[#rt]
+[#if m.firstSentenceOfDescription == ""]
+&nbsp;[#rt]
+[#else]
+
 <div class="block">${m.firstSentenceOfDescription}</div>
+[/#if]
 </td>
 </tr>
 [/#list]
@@ -196,44 +221,77 @@ ${p_has_next?string(",&nbsp;", "")}[#t]
 </a>[#rt]
  [/#list]
 
-<ul class="blockList">
+<ul class="${m_has_next?string("blockList", "blockListLast")}">
 <li class="blockList">
 <h4>${m.name}</h4>
+[#assign indent = m.doc.modifiers()]
+[#if m.doc.typeParameters()?size > 0]
+ [#assign indent = indent + "<"]
+ [#list m.doc.typeParameters() as tp]
+  [#assign indent = indent + tp?string]
+  [#if tp_has_next]
+   [#assign indent = indent + ","]
+  [/#if]
+ [/#list]
+ [#assign indent = indent + ">"]
+[/#if]
+[#assign indent = indent + m.doc.returnType().toString() + " " + m.name]
 <pre>[#rt]
 ${m.doc.modifiers()}&nbsp;[#rt]
  [#if m.doc.typeParameters()?size > 0]
   &lt;[#t]
   [#list m.doc.typeParameters() as tp]
-   ${tp?string?html}${tp_has_next?string(", ", "")}[#t]
+   ${tp?string?html}${tp_has_next?string(",", "")}[#t]
   [/#list]
   &gt;&nbsp;[#t]
  [/#if]
-${m.doc.returnType().toString()?html}&nbsp;${m.name}([#rt]
+${m.doc.returnType().asTypeVariable()???string(m.doc.returnType().qualifiedTypeName()?html, m.doc.returnType()?html)}&nbsp;${m.name}([#rt]
  [#list m.doc.parameters() as p]
   [#list p.annotations() as a]
-   @${a.annotationType().simpleTypeName()} [#t]
+   @${a.annotationType().simpleTypeName()}[#lt]
+[#rt]${""?left_pad(indent?length + 3)}[#rt]
   [/#list]
-${p.type()?html}&nbsp;${p.name()}[#t]
-${p_has_next?string(",&nbsp;", "")}[#t]
+   ${p.type().asTypeVariable()???string(p.type().qualifiedTypeName()?html, p.type()?html)}&nbsp;${p.name()}[#t]
+  [#if p_has_next]
+   ,[#lt]
+   [#lt]${""?left_pad(indent?length + 3)}[#rt]
+  [/#if]
  [/#list]
-)</pre>
+)[#rt]
+[#if m.doc.thrownExceptionTypes()?size > 0]
+ [#list m.doc.thrownExceptionTypes() as tet]
+
+                                                  throws ${tet?html}[#rt]
+ [/#list]
+[/#if]
+</pre>
+ [#if m.description != ""]
 <div class="block">${m.description}</div>
+ [/#if]
+ [#if m.paramTags?size > 0 || m.returnValueDescription?? || m.throwsTags?size > 0]
 <dl>
- [#if m.returnValueDescription??]
+  [#if m.paramTags?size > 0]
+<dt><span class="paramLabel">Parameters:</span></dt>
+   [#list m.paramTags as pt]
+<dd><code>${pt.name}</code> - ${pt.parameterComment}</dd>
+   [/#list]
+  [/#if]
+  [#if m.returnValueDescription??]
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>${m.returnValueDescription}</dd>
- [/#if]
- [#if m.throwsTags?size > 0]
+  [/#if]
+  [#if m.throwsTags?size > 0]
 <dt><span class="throwsLabel">Throws:</span></dt>
-  [#list m.throwsTags as tt]
+   [#list m.throwsTags as tt]
 <dd><code>${tt.exceptionQualifiedName}</code>[#rt]
-   [#if tt.exceptionComment??]
-    [#lt] - ${tt.exceptionComment}[#rt]
-   [/#if]
-   [#lt]</dd>
-  [/#list]
- [/#if]
+    [#if tt.exceptionComment?? && tt.exceptionComment?length > 0]
+     [#lt] - ${tt.exceptionComment}[#rt]
+    [/#if]
+    [#lt]</dd>
+   [/#list]
+  [/#if]
 </dl>
+ [/#if]
 </li>
 </ul>
 [/#list]
@@ -267,8 +325,16 @@ ${p_has_next?string(",&nbsp;", "")}[#t]
 </div>
 <div class="subNav">
 <ul class="navList">
+[#if previousClass??]
+<li><a href="${home}${previousClass.href}" title="class in ${previousClass.doc.containingPackage().name()}"><span class="typeNameLink">Prev&nbsp;Class</span></a></li>
+[#else]
 <li>Prev&nbsp;Class</li>
-<li><a href="${home}de/unkrig/commons/lang/ExceptionUtil.html" title="class in ${class.doc.containingPackage().name()}"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+[/#if]
+[#if nextClass??]
+<li><a href="${home}${nextClass.href}" title="class in ${nextClass.doc.containingPackage().name()}"><span class="typeNameLink">Next&nbsp;Class</span></a></li>
+[#else]
+<li>Next&nbsp;Class</li>
+[/#if]
 </ul>
 <ul class="navList">
 <li><a href="${home}index.html?${class.doc.qualifiedName()?replace(".", "/")}.html" target="_top">Frames</a></li>
@@ -308,5 +374,6 @@ ${p_has_next?string(",&nbsp;", "")}[#t]
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
+<p class="legalCopy"><small>BOTTOM</small></p>
 </body>
 </html>
