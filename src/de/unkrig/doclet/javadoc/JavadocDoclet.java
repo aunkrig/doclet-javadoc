@@ -33,9 +33,11 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,6 +47,7 @@ import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.RootDoc;
@@ -73,6 +76,7 @@ import de.unkrig.doclet.javadoc.Doccs.Docc;
 import de.unkrig.doclet.javadoc.Doccs.FieldDocc;
 import de.unkrig.doclet.javadoc.Doccs.MethodDocc;
 import de.unkrig.doclet.javadoc.Doccs.PackageDocc;
+import de.unkrig.doclet.javadoc.Doccs.ParamTagg;
 import de.unkrig.doclet.javadoc.Doccs.ThrowsTagg;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -221,24 +225,44 @@ class JavadocDoclet {
         for (PackageDocc packageDocc : allPackages) {
             String packageName = packageDocc.getName();
 
-            Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
-                "home",    StringUtil.repeat(packageName.split("\\.").length, "../"),
-                "package", packageDocc
-            ));
+            {
+                Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
+                    "home",    StringUtil.repeat(packageName.split("\\.").length, "../"),
+                    "package", packageDocc
+                ));
 
-            this.generate(packageName.replace('.',  '/') + "/package-frame.html", "package-frame.html.ftl", dm);
-        }
+                this.generate(packageName.replace('.',  '/') + "/package-frame.html", "package-frame.html.ftl", dm);
+            }
 
-        for (ClassDocc classDocc : allClassesAndInterfaces) {
-            String qualifiedClassName = classDocc.getQualifiedName();
+            Iterator<ClassDocc> it = packageDocc.getClasses().iterator();
+            if (it.hasNext()) {
+                ClassDocc previousClassDocc = null;
+                ClassDocc classDocc         = it.next();
+                for (;;) {
+                    ClassDocc nextClassDocc = it.hasNext() ? it.next() : null;
 
-            Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
-                "home",  StringUtil.repeat(qualifiedClassName.split("\\.").length - 1, "../"),
-                "class", classDocc
-            ));
+                    ClassDoc classDoc = (ClassDoc) classDocc.getDoc();
 
-            this.generate(qualifiedClassName.replace('.',  '/') + ".html", "class-frame.html.ftl", dm);
-        }
+                    Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
+                        "home",          StringUtil.repeat(packageName.split("\\.").length, "../"),
+                        "previousClass", previousClassDocc,
+                        "class",         classDocc,
+                        "nextClass",     nextClassDocc
+                    ));
+
+                    this.generate(
+                        packageName.replace('.',  '/') + '/' + classDoc.name() + ".html",
+                        "class-frame.html.ftl",
+                        dm
+                    );
+
+                    if (nextClassDocc == null) break;
+
+                    previousClassDocc = classDocc;
+                    classDocc         = nextClassDocc;
+                }
+            }
+    }
     }
 
     private final Transformer<ClassDoc, ClassDocc>
@@ -505,10 +529,9 @@ class JavadocDoclet {
 
                 @Override public Collection<ThrowsTagg>
                 getThrowsTags() {
-                    ThrowsTag[] tts = methodDoc.throwsTags();
 
-                    List<ThrowsTagg> result = new ArrayList<Doccs.ThrowsTagg>(tts.length);
-                    for (final ThrowsTag tt : tts) {
+                    List<ThrowsTagg> result = new ArrayList<Doccs.ThrowsTagg>();
+                    for (final ThrowsTag tt : methodDoc.throwsTags()) {
                         result.add(new ThrowsTagg() {
 
                             @Override public String
@@ -521,10 +544,55 @@ class JavadocDoclet {
                                 if (ec == null) return null;
 
                                 try {
-                                    return JavadocDoclet.HTML.fromJavadocText(ec, methodDoc, JavadocDoclet.this.rootDoc);
+                                    ec = JavadocDoclet.HTML.fromJavadocText(ec, methodDoc, JavadocDoclet.this.rootDoc);
                                 } catch (Longjump l) {
-                                    return "???";
+                                    ;
                                 }
+
+                                return ec;
+                            }
+                        });
+                    }
+
+                    ADD_EXCEPTIONS_WITHOUT_TAG:
+                    for (final Type et : methodDoc.thrownExceptionTypes()) {
+
+                        for (ThrowsTagg tt : result) {
+                            if (tt.getExceptionQualifiedName().equals(et.toString())) {
+                                continue ADD_EXCEPTIONS_WITHOUT_TAG;
+                            }
+                        }
+
+                        result.add(new ThrowsTagg() {
+                            @Override public String           getExceptionQualifiedName() { return et.toString(); }
+                            @Override @Nullable public String getExceptionComment()       { return null; }
+                        });
+                    }
+                    return result;
+                }
+
+                @Override public Collection<ParamTagg>
+                getParamTags() {
+
+                    List<ParamTagg> result = new ArrayList<Doccs.ParamTagg>();
+                    for (final ParamTag pt : methodDoc.paramTags()) {
+                        result.add(new ParamTagg() {
+
+                            @Override public String
+                            getName() { return pt.parameterName(); }
+
+                            @Override @Nullable public String
+                            getParameterComment() {
+                                String pc = pt.parameterComment();
+                                if (pc == null) return null;
+
+                                try {
+                                    pc = JavadocDoclet.HTML.fromJavadocText(pc, methodDoc, JavadocDoclet.this.rootDoc);
+                                } catch (Longjump l) {
+                                    ;
+                                }
+
+                                return pc;
                             }
                         });
                     }
@@ -587,7 +655,16 @@ class JavadocDoclet {
 
                 @Override public Collection<ClassDocc>
                 getClasses() {
-                    return JavadocDoclet.this.wrapClasses(Arrays.asList(packageDoc.ordinaryClasses()));
+
+                    ClassDoc[] ordinaryClasses = packageDoc.ordinaryClasses();
+
+                    Arrays.sort(ordinaryClasses, new Comparator<ClassDoc>() {
+
+                        @Override public int
+                        compare(ClassDoc cd1, ClassDoc cd2) { return cd1.name().compareTo(cd2.name()); }
+                    });
+
+                    return JavadocDoclet.this.wrapClasses(Arrays.asList(ordinaryClasses));
                 }
 
                 @Override public String

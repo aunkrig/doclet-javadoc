@@ -143,6 +143,12 @@ class Doccs {
         @Nullable String getExceptionComment();
     }
 
+    public
+    interface ParamTagg {
+        String           getName();
+        @Nullable String getParameterComment();
+    }
+
     /**
      * A wrapper for {@link MethodDoc} which adds painfully missing bean getters.
      */
@@ -158,6 +164,11 @@ class Doccs {
          * @return The "{@code @throws}" tags of the method
          */
         Collection<ThrowsTagg> getThrowsTags();
+
+        /**
+         * @return The "{@code @param}" tags of the method
+         */
+        Collection<ParamTagg> getParamTags();
 
         /**
          * Computes and returns the "fragment identifier" for a method; usable for "{@code <a name="x">}" and "{@code
