@@ -190,9 +190,12 @@ ${p_has_next?string(",&nbsp;", "")}[#t]
 </a>
 <h3>Method Detail</h3>
 [#list class.methods as m]
-<a name="${m.fragment!"XXX"}">
+ [#list m.fragments as f]
+<a name="${f}">
 <!--   -->
-</a>
+</a>[#rt]
+ [/#list]
+
 <ul class="blockList">
 <li class="blockList">
 <h4>${m.name}</h4>
@@ -203,10 +206,13 @@ ${m.doc.modifiers()}&nbsp;[#rt]
   [#list m.doc.typeParameters() as tp]
    ${tp?string?html}${tp_has_next?string(", ", "")}[#t]
   [/#list]
-  &gt; [#t]
+  &gt;&nbsp;[#t]
  [/#if]
 ${m.doc.returnType().toString()?html}&nbsp;${m.name}([#rt]
  [#list m.doc.parameters() as p]
+  [#list p.annotations() as a]
+   @${a.annotationType().simpleTypeName()} [#t]
+  [/#list]
 ${p.type()?html}&nbsp;${p.name()}[#t]
 ${p_has_next?string(",&nbsp;", "")}[#t]
  [/#list]
@@ -220,7 +226,11 @@ ${p_has_next?string(",&nbsp;", "")}[#t]
  [#if m.throwsTags?size > 0]
 <dt><span class="throwsLabel">Throws:</span></dt>
   [#list m.throwsTags as tt]
-<dd><code>${tt.exception().qualifiedName()}</code>${tt.exceptionComment()}</dd>
+<dd><code>${tt.exceptionQualifiedName}</code>[#rt]
+   [#if tt.exceptionComment??]
+    [#lt] - ${tt.exceptionComment}[#rt]
+   [/#if]
+   [#lt]</dd>
   [/#list]
  [/#if]
 </dl>
@@ -251,6 +261,9 @@ ${p_has_next?string(",&nbsp;", "")}[#t]
 <li><a href="${home}index-all.html">Index</a></li>
 <li><a href="${home}help-doc.html">Help</a></li>
 </ul>
+[#if footer??]
+<div class="aboutLanguage">${footer}</div>
+[/#if]
 </div>
 <div class="subNav">
 <ul class="navList">

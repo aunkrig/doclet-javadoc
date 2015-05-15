@@ -46,10 +46,15 @@ import com.sun.javadoc.LanguageVersion;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.Parameter;
+import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.ThrowsTag;
+import com.sun.javadoc.Type;
+import com.sun.javadoc.TypeVariable;
+import com.sun.javadoc.WildcardType;
 
 import de.unkrig.commons.doclet.Tags;
+import de.unkrig.commons.doclet.html.Html;
 import de.unkrig.commons.file.FileUtil;
 import de.unkrig.commons.lang.AssertionUtil;
 import de.unkrig.commons.lang.StringUtil;
@@ -68,6 +73,7 @@ import de.unkrig.doclet.javadoc.Doccs.Docc;
 import de.unkrig.doclet.javadoc.Doccs.FieldDocc;
 import de.unkrig.doclet.javadoc.Doccs.MethodDocc;
 import de.unkrig.doclet.javadoc.Doccs.PackageDocc;
+import de.unkrig.doclet.javadoc.Doccs.ThrowsTagg;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
@@ -158,6 +164,8 @@ class JavadocDoclet {
     private final RootDoc rootDoc;
     private final File    destination;
     private final Doccs   doccs;
+
+    private static final Html HTML = new Html(Html.STANDARD_LINK_MAKER);
 
     private
     JavadocDoclet(RootDoc rootDoc, File destination) {
@@ -419,32 +427,108 @@ class JavadocDoclet {
                     return sb.toString();
                 }
 
-                @Override public String
-                getFragment() {
+                @Override public String[]
+                getFragments() {
+
+                    // <a name="enableAssertionsFor-java.lang.Class-">
+                    // but not <a name="enableAssertionsFor-java.lang.Class<?>-">
+                    //
+                    // <a name="enableAssertionsForThisClass--">
+                    //
+                    // <a name="notNull-java.lang.Object-">
+                    // also <a name="notNull-T-">
+                    //
+                    // <a name="notNull-java.lang.Object-java.lang.String-">
+                    // <a name="notNull-T-java.lang.String-">
+                    // but not <a name="notNull-T-String-">
+                    //
+                    // <a name="fail--">
+                    //
+                    // <a name="fail-java.lang.String-">
+                    // but not <a name="fail-String-">
+                    //
+                    // <a name="fail-java.lang.Throwable-">
+                    // but not <a name="fail-Throwable-">
+                    //
+                    // <a name="fail-java.lang.String-java.lang.Throwable-">
+                    // but not <a name="fail-String-Throwable-">
 
                     if (methodDoc.parameters().length == 0) {
-                        return methodDoc.name() + "--";
+                        return new String[] { methodDoc.name() + "--" };
                     }
 
-                    StringBuilder sb = new StringBuilder(methodDoc.name());
+                    StringBuilder sb1 = new StringBuilder(methodDoc.name());
+                    StringBuilder sb2 = new StringBuilder(methodDoc.name());
                     for (Parameter p : methodDoc.parameters()) {
-                        sb.append('-').append(p.type().qualifiedTypeName());
+                        sb1.append('-');
+                        sb2.append('-');
+
+                        Type pt = p.type();
+
+                        if (pt instanceof ParameterizedType) {
+
+                            sb1.append(((ParameterizedType) pt).asClassDoc().qualifiedTypeName());
+                            sb2.append(((ParameterizedType) pt).asClassDoc().qualifiedTypeName());
+                        } else
+                        if (pt instanceof WildcardType) {
+                            Type firstBound = ((WildcardType) pt).extendsBounds()[0];
+
+                            sb1.append(firstBound.toString());
+                            sb2.append(firstBound.toString());
+                        } else
+                        if (pt instanceof TypeVariable) {
+                            Type[] bounds = ((TypeVariable) pt).bounds();
+                            sb1.append(bounds.length == 0 ? "java.lang.Object" : bounds[0].toString());
+                            sb2.append(pt.qualifiedTypeName());
+                        } else
+                        {
+                            // "type().qualifiedTypeName()" => "java.lang.Class", "java.lang.String", "java.lang.Throwable"
+                            sb1.append(pt.qualifiedTypeName());
+                            sb2.append(pt.qualifiedTypeName());
+                        }
                     }
-                    return sb.append('-').toString();
+                    String result1 = sb1.append("-").toString();
+                    String result2 = sb2.append("-").toString();
+                    return result1.equals(result2) ? new String[] { result1 } : new String[] { result1, result2 };
                 }
 
                 @Override @Nullable public String
                 getReturnValueDescription() {
                     try {
-                        return Tags.optionalTag(methodDoc, "@return", JavadocDoclet.this.rootDoc);
+                        String rtd = Tags.optionalTag(methodDoc, "@return", JavadocDoclet.this.rootDoc);
+                        if (rtd == null) return null;
+                        return JavadocDoclet.HTML.fromJavadocText(rtd, methodDoc, JavadocDoclet.this.rootDoc);
                     } catch (Longjump l) {
                         return "???";
                     }
                 }
 
-                @Override public Collection<ThrowsTag>
+                @Override public Collection<ThrowsTagg>
                 getThrowsTags() {
-                    return Arrays.asList(methodDoc.throwsTags());
+                    ThrowsTag[] tts = methodDoc.throwsTags();
+
+                    List<ThrowsTagg> result = new ArrayList<Doccs.ThrowsTagg>(tts.length);
+                    for (final ThrowsTag tt : tts) {
+                        result.add(new ThrowsTagg() {
+
+                            @Override public String
+                            getExceptionQualifiedName() { return tt.exception().qualifiedName(); }
+
+                            @Override @Nullable public String
+                            getExceptionComment() {
+
+                                String ec = tt.exceptionComment();
+                                if (ec == null) return null;
+
+                                try {
+                                    return JavadocDoclet.HTML.fromJavadocText(ec, methodDoc, JavadocDoclet.this.rootDoc);
+                                } catch (Longjump l) {
+                                    return "???";
+                                }
+                            }
+                        });
+                    }
+                    return result;
                 }
             }
 

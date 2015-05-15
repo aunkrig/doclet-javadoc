@@ -33,7 +33,6 @@ import com.sun.javadoc.Doc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
-import com.sun.javadoc.ThrowsTag;
 
 import de.unkrig.commons.doclet.html.Html;
 import de.unkrig.commons.lang.AssertionUtil;
@@ -138,6 +137,12 @@ class Doccs {
         boolean isConstant();
     }
 
+    public
+    interface ThrowsTagg {
+        String           getExceptionQualifiedName();
+        @Nullable String getExceptionComment();
+    }
+
     /**
      * A wrapper for {@link MethodDoc} which adds painfully missing bean getters.
      */
@@ -152,12 +157,17 @@ class Doccs {
         /**
          * @return The "{@code @throws}" tags of the method
          */
-        Collection<ThrowsTag> getThrowsTags();
+        Collection<ThrowsTagg> getThrowsTags();
 
         /**
-         * @return The "fragment identifier"; usable for "{@code <a name="x">}" and "{@code <a href="...#x">}"
+         * Computes and returns the "fragment identifier" for a method; usable for "{@code <a name="x">}" and "{@code
+         * <a href="...#x">}".
+         * <p>
+         *   Notice: Some methods have <i>two</i> fragments, e.g. "notNull-java.lang.Object-java.lang.String-" and
+         *   "notNull-T-java.lang.String-".
+         * </p>
          */
-        String getFragment();
+        String[] getFragments();
     }
 
     /**
