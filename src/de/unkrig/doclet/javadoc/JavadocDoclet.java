@@ -33,6 +33,7 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
@@ -43,14 +44,18 @@ import java.util.Map;
 import java.util.Set;
 
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.Doc;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.LanguageVersion;
+import com.sun.javadoc.MemberDoc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ParameterizedType;
+import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.SeeTag;
 import com.sun.javadoc.ThrowsTag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
@@ -60,6 +65,7 @@ import de.unkrig.commons.doclet.Tags;
 import de.unkrig.commons.doclet.html.Html;
 import de.unkrig.commons.file.FileUtil;
 import de.unkrig.commons.lang.AssertionUtil;
+import de.unkrig.commons.lang.ExceptionUtil;
 import de.unkrig.commons.lang.StringUtil;
 import de.unkrig.commons.lang.protocol.ConsumerWhichThrows;
 import de.unkrig.commons.lang.protocol.Longjump;
@@ -77,6 +83,7 @@ import de.unkrig.doclet.javadoc.Doccs.FieldDocc;
 import de.unkrig.doclet.javadoc.Doccs.MethodDocc;
 import de.unkrig.doclet.javadoc.Doccs.PackageDocc;
 import de.unkrig.doclet.javadoc.Doccs.ParamTagg;
+import de.unkrig.doclet.javadoc.Doccs.SeeTagg;
 import de.unkrig.doclet.javadoc.Doccs.ThrowsTagg;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -96,6 +103,18 @@ class JavadocDoclet {
         JavadocDoclet.FREEMARKER_CONFIGURATION.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
     }
 
+    private static final Comparator<? super ClassDoc>
+    NAME_COMPARATOR = new Comparator<ClassDoc>() {
+
+        @Override public int
+        compare(@Nullable ClassDoc cd1, @Nullable ClassDoc cd2) {
+            assert cd1 != null;
+            assert cd2 != null;
+
+            return cd1.name().compareTo(cd2.name());
+        }
+    };
+
     /**
      * See <a href="https://docs.oracle.com/javase/6/docs/technotes/guides/javadoc/doclet/overview.html">"Doclet
      * Overview"</a>.
@@ -110,6 +129,7 @@ class JavadocDoclet {
         if ("-footer".equals(option))      return 2;
         if ("-top".equals(option))         return 2;
         if ("-bottom".equals(option))      return 2;
+        if ("-notimestamp".equals(option)) return 1;
 
         return 0;
     }
@@ -147,6 +167,9 @@ class JavadocDoclet {
             } else
             if ("-bottom".equals(option[0])) {
                 dataModel.put("bottom", option[1]);
+            } else
+            if ("-notimestamp".equals(option[0])) {
+                dataModel.put("noTimestamp", true);
             } else
             {
 
@@ -231,10 +254,12 @@ class JavadocDoclet {
                     "package", packageDocc
                 ));
 
-                this.generate(packageName.replace('.',  '/') + "/package-frame.html", "package-frame.html.ftl", dm);
+                this.generate(packageName.replace('.',  '/') + "/package-frame.html",   "package-frame.html.ftl",   dm);
+                this.generate(packageName.replace('.',  '/') + "/package-summary.html", "package-summary.html.ftl", dm);
+                this.generate(packageName.replace('.',  '/') + "/package-tree.html",    "package-tree.html.ftl",    dm);
             }
 
-            Iterator<ClassDocc> it = packageDocc.getClasses().iterator();
+            Iterator<ClassDocc> it = packageDocc.getAllClasses().iterator();
             if (it.hasNext()) {
                 ClassDocc previousClassDocc = null;
                 ClassDocc classDocc         = it.next();
@@ -262,8 +287,91 @@ class JavadocDoclet {
                     classDocc         = nextClassDocc;
                 }
             }
+        }
     }
+
+    abstract
+    class MyAbstractDocc extends AbstractDocc {
+
+        public
+        MyAbstractDocc(Doc doc) { JavadocDoclet.this.doccs.super(doc); }
+
+        @Override public SeeTagg[]
+        getSeeTags() {
+            List<SeeTagg> result = new ArrayList<Doccs.SeeTagg>();
+            for (final SeeTag st : this.getDoc().seeTags()) {
+                result.add(new SeeTagg() {
+
+                    @Override public Docc
+                    getReference() {
+
+                        {
+                            MemberDoc rm = st.referencedMember();
+                            if (rm instanceof FieldDoc) {
+                                return JavadocDoclet.this.wrapField.transform((FieldDoc) rm);
+                            } else
+                            if (rm instanceof MethodDoc) {
+                                return JavadocDoclet.this.wrapMethod.transform((MethodDoc) rm);
+                            } else
+                            if (rm != null) {
+                                throw new AssertionError();
+                            }
+                        }
+                        {
+                            ClassDoc rc = st.referencedClass();
+                            if (rc != null) return JavadocDoclet.this.wrapClass.transform(rc);
+                        }
+                        {
+                            PackageDoc rp = st.referencedPackage();
+                            if (rp != null) {
+                                return JavadocDoclet.this.wrapPackage.transform(rp);
+                            }
+                        }
+
+                        throw new AssertionError();
+                    }
+
+                    @Override public String
+                    getLabel() { return st.label(); }
+                });
+            }
+
+            return result.toArray(new SeeTagg[result.size()]);
+        }
     }
+
+    private final Transformer<Type, ClassDocc>
+    wrapType = TransformerUtil.cache(new Transformer<Type, ClassDocc>() {
+
+        @Override
+        public ClassDocc
+        transform(final Type type) {
+
+            if (type instanceof ClassDoc) {
+                ClassDoc cd = (ClassDoc) type;
+                return new MyClassDoc(
+                    cd,                  // programElementDoc
+                    cd.typeParameters(), // typeParameters
+                    new Type[0],         // typeArguments
+                    cd.superclassType(), // superclassType
+                    cd.interfaceTypes()  // interfaceTypes
+                );
+            } else
+            if (type instanceof ParameterizedType) {
+                ParameterizedType pt = (ParameterizedType) type;
+                return new MyClassDoc(
+                    pt.asClassDoc(),     // programElementDoc
+                    new TypeVariable[0], // typeParameters
+                    pt.typeArguments(),  // typeArguments
+                    pt.superclassType(), // superclassType
+                    pt.interfaceTypes()  // interfaceTypes
+                );
+            } else
+            {
+                throw new AssertionError(type.getClass());
+            }
+        }
+    });
 
     private final Transformer<ClassDoc, ClassDocc>
     wrapClass = TransformerUtil.cache(new Transformer<ClassDoc, ClassDocc>() {
@@ -272,91 +380,235 @@ class JavadocDoclet {
         public ClassDocc
         transform(final ClassDoc classDoc) {
 
-            class MyClassDoc extends AbstractDocc implements ClassDocc {
+            return new MyClassDoc(
+                classDoc,                  // programElementDoc
+                classDoc.typeParameters(), // typeParameters
+                new Type[0],               // typeArguments
+                classDoc.superclassType(), // superclassType
+                classDoc.interfaceTypes()  // interfaceTypes
+            );
+        }
+    });
 
-                public MyClassDoc() { JavadocDoclet.this.doccs.super(classDoc); }
+    class MyClassDoc extends MyAbstractDocc implements ClassDocc {
 
-                @Override public String
-                getSimpleName() { return classDoc.name(); }
+        private final ProgramElementDoc programElementDoc;
+        private final TypeVariable[]    typeParameters;
+        private final Type[]            typeArguments;
+        @Nullable private final Type    superclassType;
+        private final Type[]            interfaceTypes;
 
-                @Override public String
-                getQualifiedName() { return classDoc.qualifiedName(); }
+        public
+        MyClassDoc(
+            ProgramElementDoc programElementDoc,
+            TypeVariable[]    typeParameters,
+            Type[]            typeArguments,
+            @Nullable Type    superclassType,
+            Type[]            interfaceTypes
+        ) {
+            super(programElementDoc);
+            this.programElementDoc = programElementDoc;
+            this.typeParameters    = typeParameters;
+            this.typeArguments     = typeArguments;
+            this.superclassType    = superclassType;
+            this.interfaceTypes    = interfaceTypes;
+        }
 
-                @Override public String
-                getHref() {
-                    StringBuilder sb = new StringBuilder();
+        @Override public String
+        toString() { return this.programElementDoc.toString(); }
 
-                    String cpn = classDoc.containingPackage().name();
-                    if (!cpn.isEmpty()) sb.append(cpn.replace('.', '/')).append('/');
+        @Override public String
+        toString(Doc ref) { return this.programElementDoc.name(); }
 
-                    return sb.append(classDoc.name()).append(".html").toString();
+        @Override public String
+        getTypeParameters() {
+
+            if (this.typeParameters.length == 0) return "";
+
+            StringBuilder sb = new StringBuilder("<").append(this.typeParameters[0].toString());
+            for (int i = 1; i < this.typeParameters.length; i++) {
+                sb.append(",").append(this.typeParameters[i].toString());
+            }
+            return sb.append('>').toString();
+        }
+
+        @Override public String
+        getTypeArguments() {
+
+            if (this.typeArguments.length == 0) return "";
+
+            StringBuilder sb = new StringBuilder("<").append(this.typeArguments[0].toString());
+            for (int i = 1; i < this.typeArguments.length; i++) {
+                sb.append(", ").append(this.typeArguments[i].toString());
+            }
+            return sb.append('>').toString();
+        }
+
+        @Override public String
+        getCategory() {
+            return (
+                this.programElementDoc.isAnnotationType() ? "annotation type" :
+                this.programElementDoc.isClass()          ? "class"           :
+                this.programElementDoc.isEnum()           ? "enum"            :
+                this.programElementDoc.isInterface()      ? "interface"       :
+                ExceptionUtil.<String>throwAssertionError(this.programElementDoc.getClass())
+            );
+        }
+
+        @Override public String
+        getSimpleName() { return this.programElementDoc.name(); }
+
+        @Override public String
+        getQualifiedName() { return this.programElementDoc.qualifiedName(); }
+
+        @Override public String
+        getHref() {
+            StringBuilder sb = new StringBuilder();
+
+            String cpn = this.programElementDoc.containingPackage().name();
+            if (!cpn.isEmpty()) sb.append(cpn.replace('.', '/')).append('/');
+
+            return sb.append(this.programElementDoc.name()).append(".html").toString();
+        }
+
+        @Override @Nullable public ClassDocc
+        getSuperclass() {
+
+            Type sct = this.superclassType;
+            if (sct == null || "java.lang.Object".equals(this.programElementDoc.qualifiedName())) return null;
+
+            return JavadocDoclet.this.wrapType.transform(sct);
+        }
+
+        @Override public List<ClassDocc>
+        getSuperclassChain() {
+            if (!this.programElementDoc.isClass()) return Collections.emptyList();
+
+            List<ClassDocc> result = new ArrayList<ClassDocc>();
+            for (ClassDocc scd = this.getSuperclass(); scd != null; scd = scd.getSuperclass()) {
+                result.add(scd);
+            }
+            return result;
+        }
+
+        @Override public Collection<ClassDocc>
+        getImplementedInterfaces() {
+            if (!this.programElementDoc.isClass()) return Collections.emptyList();
+
+            Collection<ClassDocc> result = new ArrayList<ClassDocc>();
+            for (Type it : this.interfaceTypes) {
+                ClassDocc i = JavadocDoclet.this.wrapType.transform(it);
+                result.add(i);
+                for (ClassDocc si : i.getAllSuperInterfaces()) {
+                    if (!result.contains(si)) result.add(si);
                 }
+            }
+            return result;
+        }
 
-                @Override public Collection<ClassDocc>
-                getBaseClassesAndInterfaces() {
+        @Override public Collection<ClassDocc>
+        getAllSuperInterfaces() {
+            if (!this.programElementDoc.isInterface()) return Collections.emptyList();
 
-                    List<ClassDocc> result = new ArrayList<ClassDocc>();
-
-                    for (ClassDocc c = this;;) {
-                        ClassDoc cd = (ClassDoc) c.getDoc();
-                        this.addInterfaceTypesOf(cd, result);
-
-                        ClassDoc sc = cd.superclass();
-                        if (sc == null) break;
-
-                        c = JavadocDoclet.this.wrapClass.transform(sc);
-                        result.add(c);
-
-                        // HACK: Only god knows why "Object" has superclass "Object"!?
-                        if ("java.lang.Object".equals(sc.qualifiedName())) break;
-                    }
-
-//                    if (classDoc.isClass() && !"java.lang.Object".equals(classDoc.qualifiedName())) {
-//                        result.add(JavadocDoclet.this.rootDoc.classNamed("java.lang.Object"));
-//                    }
-
-                    return result;
+            Collection<ClassDocc> result = new ArrayList<ClassDocc>();
+            for (Type it : this.interfaceTypes) {
+                ClassDocc i = JavadocDoclet.this.wrapType.transform(it);
+                result.add(i);
+                for (ClassDocc si : i.getAllSuperInterfaces()) {
+                    if (!result.contains(si)) result.add(si);
                 }
+            }
+            return result;
+        }
 
-                private void
-                addInterfaceTypesOf(ClassDoc clasS, List<ClassDocc> result) {
+        @Override public Collection<ClassDocc>
+        getKnownSubinterfaces() {
 
-                    for (ClassDoc interfacE : clasS.interfaces()) {
-
-                        if (result.contains(interfacE)) continue;
-
-                        result.add(JavadocDoclet.this.wrapClass.transform(interfacE));
-
-                        this.addInterfaceTypesOf(interfacE, result);
-                    }
+            Collection<ClassDocc> result = new ArrayList<ClassDocc>();
+            for (ClassDoc cd : JavadocDoclet.this.rootDoc.classes()) {
+                if (
+                    cd.isInterface()
+                    && cd.subclassOf((ClassDoc) this.programElementDoc)
+                    && cd != this.programElementDoc
+                ) {
+                    result.add(JavadocDoclet.this.wrapClass.transform(cd));
                 }
+            }
+            return result;
+        }
 
-                @Override public Collection<MethodDocc>
-                getMethods() {
+        @Override public Collection<ClassDocc>
+        getBaseClassesAndInterfaces() {
 
-                    return IterableUtil.asCollection(
-                        IterableUtil.transform(Arrays.asList(classDoc.methods()), JavadocDoclet.this.wrapMethod)
-                    );
-                }
+            if (this.programElementDoc.isInterface()) return this.getAllSuperInterfaces();
 
-                @Override public Collection<MethodDocc>
-                getMethodsSorted() { return CollectionUtil.sorted(this.getMethods()); }
-
-                @Override public Collection<FieldDocc>
-                getConstants() {
-
-                    return IterableUtil.asCollection(IterableUtil.filter(
-                        IterableUtil.transform(Arrays.asList(classDoc.fields()), JavadocDoclet.this.wrapField),
-                        new Predicate<FieldDocc>() {
-                            @Override public boolean evaluate(FieldDocc fieldDocc) { return fieldDocc.isConstant(); }
-                        }
-                    ));
+            Collection<ClassDocc> result = this.getImplementedInterfaces();
+            for (ClassDocc sc : this.getSuperclassChain()) {
+                result.add(sc);
+                for (ClassDocc i : sc.getImplementedInterfaces()) {
+                    if (!result.contains(i)) result.add(i);
                 }
             }
 
-            return new MyClassDoc();
+            return result;
         }
-    });
+
+        @Override public Collection<MethodDocc>
+        getMethods() {
+
+            return IterableUtil.asCollection(
+                IterableUtil.transform(
+                    Arrays.asList(((ClassDoc) this.programElementDoc).methods()),
+                    JavadocDoclet.this.wrapMethod
+                )
+            );
+        }
+
+        @Override public Collection<MethodDocc>
+        getMethodsSorted() { return CollectionUtil.sorted(this.getMethods()); }
+
+        @Override public Collection<FieldDocc>
+        getFields() {
+
+            return IterableUtil.asCollection(
+                IterableUtil.transform(
+                    Arrays.asList(((ClassDoc) this.programElementDoc).fields()),
+                    JavadocDoclet.this.wrapField
+                )
+            );
+        }
+
+        @Override public Collection<FieldDocc>
+        getFieldsSorted() { return CollectionUtil.sorted(this.getFields()); }
+
+        @Override public Collection<FieldDocc>
+        getConstants() {
+
+            return IterableUtil.asCollection(IterableUtil.filter(
+                this.getFields(),
+                new Predicate<FieldDocc>() {
+                    @Override public boolean evaluate(FieldDocc fieldDocc) { return fieldDocc.isConstant(); }
+                }
+            ));
+        }
+
+
+        @Override public Collection<ClassDocc>
+        getNestedClassesAndInterfaces() {
+
+            return IterableUtil.asCollection(
+                IterableUtil.transform(
+                    Arrays.asList(((ClassDoc) this.programElementDoc).innerClasses()),
+                    JavadocDoclet.this.wrapClass
+                )
+            );
+        }
+
+        @Override @Nullable public String
+        getTitle() {
+            return this.getCategory() + " in " + this.programElementDoc.containingPackage().name();
+        }
+    }
 
     private <T extends ClassDoc> Collection<ClassDocc>
     wrapClasses(Iterable<T> classDocs) {
@@ -370,9 +622,20 @@ class JavadocDoclet {
         public FieldDocc
         transform(final FieldDoc fieldDoc) {
 
-            class MyFieldDocc extends AbstractDocc implements FieldDocc {
+            class MyFieldDocc extends MyAbstractDocc implements FieldDocc {
 
-                public MyFieldDocc() { JavadocDoclet.this.doccs.super(fieldDoc); }
+                public MyFieldDocc() { super(fieldDoc); }
+
+                @Override public String
+                toString(Doc ref) {
+                    ClassDoc cc = fieldDoc.containingClass();
+                    if (
+                        cc == ref
+                        || (ref instanceof ProgramElementDoc && ((ProgramElementDoc) ref).containingClass() == cc)
+                    ) return fieldDoc.name();
+
+                    return fieldDoc.containingClass().simpleTypeName() + '.' + fieldDoc.name();
+                }
 
                 @Override public boolean
                 isConstant() {
@@ -404,9 +667,39 @@ class JavadocDoclet {
         public MethodDocc
         transform(final MethodDoc methodDoc) {
 
-            class MyMethodDocc extends AbstractDocc implements MethodDocc {
+            class MyMethodDocc extends MyAbstractDocc implements MethodDocc {
 
-                public MyMethodDocc() { JavadocDoclet.this.doccs.super(methodDoc); }
+                public MyMethodDocc() { super(methodDoc); }
+
+                @Override public String
+                toString(Doc ref) {
+                    StringBuilder sb = new StringBuilder();
+
+                    ClassDoc cc = methodDoc.containingClass();
+                    if (!(
+                        cc == ref
+                        || (ref instanceof ProgramElementDoc && ((ProgramElementDoc) ref).containingClass() == cc)
+                    )) sb.append(methodDoc.containingClass().simpleTypeName()).append('.');
+
+                    sb.append(methodDoc.name()).append('(');
+                    for (int i = 0; i < methodDoc.parameters().length; i++) {
+                        if (i > 0) sb.append(", ");
+                        Type     pt = methodDoc.parameters()[i].type();
+                        ClassDoc cd = pt.asClassDoc();
+                        if (cd == null) {
+                            sb.append(pt.toString());
+                        } else
+                        if ("java.lang".equals(cd.containingPackage().name())) {
+                            sb.append(cd.name());
+                        } else
+                        {
+                            sb.append(cd.qualifiedName());
+                        }
+                    }
+                    sb.append(')');
+
+                    return sb.toString();
+                }
 
                 @Override public int
                 compareTo(@Nullable Docc o) {
@@ -506,7 +799,8 @@ class JavadocDoclet {
                             sb2.append(pt.qualifiedTypeName());
                         } else
                         {
-                            // "type().qualifiedTypeName()" => "java.lang.Class", "java.lang.String", "java.lang.Throwable"
+                            // "type().qualifiedTypeName()" => "java.lang.Class", "java.lang.String",
+                            // "java.lang.Throwable"
                             sb1.append(pt.qualifiedTypeName());
                             sb2.append(pt.qualifiedTypeName());
                         }
@@ -611,9 +905,12 @@ class JavadocDoclet {
         public PackageDocc
         transform(final PackageDoc packageDoc) {
 
-            class MyPackageDocc extends AbstractDocc implements PackageDocc {
+            class MyPackageDocc extends MyAbstractDocc implements PackageDocc {
 
-                public MyPackageDocc() { JavadocDoclet.this.doccs.super(packageDoc); }
+                public MyPackageDocc() { super(packageDoc); }
+
+                @Override public String
+                toString(Doc ref) { return packageDoc.name(); }
 
                 @Override public Collection<ClassDocc>
                 getClassesAndInterfacesWithConstants() {
@@ -629,8 +926,24 @@ class JavadocDoclet {
                 }
 
                 @Override public Collection<ClassDocc>
+                getAllClasses() {
+
+                    ClassDoc[] allClasses = packageDoc.allClasses();
+                    Arrays.sort(allClasses, JavadocDoclet.NAME_COMPARATOR);
+                    return JavadocDoclet.this.wrapClasses(Arrays.asList(allClasses));
+                }
+
+                @Override public Collection<ClassDocc>
                 getAnnotationTypes() {
                     return JavadocDoclet.this.wrapClasses(Arrays.asList(packageDoc.annotationTypes()));
+                }
+
+                @Override public Collection<ClassDocc>
+                getClasses() {
+
+                    ClassDoc[] ordinaryClasses = packageDoc.ordinaryClasses();
+                    Arrays.sort(ordinaryClasses, JavadocDoclet.NAME_COMPARATOR);
+                    return JavadocDoclet.this.wrapClasses(Arrays.asList(ordinaryClasses));
                 }
 
                 @Override public Collection<ClassDocc>
@@ -651,20 +964,6 @@ class JavadocDoclet {
                 @Override public Collection<ClassDocc>
                 getInterfaces() {
                     return JavadocDoclet.this.wrapClasses(Arrays.asList(packageDoc.interfaces()));
-                }
-
-                @Override public Collection<ClassDocc>
-                getClasses() {
-
-                    ClassDoc[] ordinaryClasses = packageDoc.ordinaryClasses();
-
-                    Arrays.sort(ordinaryClasses, new Comparator<ClassDoc>() {
-
-                        @Override public int
-                        compare(ClassDoc cd1, ClassDoc cd2) { return cd1.name().compareTo(cd2.name()); }
-                    });
-
-                    return JavadocDoclet.this.wrapClasses(Arrays.asList(ordinaryClasses));
                 }
 
                 @Override public String

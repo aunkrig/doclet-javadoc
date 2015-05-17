@@ -27,11 +27,14 @@
 package de.unkrig.doclet.javadoc;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.regex.Pattern;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.commons.doclet.html.Html;
@@ -81,30 +84,84 @@ class Doccs {
          */
         String getDescription();
 
+        SeeTagg[] getSeeTags();
+
         /**
          * @return The (home-relative) URL that links to the documentation of this element
          */
         String getHref();
+
+        /**
+         * @return A human-readable text, as displayed in "{@code @see}" tags, depending on the <var>ref</var>
+         * @see    ClassDocc#toString(Doc)
+         * @see    FieldDocc#toString(Doc)
+         * @see    MethodDocc#toString(Doc)
+         * @see    PackageDocc#toString(Doc)
+         */
+        String toString(Doc ref);
+
+        /**
+         * Links to some elements have a "{@code title="..."}" attribute.
+         */
+        @Nullable String getTitle();
     }
 
     /**
-     * A wrapper for {@link ClassDoc} which adds painfully missing bean getters.
+     * A wrapper for a {@link ClassDoc} or a {@link ParameterizedType}, which adds painfully missing bean getters.
      */
     public
     interface ClassDocc extends Docc {
 
         /**
-         * @return The "simple name" getter; useful for sorting by simple name within FTL
+         * @return The simple class name
+         * @see    Docc#toString(Doc)
+         */
+        @Override String toString(Doc ref);
+
+        /**
+         * @return E.g. "{@code <K, V>}" or ""
+         */
+        String getTypeParameters();
+
+        /**
+         * @return E.g. "{@code <String, java.util.List>}" or ""
+         */
+        String getTypeArguments();
+
+        /**
+         * @return "class", "interface", "annotation type", ...
+         */
+        String getCategory();
+
+        /**
+         * @return The "simple name", e.g. "{@code Outer.Inner}"; useful for sorting by simple name within FTL
          */
         String getSimpleName();
 
         /**
-         * @return The "qualified name" getter; useful for sorting by simple name within FTL
+         * @return The "qualified name", e.g. "{@code pkg.Outer.Inner}"; useful for sorting by simple name within FTL
          */
         String getQualifiedName();
 
+        @Nullable ClassDocc getSuperclass();
+
         /**
-         * @return The types that this class or interface extends and implements, in "javadoc order"
+         * @return The superclass chain, starting with the immediate superclass
+         */
+        List<ClassDocc> getSuperclassChain();
+
+        /**
+         * @return The interfaces that this class (directly and indirectly) implements, in "javadoc order"
+         */
+        Collection<ClassDocc> getImplementedInterfaces();
+
+        /**
+         * @return The interfaces that this interface (directly and indirectly) extends, in "javadoc order"
+         */
+        Collection<ClassDocc> getAllSuperInterfaces();
+
+        /**
+         * @return The classes and interfaces that this class or interface extends and implements, in "javadoc order"
          */
         Collection<ClassDocc> getBaseClassesAndInterfaces();
 
@@ -119,10 +176,27 @@ class Doccs {
         Collection<MethodDocc> getMethodsSorted();
 
         /**
+         * @return The fields declared in this class or interface, in declaration order
+         */
+        Collection<FieldDocc> getFields();
+
+        /**
+         * @return The fields declared in this class or interface, in "javadoc order"
+         */
+        Collection<FieldDocc> getFieldsSorted();
+
+        /**
          * @return The "constants" declared in this class or interface
          * @see    FieldDocc#isConstant()
          */
         Collection<FieldDocc> getConstants();
+
+        /**
+         * @return All known interfaces that extend this interface
+         */
+        Collection<ClassDocc> getKnownSubinterfaces();
+
+        Collection<ClassDocc> getNestedClassesAndInterfaces();
     }
 
     /**
@@ -130,6 +204,13 @@ class Doccs {
      */
     public
     interface FieldDocc extends Docc {
+
+        /**
+         * @return The field name iff ref is in the same class, otherwise "<var>simple-class-name</var>{@code
+         *         .}<var>field-name</var>"
+         * @see    Docc#toString(Doc)
+         */
+        @Override String toString(Doc ref);
 
         /**
          * @return Whether this field poses a "constant"
@@ -149,11 +230,25 @@ class Doccs {
         @Nullable String getParameterComment();
     }
 
+    public
+    interface SeeTagg {
+        String           getLabel();
+        Docc             getReference();
+    }
+
     /**
      * A wrapper for {@link MethodDoc} which adds painfully missing bean getters.
      */
     public
     interface MethodDocc extends Docc {
+
+        /**
+         * @return "<var>method-name</var>{@code (}<var>qualified-parameter-types</var>{@code )}" iff ref is in the
+         *         same class, otherwise "<var>simple-class-name</var>{@code .}<var>method-name</var>{@code
+         *         (}<var>qualified-parameter-types</var>{@code )}"
+         * @see    Docc#toString(Doc)
+         */
+        @Override String toString(Doc ref);
 
         /**
          * @return The HTML markup of the return value description
@@ -188,15 +283,32 @@ class Doccs {
     interface PackageDocc extends Docc {
 
         /**
+         * @return The package name
+         * @see    Docc#toString(Doc)
+         */
+        @Override String toString(Doc ref);
+
+        /**
          * @return The subset of classes and interfaces which declare at least one "constant"
          * @see    FieldDocc#isConstant()
          */
         Collection<ClassDocc> getClassesAndInterfacesWithConstants();
 
         /**
+         * @return The classes, annotation types, enums, errors, exceptions and interfaces included in this package
+         */
+        Collection<ClassDocc> getAllClasses();
+
+        /**
          * @return The annotation types included in this package
          */
         Collection<ClassDocc> getAnnotationTypes();
+
+        /**
+         * @return The classes (excluding annotation types, enums, errors, exceptions and interfaces) included in this
+         *         package
+         */
+        Collection<ClassDocc> getClasses();
 
         /**
          * @return The enums included in this package
@@ -217,12 +329,6 @@ class Doccs {
          * @return The interfaces included in this package
          */
         Collection<ClassDocc> getInterfaces();
-
-        /**
-         * @return The classes (excluding annotation types, enums, errors, exceptions and interfaces) included in this
-         *         package
-         */
-        Collection<ClassDocc> getClasses();
     }
 
     /**
@@ -259,7 +365,10 @@ class Doccs {
         getFirstSentenceOfDescription() {
 
             try {
-                return Doccs.HTML.fromTags(this.doc.firstSentenceTags(), this.doc, Doccs.this.rootDoc);
+                String result = Doccs.HTML.fromTags(this.doc.firstSentenceTags(), this.doc, Doccs.this.rootDoc);
+                result = Doccs.ANY_BLOCK_TAG.matcher(result).replaceAll("");
+//                result = Doccs.WHITESPACE.matcher(result).replaceAll(" ");
+                return result;
             } catch (Longjump l) {
                 return "???";
             }
@@ -274,5 +383,15 @@ class Doccs {
                 return "???";
             }
         }
+
+        @Override @Nullable public String
+        getTitle() { return null; }
     }
+
+    private static final Pattern
+    ANY_BLOCK_TAG = Pattern.compile((
+        "</?(?:address|article|aside|audio|blockquote|canvas|dd|div|dl|dt|fieldset|figcaption|figure|footer"
+        + "|form|h1|h2|h3|h4|h5|h6|header|hgroup|hr|main|nav|noscript|ol|output|p|pre|section|table|tfoot|ul|video"
+        + ")\\b.*?>"
+    ), Pattern.CASE_INSENSITIVE);
 }
