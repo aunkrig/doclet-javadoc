@@ -701,6 +701,9 @@ class JavadocDoclet {
                     return sb.toString();
                 }
 
+                @Override public ClassDocc
+                getReturnType() { return JavadocDoclet.this.wrapType.transform(methodDoc.returnType()); }
+
                 @Override public int
                 compareTo(@Nullable Docc o) {
 

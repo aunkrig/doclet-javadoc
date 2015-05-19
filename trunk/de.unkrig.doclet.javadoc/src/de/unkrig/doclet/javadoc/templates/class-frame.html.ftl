@@ -129,8 +129,6 @@ ${top}
 <h2 title="${class.category?cap_first} ${class.name}" class="title">${class.category?cap_first} ${class.toString(class.doc)}${class.typeParameters?html}</h2>
 </div>
 <div class="contentContainer">
-
-
 [#if class.superclassChain?size > 0]
  [#list class.superclassChain?reverse as sc]
 <ul class="inheritance">
@@ -145,13 +143,9 @@ ${top}
 </ul>
  [/#list]
 [/#if]
-
-
 <div class="description">
 <ul class="blockList">
 <li class="blockList">
-
-
 [#if class.doc.typeParamTags()?size > 0]
 <dl>
 <dt><span class="paramLabel">Type Parameters:</span></dt>
@@ -160,8 +154,6 @@ ${top}
  [/#list]
 </dl>
 [/#if]
-
-
 [#if class.knownSubinterfaces?size > 0]
 <dl>
 <dt>All Known Subinterfaces:</dt>
@@ -170,8 +162,6 @@ ${top}
  [/#list]
 </dl>
 [/#if]
-
-
 <hr>
 <br>
 <pre>[#rt]
@@ -235,8 +225,6 @@ extends ${class.superclass.qualifiedName}${class.superclass.typeArguments}[#rt]
 </li>
 </ul>
 [/#if]
-
-
 [#if class.nestedClassesAndInterfaces?size > 0]
 <!-- ======== NESTED CLASS SUMMARY ======== -->
 <ul class="blockList">
@@ -273,8 +261,6 @@ extends ${class.superclass.qualifiedName}${class.superclass.typeArguments}[#rt]
 </li>
 </ul>
 [/#if]
-
-
 [#if class.doc.methods()?size > 0]
 <!-- ========== METHOD SUMMARY =========== -->
 <ul class="blockList">
@@ -283,11 +269,11 @@ extends ${class.superclass.qualifiedName}${class.superclass.typeArguments}[#rt]
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary" border="0" cellpadding="3" cellspacing="0" summary="Method Summary table, listing methods, and an explanation">
-[#if class.doc.isClass()]
+ [#if class.doc.isClass()]
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t1" class="tableTab"><span><a href="javascript:show(1);">Static Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-[#else]
+ [#else]
 <caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t3" class="tableTab"><span><a href="javascript:show(4);">Abstract Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
-[/#if]
+ [/#if]
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colLast" scope="col">Method and Description</th>
@@ -297,24 +283,34 @@ extends ${class.superclass.qualifiedName}${class.superclass.typeArguments}[#rt]
   [#lt]<td class="colFirst"><code>[#rt]
   [#lt]${m.doc.isStatic()?string("static ", "")}[#rt]
   [#if m.doc.typeParameters()?size > 0]
-   &lt;[#t]
+   [#lt]&lt;[#rt]
    [#list m.doc.typeParameters() as tp]
-    ${tp?string?html}${tp_has_next?string(",", "")}[#t]
+    [#lt]${tp?string?html}${tp_has_next?string(",", "")}[#rt]
    [/#list]
-   &gt;[#t]
+   [#lt]&gt;[#rt]
    [#if m.doc.typeParameters()[0]?string?length > 10 || m.doc.typeParameters()?size > 1]
-    <br>[#t]
+    [#lt]<br>[#rt]
    [#else]
-    &nbsp;[#t]
+    [#lt]&nbsp;[#rt]
    [/#if]
   [/#if]
-  [#lt]${m.doc.returnType().asTypeVariable()???string(m.doc.returnType().qualifiedTypeName()?html, m.doc.returnType()?html)}</code></td>
+  [#if m.doc.returnType().asTypeVariable()??]
+   [#lt]${m.doc.returnType().qualifiedTypeName()?html}</code></td>
+  [#elseif m.doc.returnType().isPrimitive() || m.doc.returnType().dimension() != ""]
+   [#lt]${m.doc.returnType()?html}</code></td>
+  [#else]
+   [#lt]<a href="${home}${m.returnType.href}" title="${m.returnType.title}">${m.doc.returnType().simpleTypeName()}</a>${m.returnType.typeArguments?html}</code></td>
+  [/#if]
   [#lt]<td class="colLast"><code><span class="memberNameLink"><a href="${home}${m.href}">${m.name}</a></span>([#rt]
   [#list m.doc.parameters() as p]
    [#if p.type().asTypeVariable()??]
-    [#lt]<a href="${home}${class.href}" title="type parameter in ${class.simpleName}">${p.type()}</a>[#rt]
+    [#if class.doc.isInterface()]
+     [#lt]<a href="${home}${class.href}" title="type parameter in ${class.simpleName}">${p.type()}</a>[#rt]
+    [#else]
+     [#lt]${p.type().typeName()}[#rt]
+    [/#if]
    [#else]
-    [#lt]BB${p.type()?html}[#rt]
+    [#lt]${p.type()?html}[#rt]
    [/#if]
    [#lt]&nbsp;${p.name()}[#rt]
    [#if p_has_next]
@@ -406,34 +402,39 @@ extends ${class.superclass.qualifiedName}${class.superclass.typeArguments}[#rt]
 <ul class="${m_has_next?string("blockList", "blockListLast")}">
 <li class="blockList">
 <h4>${m.name}</h4>
-[#assign indent = m.doc.modifiers()]
-[#if m.doc.typeParameters()?size > 0]
- [#assign indent = indent + "<"]
- [#list m.doc.typeParameters() as tp]
-  [#assign indent = indent + tp?string]
-  [#if tp_has_next]
-   [#assign indent = indent + ","]
-  [/#if]
- [/#list]
- [#assign indent = indent + ">"]
-[/#if]
-[#assign indent = indent + m.doc.returnType().toString() + " " + m.name]
-<pre>[#rt]
+ [#assign indent = m.doc.modifiers()]
+ [#if m.doc.typeParameters()?size > 0]
+  [#assign indent = indent + "<"]
+  [#list m.doc.typeParameters() as tp]
+   [#assign indent = indent + tp?string]
+   [#if tp_has_next]
+    [#assign indent = indent + ","]
+   [/#if]
+  [/#list]
+  [#assign indent = indent + ">"]
+ [/#if]
+ [#assign indent = indent + m.doc.returnType().toString() + " " + m.name]
+ [#lt]<pre>[#rt]
  [#list m.doc.annotations() as a]
-@${a.annotationType().simpleTypeName()}
+  [#list a.annotationType().annotations() as aa]
+   [#if aa.annotationType().qualifiedName() == "java.lang.annotation.Documented"]
+    [#lt]@${a.annotationType().simpleTypeName()}
+    [#break]
+   [/#if]
+  [/#list]
  [/#list]
  [#if !class.doc.isInterface()]
-${m.doc.modifiers()}&nbsp;[#rt]
+  [#lt]${m.doc.modifiers()}&nbsp;[#rt]
  [/#if]
  [#if m.doc.typeParameters()?size > 0]
-  &lt;[#t]
+  [#lt]&lt;[#rt]
   [#list m.doc.typeParameters() as tp]
-   ${tp?string?html}${tp_has_next?string(",", "")}[#t]
+   [#lt]${tp?string?html}${tp_has_next?string(",", "")}[#rt]
   [/#list]
-  &gt;&nbsp;[#t]
+  [#lt]&gt;&nbsp;[#rt]
  [/#if]
  [#if m.doc.returnType().asTypeVariable()??]
-  [#lt]<a href="${home}${class.href}" title="type parameter in ${class.simpleName}">${m.doc.returnType()}</a>[#rt]
+  [#lt]${m.doc.returnType().typeName()}[#rt]
  [#else]
   [#lt]${m.doc.returnType()}[#rt]
  [/#if]
@@ -441,10 +442,14 @@ ${m.doc.modifiers()}&nbsp;[#rt]
  [#list m.doc.parameters() as p]
   [#list p.annotations() as a]
    @${a.annotationType().simpleTypeName()}[#lt]
-[#rt]${""?left_pad(indent?length + 2)}[#rt]
+   [#lt]${""?left_pad(indent?length + 2)}[#rt]
   [/#list]
   [#if p.type().asTypeVariable()??]
-   [#lt]<a href="${home}${class.href}" title="type parameter in ${class.simpleName}">${p.type()}</a>[#rt]
+   [#if class.doc.isInterface()]
+    [#lt]<a href="${home}${class.href}" title="type parameter in ${class.simpleName}">${p.type()}</a>[#rt]
+   [#else]
+    [#lt]${p.type().typeName()}[#rt]
+   [/#if]
   [#else]
    [#lt]${p.type()?html}[#rt]
   [/#if]

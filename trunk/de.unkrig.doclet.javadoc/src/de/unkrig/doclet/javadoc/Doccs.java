@@ -250,6 +250,8 @@ class Doccs {
          */
         @Override String toString(Doc ref);
 
+        ClassDocc getReturnType();
+
         /**
          * @return The HTML markup of the return value description
          */
