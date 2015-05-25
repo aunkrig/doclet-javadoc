@@ -27,8 +27,10 @@
 package de.unkrig.doclet.javadoc;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -85,6 +87,8 @@ import de.unkrig.doclet.javadoc.Doccs.PackageDocc;
 import de.unkrig.doclet.javadoc.Doccs.ParamTagg;
 import de.unkrig.doclet.javadoc.Doccs.SeeTagg;
 import de.unkrig.doclet.javadoc.Doccs.ThrowsTagg;
+import de.unkrig.doclet.javadoc.templates.ClassFrame;
+import de.unkrig.notemplate.NoTemplate;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
@@ -143,33 +147,39 @@ class JavadocDoclet {
     public static boolean
     start(final RootDoc rootDoc) throws IOException {
 
-        File                destination = new File(".");
-        Map<String, Object> dataModel   = new HashMap<String, Object>();
+        File    destination = new File(".");
+        String  windowTitle = null;
+        String  docTitle    = null;
+        String  header      = null;
+        String  footer      = null;
+        String  top         = null;
+        String  bottom      = null;
+        boolean noTimestamp = false;
 
         for (String[] option : rootDoc.options()) {
             if ("-d".equals(option[0])) {
                 destination = new File(option[1]);
             } else
             if ("-windowtitle".equals(option[0])) {
-                dataModel.put("windowTitle", option[1]);
+                windowTitle = option[1];
             } else
             if ("-doctitle".equals(option[0])) {
-                dataModel.put("docTitle", option[1]);
+                docTitle = option[1];
             } else
             if ("-header".equals(option[0])) {
-                dataModel.put("header", option[1]);
+                header = option[1];
             } else
             if ("-footer".equals(option[0])) {
-                dataModel.put("footer", option[1]);
+                footer = option[1];
             } else
             if ("-top".equals(option[0])) {
-                dataModel.put("top", option[1]);
+                top = option[1];
             } else
             if ("-bottom".equals(option[0])) {
-                dataModel.put("bottom", option[1]);
+                bottom = option[1];
             } else
             if ("-notimestamp".equals(option[0])) {
-                dataModel.put("noTimestamp", true);
+                noTimestamp = true;
             } else
             {
 
@@ -179,30 +189,75 @@ class JavadocDoclet {
             }
         }
 
-        dataModel.put("generationDate", new Date());
-
-        new JavadocDoclet(rootDoc, destination).start2(dataModel);
+        new JavadocDoclet(
+            rootDoc,
+            destination,
+            windowTitle,
+            docTitle,
+            header,
+            footer,
+            top,
+            bottom,
+            noTimestamp
+        ).start2();
 
         return true;
     }
 
     // ------------------------------
 
-    private final RootDoc rootDoc;
-    private final File    destination;
-    private final Doccs   doccs;
+    private final RootDoc             rootDoc;
+    private final File                destination;
+    private final Map<String, Object> dataModel;
+
+    private final Doccs doccs;
 
     private static final Html HTML = new Html(Html.STANDARD_LINK_MAKER);
 
+    /**
+     * @param destination Target directory where the document files are created
+     * @param windowTitle    The argument of the "-windowtitle" command line option
+     * @param docTitle
+     * @param header         The argument of the "-header" command line option
+     * @param footer         The argument of the "-footer" command line option
+     * @param top            The argument of the "-top" command line option
+     * @param bottom
+     * @param noTimestamp    Whether the "-notimestamp" command line option is given
+
+     */
     private
-    JavadocDoclet(RootDoc rootDoc, File destination) {
+    JavadocDoclet(
+        RootDoc           rootDoc,
+        File              destination,
+        @Nullable String  windowTitle,
+        @Nullable String  docTitle,
+        @Nullable String  header,
+        @Nullable String  footer,
+        @Nullable String  top,
+        @Nullable String  bottom,
+        boolean           noTimestamp
+    ) {
         this.rootDoc     = rootDoc;
         this.destination = destination;
-        this.doccs       = new Doccs(rootDoc);
+
+        {
+            Map<String, Object> m = new HashMap<String, Object>();
+            m.put("windowTitle",    windowTitle);
+            m.put("docTitle",       docTitle);
+            m.put("header",         header);
+            m.put("footer",         footer);
+            m.put("top",            top);
+            m.put("bottom",         bottom);
+            m.put("noTimestamp",    noTimestamp);
+            m.put("generationDate", new Date());
+            this.dataModel = Collections.unmodifiableMap(m);
+        }
+
+        this.doccs = new Doccs(rootDoc);
     }
 
     private void
-    start2(Map<String, Object> dataModel) throws IOException {
+    start2() throws IOException {
 
         Set<PackageDocc> allPackages;
         Set<ClassDocc>   allClassesAndInterfaces;
@@ -230,7 +285,7 @@ class JavadocDoclet {
         }
 
         {
-            Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
+            Map<String, Object> dm = MapUtil.combine(this.dataModel, MapUtil.<String, Object>fromMappings(
                 "allClassesAndInterfaces", allClassesAndInterfaces,
                 "allPackages",             allPackages
             ));
@@ -242,15 +297,15 @@ class JavadocDoclet {
             this.generate("allclasses-noframe.html", dm);
             this.generate("constant-values.html",    dm);
             this.generate("overview-summary.html",   dm);
-            this.generate("script.js",               dm);
         }
 
         for (PackageDocc packageDocc : allPackages) {
             String packageName = packageDocc.getName();
 
+            String home = StringUtil.repeat(packageName.split("\\.").length, "../");
             {
-                Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
-                    "home",    StringUtil.repeat(packageName.split("\\.").length, "../"),
+                Map<String, Object> dm = MapUtil.combine(this.dataModel, MapUtil.<String, Object>fromMappings(
+                    "home",    home,
                     "package", packageDocc
                 ));
 
@@ -268,18 +323,39 @@ class JavadocDoclet {
 
                     ClassDoc classDoc = (ClassDoc) classDocc.getDoc();
 
-                    Map<String, Object> dm = MapUtil.combine(dataModel, MapUtil.<String, Object>fromMappings(
-                        "home",          StringUtil.repeat(packageName.split("\\.").length, "../"),
-                        "previousClass", previousClassDocc,
-                        "class",         classDocc,
-                        "nextClass",     nextClassDocc
-                    ));
+                    // Create per-class document.
+                    {
+                        File file = new File(
+                            this.destination,
+                            packageName.replace('.',  '/') + '/' + classDoc.name() + ".html"
+                        );
 
-                    this.generate(
-                        packageName.replace('.',  '/') + '/' + classDoc.name() + ".html",
-                        "class-frame.html.ftl",
-                        dm
-                    );
+                        Writer w = new FileWriter(file);
+                        try {
+                            NoTemplate.newTemplate(ClassFrame.class, w).render(
+                                this.rootDoc,
+                                (Boolean) this.dataModel.get("noTimestamp"),
+                                (Date) this.dataModel.get("generationDate"),
+                                (String) this.dataModel.get("windowTitle"),
+                                previousClassDocc == null ? null : (ClassDoc) previousClassDocc.getDoc(),
+                                classDoc,
+                                nextClassDocc == null ? null : (ClassDoc) nextClassDocc.getDoc(),
+                                home,
+                                (String) this.dataModel.get("top"),
+                                (String) this.dataModel.get("bottom"),
+                                (String) this.dataModel.get("header"),
+                                (String) this.dataModel.get("footer")
+                            );
+                            w.close();
+                        } finally {
+                            try { w.close(); } catch (Exception e) {}
+                        }
+                    }
+//                    this.generate(
+//                        packageName.replace('.',  '/') + '/' + classDoc.name() + ".html",
+//                        "class-frame.html.ftl",
+//                        dm
+//                    );
 
                     if (nextClassDocc == null) break;
 
