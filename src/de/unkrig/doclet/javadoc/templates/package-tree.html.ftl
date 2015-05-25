@@ -144,6 +144,8 @@ TOP
 <!--   -->
 </a></div>
 <!-- ======== END OF BOTTOM NAVBAR ======= -->
-<p class="legalCopy"><small>BOTTOM</small></p>
+[#if bottom??]
+<p class="legalCopy"><small>${bottom}</small></p>
+[/#if]
 </body>
 </html>
