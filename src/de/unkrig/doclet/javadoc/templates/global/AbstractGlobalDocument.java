@@ -24,11 +24,31 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+package de.unkrig.doclet.javadoc.templates.global;
+
+import java.util.SortedSet;
+
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.RootDoc;
+
+import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+import de.unkrig.notemplate.NoTemplate;
+
 /**
- * A doclet that generates documentation for Java packages, classes, and so forth.
+ * Base class for all "global" documents, i.e. the documents that are not per-package nor per-class.
  */
-@NotNullByDefault
-package de.unkrig.doclet.javadoc.templates;
+public abstract
+class AbstractGlobalDocument extends NoTemplate {
 
-import de.unkrig.commons.nullanalysis.NotNullByDefault;
-
+    /**
+     * Renders this global document.
+     */
+    public abstract void
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    );
+}

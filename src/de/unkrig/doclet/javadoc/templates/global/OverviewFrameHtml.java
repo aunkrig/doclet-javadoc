@@ -24,11 +24,49 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * A doclet that generates documentation for Java packages, classes, and so forth.
- */
-@NotNullByDefault
-package de.unkrig.doclet.javadoc.templates;
+package de.unkrig.doclet.javadoc.templates.global;
 
-import de.unkrig.commons.nullanalysis.NotNullByDefault;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
 
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.RootDoc;
+
+import de.unkrig.commons.doclet.Docs;
+import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+import de.unkrig.doclet.javadoc.templates.include.TopHtml;
+
+public
+class OverviewFrameHtml extends AbstractGlobalDocument {
+
+    @Override public void
+    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+
+        this.include(TopHtml.class).render("Overview List", options, "stylesheet.css");
+
+        this.l(
+"<h1 title=\"HEADER\" class=\"bar\">HEADER</h1>",
+"<div class=\"indexHeader\"><a href=\"allclasses-frame.html\" target=\"packageFrame\">All Classes</a></div>",
+"<div class=\"indexContainer\">",
+"<h2 title=\"Packages\">Packages</h2>",
+"<ul title=\"Packages\">"
+        );
+        List<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
+        Collections.sort(aps, Docs.DOCS_BY_NAME_COMPARATOR);
+        for (PackageDoc p : aps) {
+            this.l(
+"<li><a href=\"" + p.name().replace('.', '/') + "/package-frame.html\" target=\"packageFrame\">" + p.name() + "</a></li>"
+            );
+        }
+        this.l(
+"</ul>",
+"</div>",
+"<p>&nbsp;</p>",
+"</body>",
+"</html>"
+        );
+    }
+}

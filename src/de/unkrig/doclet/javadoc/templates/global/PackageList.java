@@ -24,11 +24,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * A doclet that generates documentation for Java packages, classes, and so forth.
- */
-@NotNullByDefault
-package de.unkrig.doclet.javadoc.templates;
+package de.unkrig.doclet.javadoc.templates.global;
 
-import de.unkrig.commons.nullanalysis.NotNullByDefault;
+import java.util.SortedSet;
 
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.RootDoc;
+
+import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+
+public
+class PackageList extends AbstractGlobalDocument {
+
+    @Override public void
+    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+        this.l(
+            "de.unkrig.commons.lang",
+            "de.unkrig.commons.lang.protocol",
+            "de.unkrig.commons.lang.security"
+        );
+    }
+}

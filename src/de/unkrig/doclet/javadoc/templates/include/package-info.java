@@ -28,7 +28,7 @@
  * A doclet that generates documentation for Java packages, classes, and so forth.
  */
 @NotNullByDefault
-package de.unkrig.doclet.javadoc.templates;
+package de.unkrig.doclet.javadoc.templates.include;
 
 import de.unkrig.commons.nullanalysis.NotNullByDefault;
 
