@@ -25,10 +25,11 @@
  */
 
 /**
- * A doclet that generates documentation for Java packages, classes, and so forth.
+ * The package for all {@link de.unkrig.notemplate.NoTemplate}-derived HTML template classes for "per-package"
+ * documents.
  */
 @NotNullByDefault
-package de.unkrig.doclet.javadoc.templates;
+package de.unkrig.doclet.javadoc.templates.packagE;
 
 import de.unkrig.commons.nullanalysis.NotNullByDefault;
 

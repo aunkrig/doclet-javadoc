@@ -24,11 +24,47 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * A doclet that generates documentation for Java packages, classes, and so forth.
- */
-@NotNullByDefault
-package de.unkrig.doclet.javadoc.templates;
+package de.unkrig.doclet.javadoc.templates.global;
 
-import de.unkrig.commons.nullanalysis.NotNullByDefault;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
 
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.RootDoc;
+
+import de.unkrig.commons.doclet.Docs;
+import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+import de.unkrig.doclet.javadoc.templates.JavadocUtil;
+import de.unkrig.doclet.javadoc.templates.include.TopHtml;
+
+public
+class AllclassesFrameHtml extends AbstractGlobalDocument {
+
+    @Override public void
+    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+
+        this.include(TopHtml.class).render("All Classes", options, "stylesheet.css");
+
+        this.l(
+"<h1 class=\"bar\">All Classes</h1>",
+"<div class=\"indexContainer\">",
+"<ul>"
+        );
+        List<ClassDoc> cais = new ArrayList<ClassDoc>(allClassesAndInterfaces);
+        Collections.sort(cais, Docs.DOCS_BY_NAME_COMPARATOR);
+        for (ClassDoc coi : cais) {
+            this.l(
+"<li>" + JavadocUtil.toHtml(coi, null, "", 12, "classFrame") + "</li>"
+            );
+        }
+        this.l(
+"</ul>",
+"</div>",
+"</body>",
+"</html>"
+        );
+    }
+}

@@ -1,0 +1,192 @@
+
+/*
+ * de.unkrig.doclet.javadoc - A reimplementation of the JAVADOC utility for experimental purposes
+ *
+ * Copyright (c) 2015, Arno Unkrig
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ *
+ *    1. Redistributions of source code must retain the above copyright notice, this list of conditions and the
+ *       following disclaimer.
+ *    2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the
+ *       following disclaimer in the documentation and/or other materials provided with the distribution.
+ *    3. The name of the author may not be used to endorse or promote products derived from this software without
+ *       specific prior written permission.
+ *
+ * THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED
+ * TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL
+ * THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+ * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
+
+package de.unkrig.doclet.javadoc.templates.global;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
+
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.Doc;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.RootDoc;
+
+import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+import de.unkrig.doclet.javadoc.templates.JavadocUtil;
+import de.unkrig.doclet.javadoc.templates.include.BottomHtml;
+import de.unkrig.doclet.javadoc.templates.include.BottomNavBarHtml;
+import de.unkrig.doclet.javadoc.templates.include.TopHtml;
+import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
+
+public
+class IndexAllHtml extends AbstractGlobalDocument {
+
+    @Override public void
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    ) {
+
+        this.include(TopHtml.class).render("Index", options, "stylesheet.css");
+
+        this.l(
+            "<script type=\"text/javascript\"><!--",
+            "    if (location.href.indexOf('is-external=true') == -1) {",
+            "        parent.document.title=\"Index (WINDOWTITLE)\";",
+            "    }",
+            "//-->",
+            "</script>",
+            "<noscript>",
+            "<div>JavaScript is disabled on your browser.</div>",
+            "</noscript>"
+        );
+
+        this.include(TopNavBarHtml.class).renderForGlobalDocument(
+            options,                     // options
+            "index.html?index-all.html", // framesLink
+            "index-all.html",            // noFramesLink
+            "overview-summary.html",     // overviewLink
+            "overview-tree.html",        // treeLink
+            "deprecated-list.html",      // deprecatedLink
+            true,                        // indexLinkHighlit
+            false                        // helpLinkHighlit
+        );
+
+        Collection<Doc> allDocs = new ArrayList<Doc>();
+        for (ClassDoc cd : allClassesAndInterfaces) {
+            for (MethodDoc md : cd.methods()) {
+                allDocs.add(md);
+            }
+        }
+
+        SortedMap<Character, SortedSet<Doc>> allDocsByInitial = new TreeMap<Character, SortedSet<Doc>>();
+        for (Doc d : allDocs) {
+
+            Character initial = Character.toUpperCase(d.name().charAt(0));
+
+            SortedSet<Doc> docsOfInitial = allDocsByInitial.get(initial);
+            if (docsOfInitial == null) {
+                docsOfInitial = new TreeSet<Doc>();
+                allDocsByInitial.put(initial, docsOfInitial);
+            }
+
+            docsOfInitial.add(d);
+        }
+
+        this.p("<div class=\"contentContainer\">");
+
+        // Top list of initials.
+        for (Character initial : allDocsByInitial.keySet()) {
+            this.p("<a href=\"#_" + initial + "_\">" + initial + "</a>&nbsp;");
+        }
+
+        for (Entry<Character, SortedSet<Doc>> e : allDocsByInitial.entrySet()) {
+            Character      initial       = e.getKey();
+            SortedSet<Doc> docsOfInitial = e.getValue();
+
+            this.l(
+                "<a name=\"_" + initial + "_\">",
+                "<!--   -->",
+                "</a>",
+                "<h2 class=\"title\">" + initial + "</h2>",
+                "<dl>"
+            );
+
+            for (Doc doc : docsOfInitial) {
+                this.l(
+"<dt>" + JavadocUtil.toHtml(rootDoc, doc, true, null, null, rootDoc) + "</dt>"
+                );
+                String fsod = JavadocUtil.firstSentenceOfDescription(doc, rootDoc);
+                if (fsod.isEmpty()) {
+                    this.l(
+"<dd>&nbsp;</dd>"
+                    );
+                } else {
+                    this.l(
+"<dd>",
+"<div class=\"block\">" + fsod + "</div>",
+"</dd>"
+                    );
+                }
+            }
+//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/ConsumerUtil.html#addToCollection(java.util.Collection)\">addToCollection(Collection&lt;T&gt;)</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/ConsumerUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">ConsumerUtil</a></dt>",
+//                "<dd>&nbsp;</dd>",
+//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html#after(long)\">after(long)</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">PredicateUtil</a></dt>",
+//                "<dd>",
+//                "<div class=\"block\">Returns a <code>Predicate&lt;Object&gt;</code> that evaluates to <code>true</code> iff the current time is after the given",
+//                " expiration time.</div>",
+//                "</dd>",
+//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/ProducerUtil.html#alternate(T, T)\">alternate(T, T)</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/ProducerUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">ProducerUtil</a></dt>",
+//                "<dd>&nbsp;</dd>",
+//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html#always()\">always()</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">PredicateUtil</a></dt>",
+//                "<dd>&nbsp;</dd>",
+//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html#and(de.unkrig.commons.lang.protocol.Predicate, de.unkrig.commons.lang.protocol.Predicate)\">and(Predicate&lt;? super T&gt;, Predicate&lt;? super T&gt;)</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">PredicateUtil</a></dt>",
+//                "<dd>",
+//                "<div class=\"block\">Returns a <a href=\"./de/unkrig/commons/lang/protocol/Predicate.html\" title=\"interface in de.unkrig.commons.lang.protocol\"><code>Predicate</code></a> which returns <code>true</code> iff both <code>p1</code> and <code>p2</code> return <code>true</code>",
+//                " for any given <code>subject</code>.</div>",
+//                "</dd>",
+//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/PrettyPrinter.html#ARRAY_ELLIPSIS\">ARRAY_ELLIPSIS</a></span> - Static variable in class de.unkrig.commons.lang.<a href=\"./de/unkrig/commons/lang/PrettyPrinter.html\" title=\"class in de.unkrig.commons.lang\">PrettyPrinter</a></dt>",
+//                "<dd>",
+//                "<div class=\"block\">If an array is larger than this threshold (10), then it is printed as",
+//                " { <var>elem-0</var>, <var>elem-1</var>, <var>elem-2</var>, ... }</div>",
+//                "</dd>",
+            this.l(
+"</dl>"
+            );
+        }
+
+        // Top list of initials.
+        for (Character initial : allDocsByInitial.keySet()) {
+            this.p("<a href=\"#_" + initial + "_\">" + initial + "</a>&nbsp;");
+        }
+
+
+        this.l(
+"</div>"
+        );
+
+        this.include(BottomNavBarHtml.class).renderForGlobalDocument(
+            options,                     // options
+            "index.html?index-all.html", // framesLink
+            "index-all.html",            // noFramesLink
+            "overview-summary.html",     // overviewLink
+            "overview-tree.html",        // treeLink
+            "deprecated-list.html",      // deprecatedLink
+            true,                        // indexLinkHighlit
+            false                        // helpLinkHighlit
+        );
+
+        this.include(BottomHtml.class).render(options);
+    }
+}

@@ -24,11 +24,28 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+package de.unkrig.doclet.javadoc.templates.clasS;
+
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.RootDoc;
+
+import de.unkrig.commons.nullanalysis.Nullable;
+import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+import de.unkrig.notemplate.NoTemplate;
+
 /**
- * A doclet that generates documentation for Java packages, classes, and so forth.
+ * Base class for the template classes for the "per-class" documents.
  */
-@NotNullByDefault
-package de.unkrig.doclet.javadoc.templates;
+public abstract
+class AbstractPerClassDocument extends NoTemplate {
 
-import de.unkrig.commons.nullanalysis.NotNullByDefault;
-
+    public abstract void
+    render(
+        String             home,
+        @Nullable ClassDoc previousClassDoc,
+        ClassDoc           classDoc,
+        @Nullable ClassDoc nextClassDoc,
+        Options            options,
+        RootDoc            rootDoc
+    );
+}

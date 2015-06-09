@@ -24,11 +24,18 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * A doclet that generates documentation for Java packages, classes, and so forth.
- */
-@NotNullByDefault
-package de.unkrig.doclet.javadoc.templates;
+package de.unkrig.doclet.javadoc.templates.packagE;
 
-import de.unkrig.commons.nullanalysis.NotNullByDefault;
+import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.RootDoc;
 
+import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
+import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+import de.unkrig.notemplate.NoTemplate;
+
+public abstract
+class AbstractPerPackageDocument extends NoTemplate {
+
+    public abstract void
+    render(String home, ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc);
+}
