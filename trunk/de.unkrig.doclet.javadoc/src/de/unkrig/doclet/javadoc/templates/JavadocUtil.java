@@ -52,10 +52,12 @@ import de.unkrig.commons.util.collections.IterableUtil;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.NoTemplate.Once;
 
-public
+public final
 class JavadocUtil {
 
     static { AssertionUtil.enableAssertionsForThisClass(); }
+
+    private JavadocUtil() {}
 
     private static final Html HTML = new Html(Html.STANDARD_LINK_MAKER);
 
@@ -152,7 +154,11 @@ class JavadocUtil {
             if (cd.isIncluded() && cd != ref) {
                 s = (
                     "<a href=\""
-                    + (ref == cd.containingPackage() && (mode & 16) != 0 ? cd.name() + ".html" : home + JavadocUtil.href(cd))
+                    + (
+                        ref == cd.containingPackage() && (mode & 16) != 0
+                        ? cd.name() + ".html"
+                        : home + JavadocUtil.href(cd)
+                    )
                     + "\" title=\""
                     + JavadocUtil.title(cd)
                     + "\""
@@ -224,7 +230,8 @@ class JavadocUtil {
 
             StringBuilder sb = new StringBuilder("?");
             for (int i = 0; i < wt.extendsBounds().length; i++) {
-                sb.append(i == 0 ? " extends " : " & ").append(JavadocUtil.toHtml(wt.extendsBounds()[i], ref, home, mode));
+                sb.append(i == 0 ? " extends " : " & ");
+                sb.append(JavadocUtil.toHtml(wt.extendsBounds()[i], ref, home, mode));
             }
             for (int i = 0; i < wt.superBounds().length; i++) {
                 sb.append(i == 0 ? " super " : " & ").append(JavadocUtil.toHtml(wt.superBounds()[i], ref, home, mode));
@@ -234,12 +241,11 @@ class JavadocUtil {
         }
 
         throw new AssertionError(type);
-//        {
-////            return "<a href=\"" + home + ClassFrame.href(type.asClassDoc()) + "\" title=\"" + ClassFrame.category(type.asClassDoc()) + " in " + type.asClassDoc().containingPackage().name() + "\">" + type.typeName() + "</a>";
-//            return NoTemplate.html(type.toString());
-//        }
     }
 
+    /**
+     * @return The URL to the given <var>doc</var>
+     */
     public static String
     href(Doc doc) {
         if (doc instanceof ClassDoc)            return JavadocUtil.href((ClassDoc)            doc);
@@ -395,9 +401,18 @@ class JavadocUtil {
             assert result2.endsWith("[])");
             result2 = result2.substring(0, result2.length() - 3) + "...)";
         }
-        return result1.equals(result2) ? new String[] { result1 } : new String[] { result1.replaceAll(", ", ","), result2 };
+
+        return (
+            result1.equals(result2)
+            ? new String[] { result1 }
+            : new String[] { result1.replaceAll(", ", ","), result2 }
+        );
     }
 
+    /**
+     * @return The human-readable string that describes the category of the given <var>cd</var>, e.g. {@code "class"}
+     *         or {@code "annotation type"}
+     */
     public static String
     category(ClassDoc cd) {
 
@@ -410,6 +425,10 @@ class JavadocUtil {
         );
     }
 
+    /**
+     * @return The fields of the given <var>classDoc</var> which are "constants"
+     * @see    #isConstant(FieldDoc)
+     */
     public static Iterable<FieldDoc>
     constantsOf(ClassDoc classDoc) {
 
@@ -432,16 +451,24 @@ class JavadocUtil {
         );
     }
 
+    /**
+     * @return Whether the given <var>field</var> is a "constant", i.e. is {@code static final} and has an initializer
+     */
     private static boolean
-    isConstant(FieldDoc fieldDoc) {
-        return fieldDoc.isStatic() && fieldDoc.isFinal() && fieldDoc.constantValueExpression() != null;
+    isConstant(FieldDoc field) {
+        return field.isStatic() && field.isFinal() && field.constantValueExpression() != null;
     }
 
+    /**
+     * @return Those classes, interfaces, enums and annotation types declared within the given <var>packagE</var>
+     *         that declare at least one constant
+     * @rsee   {@link #isConstant(FieldDoc)}
+     */
     public static Iterable<ClassDoc>
-    classesAndInterfacesWithConstants(PackageDoc p) {
+    classesAndInterfacesWithConstants(PackageDoc packagE) {
 
         return IterableUtil.filter(
-            Arrays.asList(p.allClasses()),
+            Arrays.asList(packagE.allClasses()),
             new Predicate<ClassDoc>() {
 
                 @Override public boolean
@@ -450,6 +477,10 @@ class JavadocUtil {
         );
     }
 
+    /**
+     * @return The description of the given <var>doc</var>, with all inline tags expanded
+     * @see    Html#fromTags(com.sun.javadoc.Tag[], Doc, RootDoc)
+     */
     public static String
     description(Doc doc, RootDoc rootDoc) {
 
@@ -460,6 +491,9 @@ class JavadocUtil {
         }
     }
 
+    /**
+     * @return The first sentence of the description of the given <var>doc</var>, with all HTML tags removed
+     */
     public static String
     firstSentenceOfDescription(Doc doc, RootDoc rootDoc) {
 
