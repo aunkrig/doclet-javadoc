@@ -67,8 +67,6 @@ import de.unkrig.doclet.javadoc.templates.packagE.PackageFrameHtml;
 import de.unkrig.doclet.javadoc.templates.packagE.PackageSummaryHtml;
 import de.unkrig.doclet.javadoc.templates.packagE.PackageTreeHtml;
 import de.unkrig.notemplate.NoTemplate;
-import freemarker.template.Configuration;
-import freemarker.template.TemplateExceptionHandler;
 
 /**
  * A doclet that generates documentation for Java packages, classes, and so forth.
@@ -77,12 +75,6 @@ public final
 class JavadocDoclet {
 
     static { AssertionUtil.enableAssertionsForThisClass(); }
-
-    private static final Configuration FREEMARKER_CONFIGURATION = new Configuration(Configuration.VERSION_2_3_22);
-    static {
-        JavadocDoclet.FREEMARKER_CONFIGURATION.setClassForTemplateLoading(JavadocDoclet.class, "templates");
-        JavadocDoclet.FREEMARKER_CONFIGURATION.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
-    }
 
     private final RootDoc               rootDoc;
     private final Options               options;
