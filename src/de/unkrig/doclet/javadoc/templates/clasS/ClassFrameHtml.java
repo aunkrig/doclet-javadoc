@@ -119,13 +119,27 @@ class ClassFrameHtml extends AbstractPerClassDocument {
             String prev = "Prev Class";
             if (previousClass != null) {
                 try {
-                    prev = ClassFrameHtml.HTML.makeLink(clasS, previousClass, true, "<span class=\"strong\">" + prev + "</span>", null, rootDoc);
+                    prev = ClassFrameHtml.HTML.makeLink(
+                        clasS,                                        // from
+                        previousClass,                                // to
+                        true,                                         // plain
+                        "<span class=\"strong\">" + prev + "</span>", // label
+                        null,                                         // target
+                        rootDoc                                       // rootDoc
+                    );
                 } catch (Longjump l) {}
             }
             String next = "Next Class";
             if (nextClass != null) {
                 try {
-                    next = ClassFrameHtml.HTML.makeLink(clasS, nextClass, true, "<span class=\"strong\">" + next + "</span>", null, rootDoc);
+                    next = ClassFrameHtml.HTML.makeLink(
+                        clasS,                                        // from
+                        nextClass,                                    // to
+                        true,                                         // plain
+                        "<span class=\"strong\">" + next + "</span>", // label
+                        null,                                         // target
+                        rootDoc                                       // rootDoc
+                    );
                 } catch (Longjump l) {}
             }
 
@@ -592,7 +606,7 @@ JavadocUtil.toHtml(md.returnType(), md, home, 0) + "</code></td>"
 "<div class=\"details\">",
 "<ul class=\"blockList\">",
 "<li class=\"blockList\">"
-                    );
+            );
 
             // Class's/interface's fields.
             if (clasS.fields().length > 0) {
@@ -825,8 +839,8 @@ JavadocUtil.toHtml(md.returnType(), md, home, 0) + "</code></td>"
         // Executable member parameters.
         Once once = NoTemplate.once();
         for (int i = 0; i < emd.parameters().length; i++) {
-            Parameter p = emd.parameters()[i];
-            boolean isEllipsis = emd.isVarArgs() && i == emd.parameters().length - 1;
+            Parameter p          = emd.parameters()[i];
+            boolean   isEllipsis = emd.isVarArgs() && i == emd.parameters().length - 1;
 
             if (!once.once()) {
                 this.l(
@@ -1031,7 +1045,8 @@ JavadocUtil.toHtml(md.returnType(), md, home, 0) + "</code></td>"
         }
     }
 
-    private void pParameters(String home, ExecutableMemberDoc emd) {
+    private void
+    pParameters(String home, ExecutableMemberDoc emd) {
 
         this.p("(");
         Once once = NoTemplate.once();
