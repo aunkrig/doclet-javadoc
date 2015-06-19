@@ -32,40 +32,49 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 
 public
-class HelpDocHtml extends AbstractGlobalDocument {
+class HelpDocHtml extends AbstractClassFrameHtml implements GlobalDocument {
+
+    private Options options;
 
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
-        this.include(TopHtml.class).render("API Help", options, "stylesheet.css");
+        this.options = options;
 
-        this.l(
-            "<script type=\"text/javascript\"><!--",
-            "    if (location.href.indexOf('is-external=true') == -1) {",
-            "        parent.document.title=\"API Help (WINDOWTITLE)\";",
-            "    }",
-            "//-->",
-            "</script>",
-            "<noscript>",
-            "<div>JavaScript is disabled on your browser.</div>",
-            "</noscript>"
+        super.rClassFrameHtml(
+            "API Help",                // title
+            options,                   // options
+            "stylesheet.css",          // stylesheetLink
+            new String[] {             // nav1
+                "Overview",   "overview-summary.html",
+                "Package",    AbstractClassFrameHtml.DISABLED,
+                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Use",        AbstractClassFrameHtml.DISABLED,
+                "Tree",       "overview-tree.html",
+                "Deprecated", "deprecated-list.html",
+                "Index",      "index-all.html",
+                "Help",       AbstractClassFrameHtml.HIGHLIT,
+            },
+            new String[] {             // nav2
+                "Prev", AbstractClassFrameHtml.DISABLED,
+                "Next", AbstractClassFrameHtml.DISABLED,
+            },
+            new String[] {             // nav3
+                "Frames",    "index.html?help-doc.html",
+                "No Frames", "help-doc.html",
+            },
+            "allclasses-noframe.html", // allClassesLink
+            null,                      // nav4
+            null                       // nav5
         );
+    }
 
-        this.include(TopNavBarHtml.class).renderForGlobalDocument(
-            options,                    // options
-            "index.html?help-doc.html", // framesLink
-            "help-doc.html",            // noFramesLink
-            "overview-summary.html",    // overviewLink
-            "overview-tree.html",       // treeLink
-            "deprecated-list.html",     // deprecatedLink
-            false,                      // indexLinkHighlit
-            true                        // helpLinkHighlit
-        );
+    @Override protected void
+    rClassFrameBody() {
 
         this.l(
             "<div class=\"header\">",
@@ -172,55 +181,7 @@ class HelpDocHtml extends AbstractGlobalDocument {
             "<p>The <a href=\"constant-values.html\">Constant Field Values</a> page lists the static final fields and their values.</p>",
             "</li>",
             "</ul>",
-            "<em>This help file applies to API documentation generated using the standard doclet.</em></div>",
-            "<!-- ======= START OF BOTTOM NAVBAR ====== -->",
-            "<div class=\"bottomNav\"><a name=\"navbar_bottom\">",
-            "<!--   -->",
-            "</a><a href=\"#skip-navbar_bottom\" title=\"Skip navigation links\"></a><a name=\"navbar_bottom_firstrow\">",
-            "<!--   -->",
-            "</a>",
-            "<ul class=\"navList\" title=\"Navigation\">",
-            "<li><a href=\"overview-summary.html\">Overview</a></li>",
-            "<li>Package</li>",
-            "<li>Class</li>",
-            "<li><a href=\"overview-tree.html\">Tree</a></li>",
-            "<li><a href=\"deprecated-list.html\">Deprecated</a></li>",
-            "<li><a href=\"index-all.html\">Index</a></li>",
-            "<li class=\"navBarCell1Rev\">Help</li>",
-            "</ul>",
-            "<div class=\"aboutLanguage\"><em>FOOTER</em></div>",
-            "</div>",
-            "<div class=\"subNav\">",
-            "<ul class=\"navList\">",
-            "<li>Prev</li>",
-            "<li>Next</li>",
-            "</ul>",
-            "<ul class=\"navList\">",
-            "<li><a href=\"index.html?help-doc.html\" target=\"_top\">Frames</a></li>",
-            "<li><a href=\"help-doc.html\" target=\"_top\">No Frames</a></li>",
-            "</ul>",
-            "<ul class=\"navList\" id=\"allclasses_navbar_bottom\">",
-            "<li><a href=\"allclasses-noframe.html\">All Classes</a></li>",
-            "</ul>",
-            "<div>",
-            "<script type=\"text/javascript\"><!--",
-            "  allClassesLink = document.getElementById(\"allclasses_navbar_bottom\");",
-            "  if(window==top) {",
-            "    allClassesLink.style.display = \"block\";",
-            "  }",
-            "  else {",
-            "    allClassesLink.style.display = \"none\";",
-            "  }",
-            "  //-->",
-            "</script>",
-            "</div>",
-            "<a name=\"skip-navbar_bottom\">",
-            "<!--   -->",
-            "</a></div>",
-            "<!-- ======== END OF BOTTOM NAVBAR ======= -->",
-            "<p class=\"legalCopy\"><small>BOTTOM</small></p>",
-            "</body>",
-            "</html>"
+            "<em>This help file applies to API documentation generated using the standard doclet.</em></div>"
         );
     }
 }

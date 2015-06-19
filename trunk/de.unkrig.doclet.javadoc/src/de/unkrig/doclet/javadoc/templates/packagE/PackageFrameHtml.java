@@ -34,12 +34,13 @@ import com.sun.javadoc.RootDoc;
 
 import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
 import de.unkrig.notemplate.NoTemplate;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.include.BottomHtml;
+import de.unkrig.notemplate.javadocish.templates.include.TopHtml;
 
 public
-class PackageFrameHtml extends AbstractPerPackageDocument {
+class PackageFrameHtml extends NoTemplate implements PerPackageDocument {
 
     @Override public void
     render(String home, ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
@@ -85,9 +86,9 @@ class PackageFrameHtml extends AbstractPerPackageDocument {
             );
         }
         this.l(
-"</div>",
-"</body>",
-"</html>"
+"</div>"
         );
+
+        this.include(BottomHtml.class).render();
     }
 }

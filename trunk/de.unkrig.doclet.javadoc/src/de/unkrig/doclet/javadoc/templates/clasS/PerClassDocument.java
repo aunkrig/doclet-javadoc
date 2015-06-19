@@ -24,31 +24,25 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
-package de.unkrig.doclet.javadoc.templates.global;
-
-import java.util.SortedSet;
+package de.unkrig.doclet.javadoc.templates.clasS;
 
 import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
-import de.unkrig.notemplate.NoTemplate;
+import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
+import de.unkrig.notemplate.javadocish.Options;
 
 /**
- * Base class for all "global" documents, i.e. the documents that are not per-package nor per-class.
+ * Base class for the template classes for the "per-class" documents.
  */
-public abstract
-class AbstractGlobalDocument extends NoTemplate {
+public
+interface PerClassDocument {
 
-    /**
-     * Renders this global document.
-     */
-    public abstract void
+    void
     render(
-        Options               options,
-        SortedSet<PackageDoc> allPackages,
-        SortedSet<ClassDoc>   allClassesAndInterfaces,
-        RootDoc               rootDoc
+        String                       home,
+        ElementWithContext<ClassDoc> classDoc,
+        Options                      options,
+        RootDoc                      rootDoc
     );
 }

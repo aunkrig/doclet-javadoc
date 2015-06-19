@@ -36,12 +36,14 @@ import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.commons.doclet.Docs;
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
+import de.unkrig.notemplate.NoTemplate;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.include.BottomHtml;
+import de.unkrig.notemplate.javadocish.templates.include.TopHtml;
 
 public
-class AllclassesNoframeHtml extends AbstractGlobalDocument {
+class AllclassesNoframeHtml extends NoTemplate implements GlobalDocument {
 
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
@@ -62,9 +64,9 @@ class AllclassesNoframeHtml extends AbstractGlobalDocument {
         }
         this.l(
 "</ul>",
-"</div>",
-"</body>",
-"</html>"
+"</div>"
         );
+
+        this.include(BottomHtml.class).render();
     }
 }

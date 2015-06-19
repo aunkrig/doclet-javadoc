@@ -34,44 +34,60 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
-import de.unkrig.doclet.javadoc.templates.include.BottomHtml;
-import de.unkrig.doclet.javadoc.templates.include.BottomNavBarHtml;
 import de.unkrig.doclet.javadoc.templates.include.HierarchiesHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
 import de.unkrig.notemplate.NoTemplate;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 
 public
-class OverviewTreeHtml extends AbstractGlobalDocument {
+class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument {
+
+    private Options               options;
+    private SortedSet<PackageDoc> allPackages;
+    private SortedSet<ClassDoc>   allClassesAndInterfaces;
 
     @Override public void
-    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    ) {
 
-        this.include(TopHtml.class).render("Class Hierarchy", options, "stylesheet.css");
+        this.options                 = options;
+        this.allPackages             = allPackages;
+        this.allClassesAndInterfaces = allClassesAndInterfaces;
 
-        this.l(
-"<script type=\"text/javascript\"><!--",
-"    if (location.href.indexOf('is-external=true') == -1) {",
-"        parent.document.title=\"Class Hierarchy" + (options.windowTitle == null ? "" : " (" + options.windowTitle + ")") + "\";",
-"    }",
-"//-->",
-"</script>",
-"<noscript>",
-"<div>JavaScript is disabled on your browser.</div>",
-"</noscript>"
+        super.rClassFrameHtml(
+            "Class Hierarchy",         // title
+            options,                   // options
+            "stylesheet.css",          // stylesheetLink
+            new String[] {             // nav1
+                "Overview",   "overview-summary.html",
+                "Package",    AbstractClassFrameHtml.DISABLED,
+                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Use",        AbstractClassFrameHtml.DISABLED,
+                "Tree",       AbstractClassFrameHtml.HIGHLIT,
+                "Deprecated", "deprecated-list.html",
+                "Index",      "index-all.html",
+                "Help",       "help-doc.html",
+            },
+            new String[] {             // nav2
+                "Prev", AbstractClassFrameHtml.DISABLED,
+                "Next", AbstractClassFrameHtml.DISABLED,
+            },
+            new String[] {             // nav3
+                "Frames",    "index.html?overview-tree.html",
+                "No Frames", "overview-tree.html",
+            },
+            "allclasses-noframe.html", // allClassesLink
+            null,                      // nav4
+            null                       // nav5
         );
+    }
 
-        this.include(TopNavBarHtml.class).renderForGlobalDocument(
-            options,                         // options
-            "index.html?overview-tree.html", // framesLink
-            "overview-tree.html",            // noFramesLink
-            "overview-summary.html",         // overviewLink
-            "HIGHLIGHT",                     // treeLink
-            "deprecated-list.html",          // deprecatedLink
-            false,                           // indexLinkHighlit
-            false                            // helpLinkHighlit
-        );
+    @Override
+    protected void rClassFrameBody() {
 
         this.l(
 "<div class=\"header\">",
@@ -80,7 +96,7 @@ class OverviewTreeHtml extends AbstractGlobalDocument {
 "<ul class=\"horizontal\">"
         );
         Once first = NoTemplate.once();
-        for (PackageDoc p : allPackages) {
+        for (PackageDoc p : this.allPackages) {
             if (!first.once()) this.l(", </li>");
             this.p("<li><a href=\"" + p.name().replace('.', '/') + "/package-tree.html\">" + p.name() + "</a>");
         }
@@ -93,7 +109,7 @@ class OverviewTreeHtml extends AbstractGlobalDocument {
 
         List<ClassDoc> classes    = new ArrayList<ClassDoc>();
         List<ClassDoc> interfaces = new ArrayList<ClassDoc>();
-        for (ClassDoc cd : allClassesAndInterfaces) {
+        for (ClassDoc cd : this.allClassesAndInterfaces) {
             if (cd.isInterface()) {
                 interfaces.add(cd);
             } else
@@ -107,18 +123,5 @@ class OverviewTreeHtml extends AbstractGlobalDocument {
         this.l(
 "</div>"
         );
-
-        this.include(BottomNavBarHtml.class).renderForGlobalDocument(
-            options,
-            "index.html?overview-tree.html", // framesLink
-            "overview-tree.html",            // noFramesLink
-            "overview-summary.html",         // overviewLink
-            "HIGHLIGHT",                     // treeLink
-            "deprecated-list.html",          // deprecatedLink
-            false,                           // indexLinkHighlit
-            false                            // helpLinkHighlit
-        );
-
-        this.include(BottomHtml.class).render(options);
     }
 }

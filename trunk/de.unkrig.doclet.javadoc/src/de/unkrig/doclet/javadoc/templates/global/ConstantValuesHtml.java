@@ -39,43 +39,50 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.lang.protocol.Producer;
 import de.unkrig.commons.lang.protocol.ProducerUtil;
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
-import de.unkrig.doclet.javadoc.templates.include.BottomHtml;
-import de.unkrig.doclet.javadoc.templates.include.BottomNavBarHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 
 public
-class ConstantValuesHtml extends AbstractGlobalDocument {
+class ConstantValuesHtml extends AbstractClassFrameHtml implements GlobalDocument {
+
+    private SortedSet<PackageDoc> allPackages;
 
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
-        this.include(TopHtml.class).render("Constant Field Values", options, "stylesheet.css");
+        this.allPackages = allPackages;
 
-        this.l(
-"<script type=\"text/javascript\"><!--",
-"    if (location.href.indexOf('is-external=true') == -1) {",
-"        parent.document.title=\"Constant Field Values" + (options.windowTitle == null ? "" : " (" + options.windowTitle + ")") + "\";",
-"    }",
-"//-->",
-"</script>",
-"<noscript>",
-"<div>JavaScript is disabled on your browser.</div>",
-"</noscript>"
+        this.rClassFrameHtml(
+            "Constant Field Values",   // title
+            options,                   // options
+            "stylesheet.css",          // stylesheetLink
+            new String[] {             // nav1
+                "Overview",   "overview-summary.html",
+                "Package",    AbstractClassFrameHtml.DISABLED,
+                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Use",        AbstractClassFrameHtml.DISABLED,
+                "Tree",       "overview-tree.html",
+                "Deprecated", "deprecated-list.html",
+                "Index",      "index-all.html",
+                "Help",       "help-doc.html",
+            },
+            new String[] {             // nav2
+                "Prev", AbstractClassFrameHtml.DISABLED,
+                "Next", AbstractClassFrameHtml.DISABLED,
+            },
+            new String[] {             // nav3
+                "Frames",    "index.html?constant-values.html",
+                "No Frames", "constant-values.html",
+            },
+            "allclasses-noframe.html", // allclassesLink
+            null,                      // nav4
+            null                       // nav5
         );
+    }
 
-        this.include(TopNavBarHtml.class).renderForGlobalDocument(
-            options,
-            "index.html?constant-values.html", // framesLink
-            "constant-values.html",            // noFramesLink
-            "overview-summary.html",           // overviewLink
-            "overview-tree.html",              // treeLink
-            "deprecated-list.html",            // deprecatedLink
-            false,                             // indexLinkHighlit
-            false                              // helpLinkHighlit
-        );
+    @Override protected void
+    rClassFrameBody() {
 
         this.l(
 "<div class=\"header\">",
@@ -83,7 +90,7 @@ class ConstantValuesHtml extends AbstractGlobalDocument {
 "<h2 title=\"Contents\">Contents</h2>",
 "<ul>"
         );
-        List<PackageDoc> ps = new ArrayList<PackageDoc>(allPackages);
+        List<PackageDoc> ps = new ArrayList<PackageDoc>(this.allPackages);
         Collections.sort(ps, Docs.DOCS_BY_NAME_COMPARATOR);
         for (PackageDoc p : ps) {
 
@@ -147,18 +154,5 @@ class ConstantValuesHtml extends AbstractGlobalDocument {
         this.l(
 "</div>"
         );
-
-        this.include(BottomNavBarHtml.class).renderForGlobalDocument(
-            options,                           // options
-            "index.html?constant-values.html", // framesLink
-            "constant-values.html",            // noFramesLink
-            "overview-summary.html",           // overviewLink
-            "overview-tree.html",              // treeLink
-            "deprecated-list.html",            // deprecatedLink
-            false,                             // indexLinkHighlit
-            false                              // helpLinkHighlit
-        );
-
-        this.include(BottomHtml.class).render(options);
     }
 }

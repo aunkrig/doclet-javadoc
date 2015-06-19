@@ -37,48 +37,63 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.lang.protocol.Producer;
 import de.unkrig.commons.lang.protocol.ProducerUtil;
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
-import de.unkrig.doclet.javadoc.templates.include.BottomHtml;
-import de.unkrig.doclet.javadoc.templates.include.BottomNavBarHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 
 public
-class OverviewSummaryHtml extends AbstractGlobalDocument {
+class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocument {
+
+    @Nullable private Options               options;
+    @Nullable private SortedSet<PackageDoc> allPackages;
+    @Nullable private RootDoc               rootDoc;
 
     @Override public void
-    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    ) {
 
-        this.include(TopHtml.class).render("Overview", options, "stylesheet.css");
+        this.options     = options;
+        this.allPackages = allPackages;
+        this.rootDoc     = rootDoc;
 
-        this.l(
-"<script type=\"text/javascript\"><!--",
-"    if (location.href.indexOf('is-external=true') == -1) {",
-"        parent.document.title=\"Overview" + (options.windowTitle == null ? "" : " (" + options.windowTitle + ")") + "\";",
-"    }",
-"//-->",
-"</script>",
-"<noscript>",
-"<div>JavaScript is disabled on your browser.</div>",
-"</noscript>"
+        this.rClassFrameHtml(
+            "Overview",                // windowTitle
+            options,
+            "stylesheet.css",
+            new String[] {             // nav1
+                "Overview",   AbstractClassFrameHtml.HIGHLIT,
+                "Package",    AbstractClassFrameHtml.DISABLED,
+                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Tree",       "overview-tree.html",
+                "Deprecated", "deprecated-list.html",
+                "Index",      "index-all.html",
+                "Help",       "help-doc.html",
+            },
+            new String[] {             // nav2
+                "Prev", AbstractClassFrameHtml.DISABLED,
+                "Next", AbstractClassFrameHtml.DISABLED,
+            },
+            new String[] {             // nav3
+                "Frames",    "?overview-summary.html",
+                "No Frames", "overview-summary.html",
+            },
+            "allclasses-noframe.html", // allClassesLink
+            null,                      // nav4
+            null                       // nav5
         );
+    }
 
-        this.include(TopNavBarHtml.class).renderForGlobalDocument(
-            options,                            // options
-            "index.html?overview-summary.html", // framesLink
-            "overview-summary.html",            // noFramesLink
-            null,                               // overviewLink
-            "overview-tree.html",               // treeLink
-            "deprecated-list.html",             // deprecatedLink
-            false,                              // indexLinkHighlit
-            false                               // helpLinkHighlit
-        );
-
+    @Override
+    protected void rClassFrameBody() {
 
         this.l(
 "<div class=\"header\">",
-"<h1 class=\"title\">DOCTITLE</h1>",
+"<h1 class=\"title\">" + this.options.docTitle + "</h1>",
 "</div>",
 "<div class=\"contentContainer\">",
 "<table class=\"overviewSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Packages table, listing packages, and an explanation\">",
@@ -89,7 +104,8 @@ class OverviewSummaryHtml extends AbstractGlobalDocument {
 "</tr>",
 "<tbody>"
         );
-        ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
+
+        ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(this.allPackages);
         Collections.sort(aps, Docs.DOCS_BY_NAME_COMPARATOR);
         Producer<String> cls = ProducerUtil.alternate("altColor", "rowColor");
         for (PackageDoc p : aps) {
@@ -97,7 +113,7 @@ class OverviewSummaryHtml extends AbstractGlobalDocument {
 "<tr class=\"" + cls.produce() + "\">",
 "<td class=\"colFirst\"><a href=\"" + p.name().replace('.', '/') + "/package-summary.html\">" + p.name() + "</a></td>"
             );
-            String desc = JavadocUtil.firstSentenceOfDescription(p, rootDoc);
+            String desc = JavadocUtil.firstSentenceOfDescription(p, this.rootDoc);
             if (desc.isEmpty()) {
                 this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -105,7 +121,7 @@ class OverviewSummaryHtml extends AbstractGlobalDocument {
             } else {
                 this.l(
 "<td class=\"colLast\">",
-"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(p, rootDoc) + "</div>",
+"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(p, this.rootDoc) + "</div>",
 "</td>"
                 );
             }
@@ -118,18 +134,5 @@ class OverviewSummaryHtml extends AbstractGlobalDocument {
 "</table>",
 "</div>"
         );
-
-        this.include(BottomNavBarHtml.class).renderForGlobalDocument(
-            options,                            // options
-            "index.html?overview-summary.html", // framesLink
-            "overview-summary.html",            // noFramesLink
-            null,                               // overviewLink
-            "overview-tree.html",               // treeLink
-            "deprecated-list.html",             // deprecatedLink
-            false,                              // indexLinkHighlit
-            false                               // helpLinkHighlit
-        );
-
-        this.include(BottomHtml.class).render(options);
     }
 }

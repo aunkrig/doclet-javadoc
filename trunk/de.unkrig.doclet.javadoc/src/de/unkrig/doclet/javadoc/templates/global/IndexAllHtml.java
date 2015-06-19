@@ -40,15 +40,15 @@ import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
-import de.unkrig.doclet.javadoc.templates.include.BottomHtml;
-import de.unkrig.doclet.javadoc.templates.include.BottomNavBarHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 
 public
-class IndexAllHtml extends AbstractGlobalDocument {
+class IndexAllHtml extends AbstractClassFrameHtml implements GlobalDocument {
+
+    private SortedSet<ClassDoc> allClassesAndInterfaces;
+    private RootDoc             rootDoc;
 
     @Override public void
     render(
@@ -58,33 +58,41 @@ class IndexAllHtml extends AbstractGlobalDocument {
         RootDoc               rootDoc
     ) {
 
-        this.include(TopHtml.class).render("Index", options, "stylesheet.css");
+        this.allClassesAndInterfaces = allClassesAndInterfaces;
+        this.rootDoc                 = rootDoc;
 
-        this.l(
-            "<script type=\"text/javascript\"><!--",
-            "    if (location.href.indexOf('is-external=true') == -1) {",
-            "        parent.document.title=\"Index (WINDOWTITLE)\";",
-            "    }",
-            "//-->",
-            "</script>",
-            "<noscript>",
-            "<div>JavaScript is disabled on your browser.</div>",
-            "</noscript>"
+        super.rClassFrameHtml(
+            "Index",                   // title
+            options,                   // options
+            "stylesheet.css",          // stylesheetLink
+            new String[] {             // nav1
+                "Overview",   "overview-summary.html",
+                "Package",    AbstractClassFrameHtml.DISABLED,
+                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Tree",       "overview-tree.html",
+                "Deprecated", "deprecated-list.html",
+                "Index",      AbstractClassFrameHtml.HIGHLIT,
+                "Help",       "help-doc.html",
+            },
+            new String[] {             // nav2
+                "Prev", AbstractClassFrameHtml.DISABLED,
+                "Next", AbstractClassFrameHtml.DISABLED,
+            },
+            new String[] {             // nav3
+                "Frames",    "index.html?index-all.html",
+                "No Frames", "index-all.html",
+            },
+            "allclasses-noframe.html", // allClassesLink
+            null,                      // nav4
+            null                       // nav5
         );
+    }
 
-        this.include(TopNavBarHtml.class).renderForGlobalDocument(
-            options,                     // options
-            "index.html?index-all.html", // framesLink
-            "index-all.html",            // noFramesLink
-            "overview-summary.html",     // overviewLink
-            "overview-tree.html",        // treeLink
-            "deprecated-list.html",      // deprecatedLink
-            true,                        // indexLinkHighlit
-            false                        // helpLinkHighlit
-        );
+    @Override protected void
+    rClassFrameBody() {
 
         Collection<Doc> allDocs = new ArrayList<Doc>();
-        for (ClassDoc cd : allClassesAndInterfaces) {
+        for (ClassDoc cd : this.allClassesAndInterfaces) {
             for (MethodDoc md : cd.methods()) {
                 allDocs.add(md);
             }
@@ -125,9 +133,9 @@ class IndexAllHtml extends AbstractGlobalDocument {
 
             for (Doc doc : docsOfInitial) {
                 this.l(
-"<dt>" + JavadocUtil.toHtml(rootDoc, doc, true, null, null, rootDoc) + "</dt>"
+"<dt>" + JavadocUtil.toHtml(this.rootDoc, doc, true, null, null, this.rootDoc) + "</dt>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(doc, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(doc, this.rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<dd>&nbsp;</dd>"
@@ -175,18 +183,5 @@ class IndexAllHtml extends AbstractGlobalDocument {
         this.l(
 "</div>"
         );
-
-        this.include(BottomNavBarHtml.class).renderForGlobalDocument(
-            options,                     // options
-            "index.html?index-all.html", // framesLink
-            "index-all.html",            // noFramesLink
-            "overview-summary.html",     // overviewLink
-            "overview-tree.html",        // treeLink
-            "deprecated-list.html",      // deprecatedLink
-            true,                        // indexLinkHighlit
-            false                        // helpLinkHighlit
-        );
-
-        this.include(BottomHtml.class).render(options);
     }
 }

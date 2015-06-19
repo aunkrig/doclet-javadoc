@@ -32,54 +32,68 @@ import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
-import de.unkrig.doclet.javadoc.templates.include.BottomHtml;
-import de.unkrig.doclet.javadoc.templates.include.BottomNavBarHtml;
 import de.unkrig.doclet.javadoc.templates.include.HierarchiesHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 
 public
-class PackageTreeHtml extends AbstractPerPackageDocument {
+class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocument {
+
+    private String                         home;
+    private ElementWithContext<PackageDoc> packagE;
 
     @Override public void
     render(String home, ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
-        this.include(TopHtml.class).render(packagE.current().name() + " Class Hierarchy", options, home + "stylesheet.css");
+        this.home    = home;
+        this.packagE = packagE;
 
-        this.l(
-"<script type=\"text/javascript\"><!--",
-"    if (location.href.indexOf('is-external=true') == -1) {",
-"        parent.document.title=\"" + packagE.current().name() + " Class Hierarchy" + (options.windowTitle == null ? "" : " (" + options.windowTitle + ")") + "\";",
-"    }",
-"//-->",
-"</script>",
-"<noscript>",
-"<div>JavaScript is disabled on your browser.</div>",
-"</noscript>"
+        super.rClassFrameHtml(
+            "Package " + packagE.current().name(), // title
+            options,                               // options
+            "stylesheet.css",                      // stylesheetLink
+            new String[] {                         // nav1
+                "Overview",   home + "overview-summary.html",
+                "Package",    home + "package-summary.html",
+                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Use",        "package-use.html",
+                "Tree",       AbstractClassFrameHtml.HIGHLIT,
+                "Deprecated", home + "deprecated-list.html",
+                "Index",      home + "index-all.html",
+                "Help",       home + "help-doc.html",
+            },
+            new String[] {                         // nav2
+                "Prev", packagE.hasPrevious() ? home + packagE.previous().name().replace('.', '/') + "/package-tree.html" : AbstractClassFrameHtml.DISABLED,
+                "Next", packagE.hasNext()     ? home + packagE.next().name().replace('.', '/')     + "/package-tree.html" : AbstractClassFrameHtml.DISABLED,
+            },
+            new String[] {                         // nav3
+                "Frames",    home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-tree.html",
+                "No Frames", "package-tree.html",
+            },
+            home + "allclasses-noframe.html",      // allClassesLink
+            null,                                  // nav4
+            null                                   // nav5
         );
+    }
 
-        this.include(TopNavBarHtml.class).renderForPackageDocument(packagE, options, "package-tree.html");
+    @Override protected void
+    rClassFrameBody() {
 
         this.l(
 "<div class=\"header\">",
-"<h1 class=\"title\">Hierarchy For Package " + packagE.current().name() + "</h1>",
+"<h1 class=\"title\">Hierarchy For Package " + this.packagE.current().name() + "</h1>",
 "<span class=\"strong\">Package Hierarchies:</span>",
 "<ul class=\"horizontal\">",
-"<li><a href=\"" + home + "overview-tree.html\">All Packages</a></li>",
+"<li><a href=\"" + this.home + "overview-tree.html\">All Packages</a></li>",
 "</ul>",
 "</div>",
 "<div class=\"contentContainer\">"
         );
 
         this.include(HierarchiesHtml.class).render(
-            home,
-            Arrays.asList(packagE.current().ordinaryClasses()),
-            Arrays.asList(packagE.current().interfaces())
+            this.home,
+            Arrays.asList(this.packagE.current().ordinaryClasses()),
+            Arrays.asList(this.packagE.current().interfaces())
         );
-
-        this.include(BottomNavBarHtml.class).renderForPackageDocument(packagE, options, "package-tree.html");
-
-        this.include(BottomHtml.class).render(options);
     }
 }
