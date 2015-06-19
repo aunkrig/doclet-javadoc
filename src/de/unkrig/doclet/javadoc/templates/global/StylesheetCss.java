@@ -32,10 +32,11 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
+import de.unkrig.notemplate.NoTemplate;
+import de.unkrig.notemplate.javadocish.Options;
 
 public
-class StylesheetCss extends AbstractGlobalDocument {
+class StylesheetCss extends NoTemplate implements GlobalDocument {
 
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {

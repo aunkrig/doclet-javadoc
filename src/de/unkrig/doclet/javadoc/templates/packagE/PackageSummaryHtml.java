@@ -36,40 +36,60 @@ import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.lang.protocol.Producer;
 import de.unkrig.commons.lang.protocol.ProducerUtil;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
-import de.unkrig.doclet.javadoc.templates.include.BottomHtml;
-import de.unkrig.doclet.javadoc.templates.include.BottomNavBarHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 
 public
-class PackageSummaryHtml extends AbstractPerPackageDocument {
+class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDocument {
+
+    private String                         home;
+    private ElementWithContext<PackageDoc> packagE;
+    private RootDoc                        rootDoc;
 
     @Override public void
     render(String home, ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
-        this.include(TopHtml.class).render(packagE.current().name(), options, home + "stylesheet.css");
+        this.home    = home;
+        this.packagE = packagE;
+        this.rootDoc = rootDoc;
 
-        this.l(
-"<script type=\"text/javascript\"><!--",
-"    if (location.href.indexOf('is-external=true') == -1) {",
-"        parent.document.title=\"" + packagE.current().name() + (options.windowTitle == null ? "" : " (" + options.windowTitle + ")") + "\";",
-"    }",
-"//-->",
-"</script>",
-"<noscript>",
-"<div>JavaScript is disabled on your browser.</div>",
-"</noscript>"
+        super.rClassFrameHtml(
+            "Package " + packagE.current().name(), // title
+            options,                               // options
+            "stylesheet.css",                      // stylesheetLink
+            new String[] {                         // nav1
+                "Overview",   home + "overview-summary.html",
+                "Package",    AbstractClassFrameHtml.HIGHLIT,
+                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Use",        "package-use.html",
+                "Tree",       "package-tree.html",
+                "Deprecated", home + "deprecated-list.html",
+                "Index",      home + "index-all.html",
+                "Help",       home + "help-doc.html",
+            },
+            new String[] {                         // nav2
+                "Prev Package", packagE.hasPrevious() ? home + packagE.previous().name().replace('.', '/') + "/package-summary.html" : AbstractClassFrameHtml.DISABLED,
+                "Next Package", packagE.hasNext()     ? home + packagE.next().name().replace('.', '/')     + "/package-summary.html" : AbstractClassFrameHtml.DISABLED,
+            },
+            new String[] {                         // nav3
+                "Frames",    home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-summary.html",
+                "No Frames", "package-summary.html",
+            },
+            home + "allclasses-noframe.html",      // allClassesLink
+            null,                                  // nav4
+            null                                   // nav5
         );
+    }
 
-        this.include(TopNavBarHtml.class).renderForPackageDocument(packagE, options, "package-summary.html");
+    @Override protected void
+    rClassFrameBody() {
 
         this.l(
 "<div class=\"header\">",
-"<h1 title=\"Package\" class=\"title\">Package&nbsp;" + packagE.current().name() + "</h1>",
+"<h1 title=\"Package\" class=\"title\">Package&nbsp;" + this.packagE.current().name() + "</h1>",
 "<div class=\"docSummary\">",
-"<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
+"<div class=\"block\">" + JavadocUtil.description(this.packagE.current(), this.rootDoc) + "</div>",
 "</div>",
 "<p>See:&nbsp;<a href=\"#package_description\">Description</a></p>",
 "</div>",
@@ -77,7 +97,7 @@ class PackageSummaryHtml extends AbstractPerPackageDocument {
 "<ul class=\"blockList\">"
         );
 
-        ClassDoc[] is = packagE.current().interfaces();
+        ClassDoc[] is = this.packagE.current().interfaces();
         if (is.length > 0) {
             this.l(
 "<li class=\"blockList\">",
@@ -94,9 +114,9 @@ class PackageSummaryHtml extends AbstractPerPackageDocument {
             for (ClassDoc i : is) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">",
-"<td class=\"colFirst\">" + JavadocUtil.toHtml(i, packagE.current(), home, 1) + "</td>"
+"<td class=\"colFirst\">" + JavadocUtil.toHtml(i, this.packagE.current(), this.home, 1) + "</td>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(i, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(i, this.rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -119,7 +139,7 @@ class PackageSummaryHtml extends AbstractPerPackageDocument {
             );
         }
 
-        ClassDoc[] cs = packagE.current().ordinaryClasses();
+        ClassDoc[] cs = this.packagE.current().ordinaryClasses();
         if (cs.length > 0) {
             this.l(
 "<li class=\"blockList\">",
@@ -136,9 +156,9 @@ class PackageSummaryHtml extends AbstractPerPackageDocument {
             for (ClassDoc c : cs) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">",
-"<td class=\"colFirst\">" + JavadocUtil.toHtml(c, packagE.current(), home, 1) + "</td>"
+"<td class=\"colFirst\">" + JavadocUtil.toHtml(c, this.packagE.current(), this.home, 1) + "</td>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(c, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(c, this.rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -166,13 +186,9 @@ class PackageSummaryHtml extends AbstractPerPackageDocument {
 "<a name=\"package_description\">",
 "<!--   -->",
 "</a>",
-"<h2 title=\"Package " + packagE.current().name() + " Description\">Package " + packagE.current().name() + " Description</h2>",
-"<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
+"<h2 title=\"Package " + this.packagE.current().name() + " Description\">Package " + this.packagE.current().name() + " Description</h2>",
+"<div class=\"block\">" + JavadocUtil.description(this.packagE.current(), this.rootDoc) + "</div>",
 "</div>"
         );
-
-        this.include(BottomNavBarHtml.class).renderForPackageDocument(packagE, options, "package-summary.html");
-
-        this.include(BottomHtml.class).render(options);
     }
 }

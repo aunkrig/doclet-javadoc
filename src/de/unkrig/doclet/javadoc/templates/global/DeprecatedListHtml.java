@@ -32,40 +32,49 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
-import de.unkrig.doclet.javadoc.JavadocDoclet.Options;
-import de.unkrig.doclet.javadoc.templates.include.TopHtml;
-import de.unkrig.doclet.javadoc.templates.include.TopNavBarHtml;
+import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 
 public
-class DeprecatedListHtml extends AbstractGlobalDocument {
+class DeprecatedListHtml extends AbstractClassFrameHtml implements GlobalDocument {
+
+    private Options options;
 
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
-        this.include(TopHtml.class).render("Deprecated List", options, "stylesheet.css");
+        this.options = options;
 
-        this.l(
-            "<script type=\"text/javascript\"><!--",
-            "    if (location.href.indexOf('is-external=true') == -1) {",
-            "        parent.document.title=\"Deprecated List (WINDOWTITLE)\";",
-            "    }",
-            "//-->",
-            "</script>",
-            "<noscript>",
-            "<div>JavaScript is disabled on your browser.</div>",
-            "</noscript>"
+        super.rClassFrameHtml(
+            "Deprecated List",         // title
+            options,                   // options
+            "stylesheet.css",          // stylesheetLink
+            new String[] {             // nav1
+                "Overview",   "overview-summary.html",
+                "Package",    AbstractClassFrameHtml.DISABLED,
+                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Use",        AbstractClassFrameHtml.DISABLED,
+                "Tree",       "overview-tree.html",
+                "Deprecated", AbstractClassFrameHtml.HIGHLIT,
+                "Index",      "index-all.html",
+                "Help",       "help-doc.html",
+            },
+            new String[] {             // nav2
+                "Prev", AbstractClassFrameHtml.DISABLED,
+                "Next", AbstractClassFrameHtml.DISABLED,
+            },
+            new String[] {             // nav3
+                "Frames",    "index.html?overview-tree.html",
+                "No Frames", "overview-tree.html",
+            },
+            "allclasses-noframe.html", // allClassesLink
+            null,                      // nav4
+            null                       // nav5
         );
+    }
 
-        this.include(TopNavBarHtml.class).renderForGlobalDocument(
-            options,                           // options
-            "index.html?deprecated-list.html", // framesLink
-            "deprecated-list.html",            // noFramesLink
-            "overview-summary.html",           // overviewLink
-            "overview-tree.html",              // treeLink
-            "HIGHLIGHT",                       // deprecatedLink
-            false,                             // indexLinkHighlit
-            false                              // helpLinkHighlit
-        );
+    @Override
+    protected void rClassFrameBody() {
 
         this.l(
             "<div class=\"header\">",
