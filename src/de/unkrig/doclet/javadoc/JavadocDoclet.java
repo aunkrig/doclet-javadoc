@@ -29,8 +29,6 @@ package de.unkrig.doclet.javadoc;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Date;
-import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -43,16 +41,15 @@ import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.lang.AssertionUtil;
 import de.unkrig.commons.lang.StringUtil;
 import de.unkrig.commons.lang.protocol.ConsumerWhichThrows;
-import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.commons.util.collections.IterableUtil;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
-import de.unkrig.doclet.javadoc.templates.clasS.AbstractPerClassDocument;
 import de.unkrig.doclet.javadoc.templates.clasS.ClassFrameHtml;
-import de.unkrig.doclet.javadoc.templates.global.AbstractGlobalDocument;
+import de.unkrig.doclet.javadoc.templates.clasS.PerClassDocument;
 import de.unkrig.doclet.javadoc.templates.global.AllclassesFrameHtml;
 import de.unkrig.doclet.javadoc.templates.global.AllclassesNoframeHtml;
 import de.unkrig.doclet.javadoc.templates.global.ConstantValuesHtml;
 import de.unkrig.doclet.javadoc.templates.global.DeprecatedListHtml;
+import de.unkrig.doclet.javadoc.templates.global.GlobalDocument;
 import de.unkrig.doclet.javadoc.templates.global.HelpDocHtml;
 import de.unkrig.doclet.javadoc.templates.global.IndexAllHtml;
 import de.unkrig.doclet.javadoc.templates.global.IndexHtml;
@@ -62,11 +59,12 @@ import de.unkrig.doclet.javadoc.templates.global.OverviewTreeHtml;
 import de.unkrig.doclet.javadoc.templates.global.PackageList;
 import de.unkrig.doclet.javadoc.templates.global.SerializedFormHtml;
 import de.unkrig.doclet.javadoc.templates.global.StylesheetCss;
-import de.unkrig.doclet.javadoc.templates.packagE.AbstractPerPackageDocument;
 import de.unkrig.doclet.javadoc.templates.packagE.PackageFrameHtml;
 import de.unkrig.doclet.javadoc.templates.packagE.PackageSummaryHtml;
 import de.unkrig.doclet.javadoc.templates.packagE.PackageTreeHtml;
+import de.unkrig.doclet.javadoc.templates.packagE.PerPackageDocument;
 import de.unkrig.notemplate.NoTemplate;
+import de.unkrig.notemplate.javadocish.Options;
 
 /**
  * A doclet that generates documentation for Java packages, classes, and so forth.
@@ -102,39 +100,6 @@ class JavadocDoclet {
 
     public static LanguageVersion languageVersion() { return LanguageVersion.JAVA_1_5; }
 
-    /**
-     * Container for the command line options of the JAVADOC doclet.
-     */
-    public static
-    class Options {
-
-        /** The argument of the "-d" command line option. */
-        public File destination = new File(".");
-
-        /** The argument of the "-windowtitle" command line option. */
-        @Nullable public String windowTitle;
-
-        /** The argument of the "-doctitle" command line option. */
-        @Nullable public String docTitle;
-
-        /** The argument of the "-header" command line option. */
-        @Nullable public String header;
-
-        /** The argument of the "-footer" command line option. */
-        @Nullable public String footer;
-
-        /** The argument of the "-top" command line option. */
-        @Nullable public String top;
-
-        /** The argument of the "-bottom" command line option. */
-        @Nullable public String bottom;
-
-        /** Whether the "-notimestamp" command line option is given. */
-        public boolean noTimestamp;
-
-        /** The "generation" date that is rendered into the head of all documents. */
-        public final Date generationDate = new Date();
-    }
     /**
      * See <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/javadoc/doclet/overview.html">"Doclet
      * Overview"</a>.
@@ -211,9 +176,6 @@ class JavadocDoclet {
 
         for (ElementWithContext<PackageDoc> packagE : IterableUtil.iterableWithContext(this.allPackages)) {
 
-//            String       packageName = packageDoc.name();
-//            final String home        = StringUtil.repeat(packageName.split("\\.").length, "../");
-
             // Per-package documents.
             this.generatePerPackageDocument(packagE, PackageFrameHtml.class,   "package-frame.html");
             this.generatePerPackageDocument(packagE, PackageSummaryHtml.class, "package-summary.html");
@@ -221,26 +183,10 @@ class JavadocDoclet {
 
             ClassDoc[] acs = packagE.current().allClasses();
             Arrays.sort(acs, Docs.DOCS_BY_NAME_COMPARATOR);
-            Iterator<ClassDoc> it = Arrays.asList(acs).iterator();
-            if (it.hasNext()) {
-                ClassDoc previousClassDoc = null;
-                ClassDoc classDoc         = it.next();
-                for (;;) {
-                    ClassDoc nextClassDoc = it.hasNext() ? it.next() : null;
+            for (ElementWithContext<ClassDoc> clasS : IterableUtil.iterableWithContext(Arrays.asList(acs))) {
 
-                    // Create per-class document.
-                    this.generatePerClassDocument(
-                        previousClassDoc,
-                        classDoc,
-                        nextClassDoc,
-                        ClassFrameHtml.class
-                    );
-
-                    if (nextClassDoc == null) break;
-
-                    previousClassDoc = classDoc;
-                    classDoc         = nextClassDoc;
-                }
+                // Create per-class document.
+                this.generatePerClassDocument(clasS, ClassFrameHtml.class);
             }
         }
     }
@@ -248,7 +194,7 @@ class JavadocDoclet {
     /**
      * Creates a "global" document.
      */
-    private <C extends AbstractGlobalDocument> void
+    private <C extends NoTemplate & GlobalDocument> void
     generateGlobalDocument(
         Class<C>      perPackageTemplateClass,
         String        fileName
@@ -257,10 +203,10 @@ class JavadocDoclet {
         NoTemplate.render(
             perPackageTemplateClass,                                              // templateClass
             new File(this.options.destination, fileName),                         // out
-            new ConsumerWhichThrows<AbstractGlobalDocument, RuntimeException>() { // renderer
+            new ConsumerWhichThrows<GlobalDocument, RuntimeException>() { // renderer
 
                 @Override public void
-                consume(AbstractGlobalDocument gd) {
+                consume(GlobalDocument gd) {
 
                     gd.render(
                         JavadocDoclet.this.options,
@@ -276,7 +222,7 @@ class JavadocDoclet {
     /**
      * Creates a per-package document.
      */
-    private <C extends AbstractPerPackageDocument> void
+    private <C extends NoTemplate & PerPackageDocument> void
     generatePerPackageDocument(
         final ElementWithContext<PackageDoc> packagE,
         Class<C>                             perPackageTemplateClass,
@@ -289,29 +235,27 @@ class JavadocDoclet {
         NoTemplate.render(
             perPackageTemplateClass,
             new File(this.options.destination, packageName.replace('.',  '/') + '/' + fileName),
-            new ConsumerWhichThrows<AbstractPerPackageDocument, RuntimeException>() {
+            new ConsumerWhichThrows<PerPackageDocument, RuntimeException>() {
 
                 @Override public void
-                consume(AbstractPerPackageDocument ppd) {
+                consume(PerPackageDocument ppd) {
                     ppd.render(home, packagE, JavadocDoclet.this.options, JavadocDoclet.this.rootDoc);
                 }
             }
         );
     }
 
-    private <C extends AbstractPerClassDocument> void
+    private <C extends NoTemplate & PerClassDocument> void
     generatePerClassDocument(
-        @Nullable final ClassDoc previousClassDoc,
-        final ClassDoc           classDoc,
-        @Nullable final ClassDoc nextClassDoc,
-        Class<C>                 perClassTemplateClass
+        final ElementWithContext<ClassDoc> clasS,
+        Class<C>                           perClassTemplateClass
     ) throws IOException {
         {
-            String packageName = classDoc.containingPackage().name();
+            String packageName = clasS.current().containingPackage().name();
 
             File file = new File(
                 this.options.destination,
-                packageName.replace('.',  '/') + '/' + classDoc.name() + ".html"
+                packageName.replace('.',  '/') + '/' + clasS.current().name() + ".html"
             );
 
             final String home = StringUtil.repeat(packageName.split("\\.").length, "../");
@@ -319,15 +263,13 @@ class JavadocDoclet {
             NoTemplate.render(
                 perClassTemplateClass,
                 file,
-                new ConsumerWhichThrows<AbstractPerClassDocument, RuntimeException>() {
+                new ConsumerWhichThrows<PerClassDocument, RuntimeException>() {
 
                     @Override public void
-                    consume(AbstractPerClassDocument pcd) {
+                    consume(PerClassDocument pcd) {
                         pcd.render(
                             home,
-                            previousClassDoc,
-                            classDoc,
-                            nextClassDoc,
+                            clasS,
                             JavadocDoclet.this.options,
                             JavadocDoclet.this.rootDoc
                         );
