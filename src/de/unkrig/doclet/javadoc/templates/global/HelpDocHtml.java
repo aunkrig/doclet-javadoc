@@ -67,9 +67,11 @@ class HelpDocHtml extends AbstractClassFrameHtml implements GlobalDocument {
                 "Frames",    "index.html?help-doc.html",
                 "No Frames", "help-doc.html",
             },
-            "allclasses-noframe.html", // allClassesLink
-            null,                      // nav4
-            null                       // nav5
+            new String[] {             // nav4
+                "All Classes", "allclasses-noframe.html",
+            },
+            null,                      // nav5
+            null                       // nav6
         );
     }
 

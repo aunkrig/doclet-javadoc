@@ -63,9 +63,11 @@ class SerializedFormHtml extends AbstractClassFrameHtml implements GlobalDocumen
                 "Frames",    "index.html?serialized-form.html",
                 "No Frames", "serialized-form.html",
             },
-            "allclasses-noframe.html", // allClassesLink
-            null,                      // nav4
-            null                       // nav5
+            new String[] {             // nav4
+                "All Classes", "allclasses-noframe.html",
+            },
+            null,                      // nav5
+            null                       // nav6
         );
     }
 

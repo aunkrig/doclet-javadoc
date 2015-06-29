@@ -131,14 +131,16 @@ class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument 
                 "Frames",    "index.html?" + ClassFrameHtml.classLink("", clasS.current()),
                 "No Frames", ClassFrameHtml.classLink(home, clasS.current()),
             },
-            home + "allclasses-noframe.html",  // allClassesLink
             new String[] {                     // nav4
+                "All Classes", home + "allclasses-noframe.html",
+            },
+            new String[] {                     // nav5
                 "Nested", AbstractClassFrameHtml.DISABLED,
                 "Field",  "#field_summary",
                 "Constr", "#constructor_summary",
                 "Method", "#method_summary",
             },
-            new String[] {                     // nav5
+            new String[] {                     // nav6
                 "Field",  "#field_detail",
                 "Constr", "#constructor_detail",
                 "Method", "#method_detail"

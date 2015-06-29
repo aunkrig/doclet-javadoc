@@ -82,9 +82,11 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
                 "Frames",    "?overview-summary.html",
                 "No Frames", "overview-summary.html",
             },
-            "allclasses-noframe.html", // allClassesLink
-            null,                      // nav4
-            null                       // nav5
+            new String[] {             // nav4
+                "All Classes", "allclasses-noframe.html",
+            },
+            null,                      // nav5
+            null                       // nav6
         );
     }
 
