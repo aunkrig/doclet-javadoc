@@ -67,9 +67,11 @@ class DeprecatedListHtml extends AbstractClassFrameHtml implements GlobalDocumen
                 "Frames",    "index.html?overview-tree.html",
                 "No Frames", "overview-tree.html",
             },
-            "allclasses-noframe.html", // allClassesLink
-            null,                      // nav4
-            null                       // nav5
+            new String[] {             // nav4
+                "All Classes", "allclasses-noframe.html",
+            },
+            null,                      // nav5
+            null                       // nav6
         );
     }
 

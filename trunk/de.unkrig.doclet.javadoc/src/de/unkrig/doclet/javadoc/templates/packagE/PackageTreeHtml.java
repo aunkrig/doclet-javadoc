@@ -70,9 +70,11 @@ class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocume
                 "Frames",    home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-tree.html",
                 "No Frames", "package-tree.html",
             },
-            home + "allclasses-noframe.html",      // allClassesLink
-            null,                                  // nav4
-            null                                   // nav5
+            new String[] {                         // nav4
+                "All Classes", home + "allclasses-noframe.html",
+            },
+            null,                                  // nav5
+            null                                   // nav6
         );
     }
 
