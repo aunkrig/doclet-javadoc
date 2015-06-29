@@ -47,19 +47,13 @@ import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 public
 class IndexAllHtml extends AbstractClassFrameHtml implements GlobalDocument {
 
-    private SortedSet<ClassDoc> allClassesAndInterfaces;
-    private RootDoc             rootDoc;
-
     @Override public void
     render(
-        Options               options,
-        SortedSet<PackageDoc> allPackages,
-        SortedSet<ClassDoc>   allClassesAndInterfaces,
-        RootDoc               rootDoc
+        Options                   options,
+        SortedSet<PackageDoc>     allPackages,
+        final SortedSet<ClassDoc> allClassesAndInterfaces,
+        final RootDoc             rootDoc
     ) {
-
-        this.allClassesAndInterfaces = allClassesAndInterfaces;
-        this.rootDoc                 = rootDoc;
 
         super.rClassFrameHtml(
             "Index",                   // title
@@ -86,15 +80,23 @@ class IndexAllHtml extends AbstractClassFrameHtml implements GlobalDocument {
                 "All Classes", "allclasses-noframe.html",
             },
             null,                      // nav5
-            null                       // nav6
+            null,                      // nav6
+            new Runnable() {
+
+                @Override
+                public void
+                run() {
+                    IndexAllHtml.this.rBody(allClassesAndInterfaces, rootDoc);
+                }
+            }
         );
     }
 
-    @Override protected void
-    rClassFrameBody() {
+    private void
+    rBody(SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
         Collection<Doc> allDocs = new ArrayList<Doc>();
-        for (ClassDoc cd : this.allClassesAndInterfaces) {
+        for (ClassDoc cd : allClassesAndInterfaces) {
             for (MethodDoc md : cd.methods()) {
                 allDocs.add(md);
             }
@@ -135,9 +137,9 @@ class IndexAllHtml extends AbstractClassFrameHtml implements GlobalDocument {
 
             for (Doc doc : docsOfInitial) {
                 this.l(
-"<dt>" + JavadocUtil.toHtml(this.rootDoc, doc, true, null, null, this.rootDoc) + "</dt>"
+"<dt>" + JavadocUtil.toHtml(rootDoc, doc, true, null, null, rootDoc) + "</dt>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(doc, this.rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(doc, rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<dd>&nbsp;</dd>"

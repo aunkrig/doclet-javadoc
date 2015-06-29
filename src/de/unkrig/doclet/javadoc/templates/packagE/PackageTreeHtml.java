@@ -39,14 +39,8 @@ import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 public
 class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocument {
 
-    private String                         home;
-    private ElementWithContext<PackageDoc> packagE;
-
     @Override public void
-    render(String home, ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
-
-        this.home    = home;
-        this.packagE = packagE;
+    render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
         super.rClassFrameHtml(
             "Package " + packagE.current().name(), // title
@@ -74,28 +68,35 @@ class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocume
                 "All Classes", home + "allclasses-noframe.html",
             },
             null,                                  // nav5
-            null                                   // nav6
+            null,                                  // nav6
+            new Runnable() {
+
+                @Override public void
+                run() {
+                    PackageTreeHtml.this.rBody(packagE, home);
+                }
+            }
         );
     }
 
-    @Override protected void
-    rClassFrameBody() {
+    private void
+    rBody(ElementWithContext<PackageDoc> packagE, String home) {
 
         this.l(
 "<div class=\"header\">",
-"<h1 class=\"title\">Hierarchy For Package " + this.packagE.current().name() + "</h1>",
+"<h1 class=\"title\">Hierarchy For Package " + packagE.current().name() + "</h1>",
 "<span class=\"strong\">Package Hierarchies:</span>",
 "<ul class=\"horizontal\">",
-"<li><a href=\"" + this.home + "overview-tree.html\">All Packages</a></li>",
+"<li><a href=\"" + home + "overview-tree.html\">All Packages</a></li>",
 "</ul>",
 "</div>",
 "<div class=\"contentContainer\">"
         );
 
         this.include(HierarchiesHtml.class).render(
-            this.home,
-            Arrays.asList(this.packagE.current().ordinaryClasses()),
-            Arrays.asList(this.packagE.current().interfaces())
+            home,
+            Arrays.asList(packagE.current().ordinaryClasses()),
+            Arrays.asList(packagE.current().interfaces())
         );
     }
 }

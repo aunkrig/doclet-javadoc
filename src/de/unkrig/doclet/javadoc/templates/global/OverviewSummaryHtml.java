@@ -37,7 +37,6 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.lang.protocol.Producer;
 import de.unkrig.commons.lang.protocol.ProducerUtil;
-import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
@@ -45,21 +44,13 @@ import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 public
 class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocument {
 
-    @Nullable private Options               options;
-    @Nullable private SortedSet<PackageDoc> allPackages;
-    @Nullable private RootDoc               rootDoc;
-
     @Override public void
     render(
-        Options               options,
-        SortedSet<PackageDoc> allPackages,
-        SortedSet<ClassDoc>   allClassesAndInterfaces,
-        RootDoc               rootDoc
+        final Options               options,
+        final SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>         allClassesAndInterfaces,
+        final RootDoc               rootDoc
     ) {
-
-        this.options     = options;
-        this.allPackages = allPackages;
-        this.rootDoc     = rootDoc;
 
         this.rClassFrameHtml(
             "Overview",                // windowTitle
@@ -86,16 +77,21 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
                 "All Classes", "allclasses-noframe.html",
             },
             null,                      // nav5
-            null                       // nav6
+            null,                      // nav6
+            new Runnable() {
+
+                @Override public void
+                run() { OverviewSummaryHtml.this.rBody(options, allPackages, rootDoc); }
+            }
         );
     }
 
-    @Override
-    protected void rClassFrameBody() {
+    private void
+    rBody(Options options, SortedSet<PackageDoc> allPackages, RootDoc rootDoc) {
 
         this.l(
 "<div class=\"header\">",
-"<h1 class=\"title\">" + this.options.docTitle + "</h1>",
+"<h1 class=\"title\">" + options.docTitle + "</h1>",
 "</div>",
 "<div class=\"contentContainer\">",
 "<table class=\"overviewSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Packages table, listing packages, and an explanation\">",
@@ -107,7 +103,7 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
 "<tbody>"
         );
 
-        ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(this.allPackages);
+        ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
         Collections.sort(aps, Docs.DOCS_BY_NAME_COMPARATOR);
         Producer<String> cls = ProducerUtil.alternate("altColor", "rowColor");
         for (PackageDoc p : aps) {
@@ -115,7 +111,7 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
 "<tr class=\"" + cls.produce() + "\">",
 "<td class=\"colFirst\"><a href=\"" + p.name().replace('.', '/') + "/package-summary.html\">" + p.name() + "</a></td>"
             );
-            String desc = JavadocUtil.firstSentenceOfDescription(p, this.rootDoc);
+            String desc = JavadocUtil.firstSentenceOfDescription(p, rootDoc);
             if (desc.isEmpty()) {
                 this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -123,7 +119,7 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
             } else {
                 this.l(
 "<td class=\"colLast\">",
-"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(p, this.rootDoc) + "</div>",
+"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(p, rootDoc) + "</div>",
 "</td>"
                 );
             }
