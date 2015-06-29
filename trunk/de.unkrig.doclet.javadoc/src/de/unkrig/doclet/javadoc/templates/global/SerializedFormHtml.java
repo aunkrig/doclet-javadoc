@@ -67,12 +67,15 @@ class SerializedFormHtml extends AbstractClassFrameHtml implements GlobalDocumen
                 "All Classes", "allclasses-noframe.html",
             },
             null,                      // nav5
-            null                       // nav6
+            null,                      // nav6
+            new Runnable() {           // renderBody
+                @Override public void run() { SerializedFormHtml.this.rBody(); }
+            }
         );
     }
 
-    @Override protected void
-    rClassFrameBody() {
+    private void
+    rBody() {
 
         this.l(
             "<div class=\"header\">",

@@ -43,16 +43,8 @@ import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 public
 class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDocument {
 
-    private String                         home;
-    private ElementWithContext<PackageDoc> packagE;
-    private RootDoc                        rootDoc;
-
     @Override public void
-    render(String home, ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
-
-        this.home    = home;
-        this.packagE = packagE;
-        this.rootDoc = rootDoc;
+    render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, final RootDoc rootDoc) {
 
         super.rClassFrameHtml(
             "Package " + packagE.current().name(), // title
@@ -80,18 +72,25 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
                 "All Classes", home + "allclasses-noframe.html",
             },
             null,                                  // nav5
-            null                                   // nav6
+            null,                                  // nav6
+            new Runnable() {
+
+                @Override public void
+                run() {
+                    PackageSummaryHtml.this.rBody(packagE, rootDoc, home);
+                }
+            }
         );
     }
 
-    @Override protected void
-    rClassFrameBody() {
+    private void
+    rBody(ElementWithContext<PackageDoc> packagE, RootDoc rootDoc, String home) {
 
         this.l(
 "<div class=\"header\">",
-"<h1 title=\"Package\" class=\"title\">Package&nbsp;" + this.packagE.current().name() + "</h1>",
+"<h1 title=\"Package\" class=\"title\">Package&nbsp;" + packagE.current().name() + "</h1>",
 "<div class=\"docSummary\">",
-"<div class=\"block\">" + JavadocUtil.description(this.packagE.current(), this.rootDoc) + "</div>",
+"<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
 "</div>",
 "<p>See:&nbsp;<a href=\"#package_description\">Description</a></p>",
 "</div>",
@@ -99,7 +98,7 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
 "<ul class=\"blockList\">"
         );
 
-        ClassDoc[] is = this.packagE.current().interfaces();
+        ClassDoc[] is = packagE.current().interfaces();
         if (is.length > 0) {
             this.l(
 "<li class=\"blockList\">",
@@ -116,9 +115,9 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
             for (ClassDoc i : is) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">",
-"<td class=\"colFirst\">" + JavadocUtil.toHtml(i, this.packagE.current(), this.home, 1) + "</td>"
+"<td class=\"colFirst\">" + JavadocUtil.toHtml(i, packagE.current(), home, 1) + "</td>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(i, this.rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(i, rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -141,7 +140,7 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
             );
         }
 
-        ClassDoc[] cs = this.packagE.current().ordinaryClasses();
+        ClassDoc[] cs = packagE.current().ordinaryClasses();
         if (cs.length > 0) {
             this.l(
 "<li class=\"blockList\">",
@@ -158,9 +157,9 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
             for (ClassDoc c : cs) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">",
-"<td class=\"colFirst\">" + JavadocUtil.toHtml(c, this.packagE.current(), this.home, 1) + "</td>"
+"<td class=\"colFirst\">" + JavadocUtil.toHtml(c, packagE.current(), home, 1) + "</td>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(c, this.rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(c, rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -188,8 +187,8 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
 "<a name=\"package_description\">",
 "<!--   -->",
 "</a>",
-"<h2 title=\"Package " + this.packagE.current().name() + " Description\">Package " + this.packagE.current().name() + " Description</h2>",
-"<div class=\"block\">" + JavadocUtil.description(this.packagE.current(), this.rootDoc) + "</div>",
+"<h2 title=\"Package " + packagE.current().name() + " Description\">Package " + packagE.current().name() + " Description</h2>",
+"<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
 "</div>"
         );
     }

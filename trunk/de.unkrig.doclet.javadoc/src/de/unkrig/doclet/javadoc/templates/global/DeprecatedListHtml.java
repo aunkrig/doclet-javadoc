@@ -38,12 +38,8 @@ import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 public
 class DeprecatedListHtml extends AbstractClassFrameHtml implements GlobalDocument {
 
-    private Options options;
-
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
-
-        this.options = options;
 
         super.rClassFrameHtml(
             "Deprecated List",         // title
@@ -71,12 +67,20 @@ class DeprecatedListHtml extends AbstractClassFrameHtml implements GlobalDocumen
                 "All Classes", "allclasses-noframe.html",
             },
             null,                      // nav5
-            null                       // nav6
+            null,                      // nav6
+            new Runnable() {
+
+                @Override
+                public void
+                run() {
+                    DeprecatedListHtml.this.rBody();
+                }
+            }
         );
     }
 
-    @Override
-    protected void rClassFrameBody() {
+    private void
+    rBody() {
 
         this.l(
             "<div class=\"header\">",

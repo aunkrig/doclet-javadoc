@@ -88,7 +88,7 @@ class JavadocUtil {
      * </dl>
      */
     public static String
-    toHtml(Type type, Doc ref, String home, int mode) {
+    toHtml(Type type, @Nullable Doc ref, String home, int mode) {
         return JavadocUtil.toHtml(type, ref, home, mode, null);
     }
 
@@ -111,7 +111,7 @@ class JavadocUtil {
      * @param target The target window for the link, e.g. "{@code _blank}"
      */
     public static String
-    toHtml(Type type, Doc ref, String home, int mode, @Nullable String target) {
+    toHtml(Type type, @Nullable Doc ref, String home, int mode, @Nullable String target) {
 
         if ((mode & 2) != 0) {
             String result = type.toString();

@@ -36,59 +36,59 @@ import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.include.BottomHtml;
-import de.unkrig.notemplate.javadocish.templates.include.TopHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractPackageFrameHtml;
 
 public
-class PackageFrameHtml extends NoTemplate implements PerPackageDocument {
+class PackageFrameHtml extends AbstractPackageFrameHtml implements PerPackageDocument {
 
     @Override public void
-    render(String home, ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
+    render(String home, final ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
-        this.include(TopHtml.class).render(packagE.current().name(), options, home + "stylesheet.css");
+        super.rPackageFrameHtml(
+            packagE.current().name(), // heading
+            home + packagE.current().name().replace('.', '/') + "/package-summary.html", // headingLink
+            options,                  // options
+            home + "stylesheet.css",  // styleSheetLink
+            new Runnable() {          // renderBody
 
-        this.l(
-"<h1 class=\"bar\"><a href=\"" + home + packagE.current().name().replace('.', '/') + "/package-summary.html\" target=\"classFrame\">" + packagE.current().name() + "</a></h1>",
-"<div class=\"indexContainer\">"
-        );
-
-        ClassDoc[] interfaces = packagE.current().interfaces();
-        if (interfaces.length > 0) {
-            this.l(
+                @Override public void
+                run() {
+                    ClassDoc[] interfaces = packagE.current().interfaces();
+                    if (interfaces.length > 0) {
+                        PackageFrameHtml.this.l(
 "<h2 title=\"Interfaces\">Interfaces</h2>",
 "<ul title=\"Interfaces\">"
-            );
-            Arrays.sort(interfaces, Docs.DOCS_BY_NAME_COMPARATOR);
-            for (ClassDoc i : interfaces) {
-                this.l(
+                        );
+                        Arrays.sort(interfaces, Docs.DOCS_BY_NAME_COMPARATOR);
+                        for (ClassDoc i : interfaces) {
+                            PackageFrameHtml.this.l(
 "<li><a href=\"" + i.name() + ".html\" title=\"interface in " + packagE.current().name() + "\" target=\"classFrame\"><i>" + i.name() + "</i></a></li>"
-                );
-            }
-            this.l(
+                            );
+                        }
+                        PackageFrameHtml.this.l(
 "</ul>"
-            );
-        }
+                        );
+                    }
 
-        ClassDoc[] ordinaryClasses = packagE.current().ordinaryClasses();
-        if (ordinaryClasses.length > 0) {
-            this.l(
+                    ClassDoc[] ordinaryClasses = packagE.current().ordinaryClasses();
+                    if (ordinaryClasses.length > 0) {
+                        PackageFrameHtml.this.l(
 "<h2 title=\"Classes\">Classes</h2>",
 "<ul title=\"Classes\">"
-            );
-            Arrays.sort(ordinaryClasses, Docs.DOCS_BY_NAME_COMPARATOR);
-            for (ClassDoc oc : ordinaryClasses) {
-                this.l(
+                        );
+                        Arrays.sort(ordinaryClasses, Docs.DOCS_BY_NAME_COMPARATOR);
+                        for (ClassDoc oc : ordinaryClasses) {
+                            PackageFrameHtml.this.l(
 "<li><a href=\"" + NoTemplate.html(oc.name()) + ".html\" title=\"class in " + packagE.current().name() + "\" target=\"classFrame\">" + oc.name() + "</a></li>"
-                );
-            }
-            this.l(
+                            );
+                        }
+                        PackageFrameHtml.this.l(
 "</ul>"
-            );
-        }
-        this.l(
-"</div>"
+                        );
+                    }
+                }
+            }
         );
 
-        this.include(BottomHtml.class).render();
     }
 }

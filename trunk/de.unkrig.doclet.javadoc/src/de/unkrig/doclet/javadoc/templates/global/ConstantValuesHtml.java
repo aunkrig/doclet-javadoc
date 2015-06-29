@@ -46,12 +46,13 @@ import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 public
 class ConstantValuesHtml extends AbstractClassFrameHtml implements GlobalDocument {
 
-    private SortedSet<PackageDoc> allPackages;
-
     @Override public void
-    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
-
-        this.allPackages = allPackages;
+    render(
+        Options                     options,
+        final SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>         allClassesAndInterfaces,
+        RootDoc                     rootDoc
+    ) {
 
         this.rClassFrameHtml(
             "Constant Field Values",   // title
@@ -79,12 +80,15 @@ class ConstantValuesHtml extends AbstractClassFrameHtml implements GlobalDocumen
                 "All Classes", "allclasses-noframe.html",
             },
             null,                      // nav5
-            null                       // nav6
+            null,                      // nav6
+            new Runnable() {           // renderBody
+                @Override public void run() { ConstantValuesHtml.this.rBody(allPackages); }
+            }
         );
     }
 
-    @Override protected void
-    rClassFrameBody() {
+    private void
+    rBody(SortedSet<PackageDoc> allPackages) {
 
         this.l(
 "<div class=\"header\">",
@@ -92,7 +96,7 @@ class ConstantValuesHtml extends AbstractClassFrameHtml implements GlobalDocumen
 "<h2 title=\"Contents\">Contents</h2>",
 "<ul>"
         );
-        List<PackageDoc> ps = new ArrayList<PackageDoc>(this.allPackages);
+        List<PackageDoc> ps = new ArrayList<PackageDoc>(allPackages);
         Collections.sort(ps, Docs.DOCS_BY_NAME_COMPARATOR);
         for (PackageDoc p : ps) {
 

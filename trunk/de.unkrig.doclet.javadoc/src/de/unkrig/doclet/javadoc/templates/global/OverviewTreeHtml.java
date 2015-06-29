@@ -42,21 +42,13 @@ import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
 public
 class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument {
 
-    private Options               options;
-    private SortedSet<PackageDoc> allPackages;
-    private SortedSet<ClassDoc>   allClassesAndInterfaces;
-
     @Override public void
     render(
-        Options               options,
-        SortedSet<PackageDoc> allPackages,
-        SortedSet<ClassDoc>   allClassesAndInterfaces,
-        RootDoc               rootDoc
+        Options                     options,
+        final SortedSet<PackageDoc> allPackages,
+        final SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc                     rootDoc
     ) {
-
-        this.options                 = options;
-        this.allPackages             = allPackages;
-        this.allClassesAndInterfaces = allClassesAndInterfaces;
 
         super.rClassFrameHtml(
             "Class Hierarchy",         // title
@@ -84,12 +76,19 @@ class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument 
                 "All Classes", "allclasses-noframe.html",
             },
             null,                      // nav5
-            null                       // nav6
+            null,                      // nav6
+            new Runnable() {
+
+                @Override public void
+                run() {
+                    OverviewTreeHtml.this.rBody(allPackages, allClassesAndInterfaces);
+                }
+            }
         );
     }
 
-    @Override
-    protected void rClassFrameBody() {
+    private void
+    rBody(SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces) {
 
         this.l(
 "<div class=\"header\">",
@@ -98,7 +97,7 @@ class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument 
 "<ul class=\"horizontal\">"
         );
         Once first = NoTemplate.once();
-        for (PackageDoc p : this.allPackages) {
+        for (PackageDoc p : allPackages) {
             if (!first.once()) this.l(", </li>");
             this.p("<li><a href=\"" + p.name().replace('.', '/') + "/package-tree.html\">" + p.name() + "</a>");
         }
@@ -111,7 +110,7 @@ class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument 
 
         List<ClassDoc> classes    = new ArrayList<ClassDoc>();
         List<ClassDoc> interfaces = new ArrayList<ClassDoc>();
-        for (ClassDoc cd : this.allClassesAndInterfaces) {
+        for (ClassDoc cd : allClassesAndInterfaces) {
             if (cd.isInterface()) {
                 interfaces.add(cd);
             } else
