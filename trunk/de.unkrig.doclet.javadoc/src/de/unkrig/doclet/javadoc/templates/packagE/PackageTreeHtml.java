@@ -31,6 +31,7 @@ import java.util.Arrays;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
+import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.include.HierarchiesHtml;
 import de.unkrig.notemplate.javadocish.Options;
@@ -57,8 +58,8 @@ class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocume
                 "Help",       home + "help-doc.html",
             },
             new String[] {                         // nav2
-                "Prev", packagE.hasPrevious() ? home + packagE.previous().name().replace('.', '/') + "/package-tree.html" : AbstractClassFrameHtml.DISABLED,
-                "Next", packagE.hasNext()     ? home + packagE.next().name().replace('.', '/')     + "/package-tree.html" : AbstractClassFrameHtml.DISABLED,
+                "Prev", PackageTreeHtml.packageTreeLink(home, packagE.previous()),
+                "Next", PackageTreeHtml.packageTreeLink(home, packagE.next()),
             },
             new String[] {                         // nav3
                 "Frames",    home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-tree.html",
@@ -76,6 +77,16 @@ class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocume
                     PackageTreeHtml.this.rBody(packagE, home);
                 }
             }
+        );
+    }
+
+    private static String
+    packageTreeLink(final String home, @Nullable PackageDoc pd) {
+
+        return (
+            pd != null
+            ? home + pd.name().replace('.', '/') + "/package-tree.html"
+            : AbstractClassFrameHtml.DISABLED
         );
     }
 

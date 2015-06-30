@@ -35,6 +35,7 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.lang.protocol.Producer;
 import de.unkrig.commons.lang.protocol.ProducerUtil;
+import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
@@ -61,8 +62,8 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
                 "Help",       home + "help-doc.html",
             },
             new String[] {                         // nav2
-                "Prev Package", packagE.hasPrevious() ? home + packagE.previous().name().replace('.', '/') + "/package-summary.html" : AbstractClassFrameHtml.DISABLED,
-                "Next Package", packagE.hasNext()     ? home + packagE.next().name().replace('.', '/')     + "/package-summary.html" : AbstractClassFrameHtml.DISABLED,
+                "Prev Package", PackageSummaryHtml.packageLink(home, packagE.previous()),
+                "Next Package", PackageSummaryHtml.packageLink(home, packagE.next()),
             },
             new String[] {                         // nav3
                 "Frames",    home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-summary.html",
@@ -80,6 +81,16 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
                     PackageSummaryHtml.this.rBody(packagE, rootDoc, home);
                 }
             }
+        );
+    }
+
+    private static String
+    packageLink(final String home, @Nullable PackageDoc pd) {
+
+        return (
+            pd != null
+            ? home + pd.name().replace('.', '/') + "/package-summary.html"
+            : AbstractClassFrameHtml.DISABLED
         );
     }
 
