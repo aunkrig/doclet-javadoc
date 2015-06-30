@@ -98,7 +98,7 @@ class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument 
         super.rClassFrameHtml(
             "Class " + clasS.current().name(), // title
             options,                           // options
-            "stylesheet.css",                  // stylesheetLink
+            new String[] { "stylesheet.css" }, // stylesheetLinks
             new String[] {                     // nav1
                 "Overview",   home + "overview-summary.html",
                 "Package",    AbstractClassFrameHtml.HIGHLIT,
@@ -131,12 +131,8 @@ class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument 
                 "Constr", "#constructor_detail",
                 "Method", "#method_detail"
             },
-            new Runnable() {
-
-                @Override public void
-                run() {
-                    ClassFrameHtml.this.rBody(clasS, home, rootDoc);
-                }
+            () -> {                            // renderBody
+                ClassFrameHtml.this.rBody(clasS, home, rootDoc);
             }
         );
     }

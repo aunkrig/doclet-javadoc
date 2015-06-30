@@ -42,10 +42,10 @@ class HelpDocHtml extends AbstractClassFrameHtml implements GlobalDocument {
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
         super.rClassFrameHtml(
-            "API Help",                // title
-            options,                   // options
-            "stylesheet.css",          // stylesheetLink
-            new String[] {             // nav1
+            "API Help",                        // title
+            options,                           // options
+            new String[] { "stylesheet.css" }, // stylesheetLinks
+            new String[] {                     // nav1
                 "Overview",   "overview-summary.html",
                 "Package",    AbstractClassFrameHtml.DISABLED,
                 "Class",      AbstractClassFrameHtml.DISABLED,
@@ -55,25 +55,21 @@ class HelpDocHtml extends AbstractClassFrameHtml implements GlobalDocument {
                 "Index",      "index-all.html",
                 "Help",       AbstractClassFrameHtml.HIGHLIT,
             },
-            new String[] {             // nav2
+            new String[] {                     // nav2
                 "Prev", AbstractClassFrameHtml.DISABLED,
                 "Next", AbstractClassFrameHtml.DISABLED,
             },
-            new String[] {             // nav3
+            new String[] {                     // nav3
                 "Frames",    "index.html?help-doc.html",
                 "No Frames", "help-doc.html",
             },
-            new String[] {             // nav4
+            new String[] {                     // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            null,                      // nav5
-            null,                      // nav6
-            new Runnable() {
-
-                @Override public void
-                run() {
-                    HelpDocHtml.this.rBody();
-                }
+            null,                              // nav5
+            null,                              // nav6
+            () -> {                            // renderBody
+                HelpDocHtml.this.rBody();
             }
         );
     }

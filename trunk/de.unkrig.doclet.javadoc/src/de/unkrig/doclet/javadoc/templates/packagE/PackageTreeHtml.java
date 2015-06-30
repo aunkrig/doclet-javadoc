@@ -46,7 +46,7 @@ class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocume
         super.rClassFrameHtml(
             "Package " + packagE.current().name(), // title
             options,                               // options
-            "stylesheet.css",                      // stylesheetLink
+            new String[] { "stylesheet.css" },     // stylesheetLinks
             new String[] {                         // nav1
                 "Overview",   home + "overview-summary.html",
                 "Package",    home + "package-summary.html",
@@ -70,12 +70,8 @@ class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocume
             },
             null,                                  // nav5
             null,                                  // nav6
-            new Runnable() {
-
-                @Override public void
-                run() {
-                    PackageTreeHtml.this.rBody(packagE, home);
-                }
+            () -> {                                // renderBody
+                PackageTreeHtml.this.rBody(packagE, home);
             }
         );
     }

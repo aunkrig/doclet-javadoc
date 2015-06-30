@@ -48,7 +48,7 @@ class AllclassesFrameHtml extends NoTemplate implements GlobalDocument {
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
-        this.include(TopHtml.class).render("All Classes", options, "stylesheet.css");
+        this.include(TopHtml.class).render("All Classes", options, new String[] { "stylesheet.css" });
 
         this.l(
 "<h1 class=\"bar\">All Classes</h1>",

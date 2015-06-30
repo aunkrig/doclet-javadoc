@@ -53,10 +53,10 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
     ) {
 
         this.rClassFrameHtml(
-            "Overview",                // windowTitle
-            options,
-            "stylesheet.css",
-            new String[] {             // nav1
+            "Overview",                        // windowTitle
+            options,                           // options
+            new String[] { "stylesheet.css" }, // stylesheetLinks
+            new String[] {                     // nav1
                 "Overview",   AbstractClassFrameHtml.HIGHLIT,
                 "Package",    AbstractClassFrameHtml.DISABLED,
                 "Class",      AbstractClassFrameHtml.DISABLED,
@@ -65,23 +65,21 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
                 "Index",      "index-all.html",
                 "Help",       "help-doc.html",
             },
-            new String[] {             // nav2
+            new String[] {                     // nav2
                 "Prev", AbstractClassFrameHtml.DISABLED,
                 "Next", AbstractClassFrameHtml.DISABLED,
             },
-            new String[] {             // nav3
+            new String[] {                     // nav3
                 "Frames",    "?overview-summary.html",
                 "No Frames", "overview-summary.html",
             },
-            new String[] {             // nav4
+            new String[] {                     // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            null,                      // nav5
-            null,                      // nav6
-            new Runnable() {
-
-                @Override public void
-                run() { OverviewSummaryHtml.this.rBody(options, allPackages, rootDoc); }
+            null,                              // nav5
+            null,                              // nav6
+            () -> {                            // renderBody
+                OverviewSummaryHtml.this.rBody(options, allPackages, rootDoc);
             }
         );
     }

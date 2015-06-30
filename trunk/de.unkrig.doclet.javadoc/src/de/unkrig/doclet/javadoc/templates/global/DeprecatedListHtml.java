@@ -42,10 +42,10 @@ class DeprecatedListHtml extends AbstractClassFrameHtml implements GlobalDocumen
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
         super.rClassFrameHtml(
-            "Deprecated List",         // title
-            options,                   // options
-            "stylesheet.css",          // stylesheetLink
-            new String[] {             // nav1
+            "Deprecated List",                 // title
+            options,                           // options
+            new String[] { "stylesheet.css" }, // stylesheetLinks
+            new String[] {                     // nav1
                 "Overview",   "overview-summary.html",
                 "Package",    AbstractClassFrameHtml.DISABLED,
                 "Class",      AbstractClassFrameHtml.DISABLED,
@@ -55,26 +55,21 @@ class DeprecatedListHtml extends AbstractClassFrameHtml implements GlobalDocumen
                 "Index",      "index-all.html",
                 "Help",       "help-doc.html",
             },
-            new String[] {             // nav2
+            new String[] {                  // nav2
                 "Prev", AbstractClassFrameHtml.DISABLED,
                 "Next", AbstractClassFrameHtml.DISABLED,
             },
-            new String[] {             // nav3
+            new String[] {                  // nav3
                 "Frames",    "index.html?overview-tree.html",
                 "No Frames", "overview-tree.html",
             },
-            new String[] {             // nav4
+            new String[] {                  // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            null,                      // nav5
-            null,                      // nav6
-            new Runnable() {
-
-                @Override
-                public void
-                run() {
-                    DeprecatedListHtml.this.rBody();
-                }
+            null,                           // nav5
+            null,                           // nav6
+            () -> {                         // renderBody
+                DeprecatedListHtml.this.rBody();
             }
         );
     }
