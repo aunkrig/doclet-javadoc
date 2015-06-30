@@ -42,10 +42,10 @@ class SerializedFormHtml extends AbstractClassFrameHtml implements GlobalDocumen
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
         super.rClassFrameHtml(
-            "Serialized Form",         // title
-            options,                   // options
-            "stylesheet.css",          // stylesheetLink
-            new String[] {             // nav1
+            "Serialized Form",                 // title
+            options,                           // options
+            new String[] { "stylesheet.css" }, // stylesheetLinks
+            new String[] {                     // nav1
                 "Overview",   "overview-summary.html",
                 "Package",    AbstractClassFrameHtml.DISABLED,
                 "Use",        AbstractClassFrameHtml.DISABLED,
@@ -55,21 +55,21 @@ class SerializedFormHtml extends AbstractClassFrameHtml implements GlobalDocumen
                 "Index",      "index-all.html",
                 "Help",       "help-doc.html",
             },
-            new String[] {             // nav2
+            new String[] {                     // nav2
                 "Prev", AbstractClassFrameHtml.DISABLED,
                 "Next", AbstractClassFrameHtml.DISABLED,
             },
-            new String[] {             // nav3
+            new String[] {                     // nav3
                 "Frames",    "index.html?serialized-form.html",
                 "No Frames", "serialized-form.html",
             },
-            new String[] {             // nav4
+            new String[] {                     // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            null,                      // nav5
-            null,                      // nav6
-            new Runnable() {           // renderBody
-                @Override public void run() { SerializedFormHtml.this.rBody(); }
+            null,                              // nav5
+            null,                              // nav6
+            () -> {                            // renderBody
+                SerializedFormHtml.this.rBody();
             }
         );
     }

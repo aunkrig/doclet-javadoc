@@ -47,7 +47,7 @@ class OverviewFrameHtml extends NoTemplate implements GlobalDocument {
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
-        this.include(TopHtml.class).render("Overview List", options, "stylesheet.css");
+        this.include(TopHtml.class).render("Overview List", options, new String[] { "stylesheet.css" });
 
         this.l(
 "<h1 title=\"HEADER\" class=\"bar\">HEADER</h1>",

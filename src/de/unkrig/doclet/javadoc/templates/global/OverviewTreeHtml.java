@@ -51,10 +51,10 @@ class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument 
     ) {
 
         super.rClassFrameHtml(
-            "Class Hierarchy",         // title
-            options,                   // options
-            "stylesheet.css",          // stylesheetLink
-            new String[] {             // nav1
+            "Class Hierarchy",                 // title
+            options,                           // options
+            new String[] { "stylesheet.css" }, // stylesheetLinks
+            new String[] {                     // nav1
                 "Overview",   "overview-summary.html",
                 "Package",    AbstractClassFrameHtml.DISABLED,
                 "Class",      AbstractClassFrameHtml.DISABLED,
@@ -64,25 +64,21 @@ class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument 
                 "Index",      "index-all.html",
                 "Help",       "help-doc.html",
             },
-            new String[] {             // nav2
+            new String[] {                     // nav2
                 "Prev", AbstractClassFrameHtml.DISABLED,
                 "Next", AbstractClassFrameHtml.DISABLED,
             },
-            new String[] {             // nav3
+            new String[] {                     // nav3
                 "Frames",    "index.html?overview-tree.html",
                 "No Frames", "overview-tree.html",
             },
-            new String[] {             // nav4
+            new String[] {                     // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            null,                      // nav5
-            null,                      // nav6
-            new Runnable() {
-
-                @Override public void
-                run() {
-                    OverviewTreeHtml.this.rBody(allPackages, allClassesAndInterfaces);
-                }
+            null,                              // nav5
+            null,                              // nav6
+            () -> {                            // renderBody
+                OverviewTreeHtml.this.rBody(allPackages, allClassesAndInterfaces);
             }
         );
     }

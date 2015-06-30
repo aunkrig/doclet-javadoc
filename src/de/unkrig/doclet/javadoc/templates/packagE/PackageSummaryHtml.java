@@ -50,7 +50,7 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
         super.rClassFrameHtml(
             "Package " + packagE.current().name(), // title
             options,                               // options
-            "stylesheet.css",                      // stylesheetLink
+            new String[] { "stylesheet.css" },     // stylesheetLinks
             new String[] {                         // nav1
                 "Overview",   home + "overview-summary.html",
                 "Package",    AbstractClassFrameHtml.HIGHLIT,
@@ -74,12 +74,8 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
             },
             null,                                  // nav5
             null,                                  // nav6
-            new Runnable() {
-
-                @Override public void
-                run() {
-                    PackageSummaryHtml.this.rBody(packagE, rootDoc, home);
-                }
+            () -> {                                // renderBody
+                PackageSummaryHtml.this.rBody(packagE, rootDoc, home);
             }
         );
     }
