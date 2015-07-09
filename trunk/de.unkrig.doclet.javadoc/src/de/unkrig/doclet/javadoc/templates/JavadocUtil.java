@@ -125,7 +125,7 @@ class JavadocUtil {
             StringBuilder sb = new StringBuilder();
 
             TypeVariable tv = type.asTypeVariable();
-            if (tv.owner() != ref) {
+            if (tv.owner() != ref && tv.owner().containingPackage() != ref) {
                 sb.append("<a href=\"").append(home).append(JavadocUtil.href(tv.owner()));
                 sb.append("\" title=\"type parameter in ").append(tv.owner().name()).append("\"");
                 if (target != null) sb.append(" target=\"" + target + "\"");

@@ -56,7 +56,7 @@ class IndexAllHtml extends AbstractClassFrameHtml implements GlobalDocument {
     ) {
 
         super.rClassFrameHtml(
-            "Index",                           // title
+            "Index",                           // windowTitle
             options,                           // options
             new String[] { "stylesheet.css" }, // stylesheetLinks
             new String[] {                     // nav1
@@ -69,8 +69,8 @@ class IndexAllHtml extends AbstractClassFrameHtml implements GlobalDocument {
                 "Help",       "help-doc.html",
             },
             new String[] {                     // nav2
-                "Prev", AbstractClassFrameHtml.DISABLED,
-                "Next", AbstractClassFrameHtml.DISABLED,
+                "Prev",
+                "Next",
             },
             new String[] {                     // nav3
                 "Frames",    "index.html?index-all.html",

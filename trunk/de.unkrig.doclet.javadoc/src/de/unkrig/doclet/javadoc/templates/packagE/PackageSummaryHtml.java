@@ -48,45 +48,34 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
     render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, final RootDoc rootDoc) {
 
         super.rClassFrameHtml(
-            "Package " + packagE.current().name(), // title
-            options,                               // options
-            new String[] { "stylesheet.css" },     // stylesheetLinks
-            new String[] {                         // nav1
+            packagE.current().name(),                 // windowTitle
+            options,                                  // options
+            new String[] { home + "stylesheet.css" }, // stylesheetLinks
+            new String[] {                            // nav1
                 "Overview",   home + "overview-summary.html",
                 "Package",    AbstractClassFrameHtml.HIGHLIT,
                 "Class",      AbstractClassFrameHtml.DISABLED,
-                "Use",        "package-use.html",
                 "Tree",       "package-tree.html",
                 "Deprecated", home + "deprecated-list.html",
                 "Index",      home + "index-all.html",
                 "Help",       home + "help-doc.html",
             },
-            new String[] {                         // nav2
-                "Prev Package", PackageSummaryHtml.packageLink(home, packagE.previous()),
-                "Next Package", PackageSummaryHtml.packageLink(home, packagE.next()),
+            new String[] {                            // nav2
+                PackageSummaryHtml.packageSummaryLink("Prev Package", home, packagE.previous()),
+                PackageSummaryHtml.packageSummaryLink("Next Package", home, packagE.next()),
             },
-            new String[] {                         // nav3
+            new String[] {                            // nav3
                 "Frames",    home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-summary.html",
                 "No Frames", "package-summary.html",
             },
-            new String[] {                         // nav4
+            new String[] {                            // nav4
                 "All Classes", home + "allclasses-noframe.html",
             },
-            null,                                  // nav5
-            null,                                  // nav6
-            () -> {                                // renderBody
+            null,                                     // nav5
+            null,                                     // nav6
+            () -> {                                   // renderBody
                 PackageSummaryHtml.this.rBody(packagE, rootDoc, home);
             }
-        );
-    }
-
-    private static String
-    packageLink(final String home, @Nullable PackageDoc pd) {
-
-        return (
-            pd != null
-            ? home + pd.name().replace('.', '/') + "/package-summary.html"
-            : AbstractClassFrameHtml.DISABLED
         );
     }
 
@@ -198,5 +187,13 @@ class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDoc
 "<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
 "</div>"
         );
+    }
+
+    private static String
+    packageSummaryLink(String labelHtml, String home, @Nullable PackageDoc pd) {
+
+        if (pd == null) return labelHtml;
+
+        return "<a href=\"" + home + pd.name().replace('.', '/') + "/package-summary.html\">" + labelHtml + "</a>";
     }
 }

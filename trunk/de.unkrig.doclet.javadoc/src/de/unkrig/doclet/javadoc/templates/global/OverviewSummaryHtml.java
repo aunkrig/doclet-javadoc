@@ -66,8 +66,8 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
                 "Help",       "help-doc.html",
             },
             new String[] {                     // nav2
-                "Prev", AbstractClassFrameHtml.DISABLED,
-                "Next", AbstractClassFrameHtml.DISABLED,
+                "Prev",
+                "Next",
             },
             new String[] {                     // nav3
                 "Frames",    "?overview-summary.html",
