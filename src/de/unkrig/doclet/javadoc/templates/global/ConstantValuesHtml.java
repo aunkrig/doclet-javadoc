@@ -55,33 +55,32 @@ class ConstantValuesHtml extends AbstractClassFrameHtml implements GlobalDocumen
     ) {
 
         this.rClassFrameHtml(
-            "Constant Field Values",              // title
-            options,                              // options
-            new String[] { "../stylesheet.css" }, // stylesheetLinks
-            new String[] {                        // nav1
+            "Constant Field Values",           // windowTitle
+            options,                           // options
+            new String[] { "stylesheet.css" }, // stylesheetLinks
+            new String[] {                     // nav1
                 "Overview",   "overview-summary.html",
                 "Package",    AbstractClassFrameHtml.DISABLED,
                 "Class",      AbstractClassFrameHtml.DISABLED,
-                "Use",        AbstractClassFrameHtml.DISABLED,
                 "Tree",       "overview-tree.html",
                 "Deprecated", "deprecated-list.html",
                 "Index",      "index-all.html",
                 "Help",       "help-doc.html",
             },
-            new String[] {                        // nav2
-                "Prev", AbstractClassFrameHtml.DISABLED,
-                "Next", AbstractClassFrameHtml.DISABLED,
+            new String[] {                     // nav2
+                "Prev",
+                "Next",
             },
-            new String[] {                        // nav3
+            new String[] {                     // nav3
                 "Frames",    "index.html?constant-values.html",
                 "No Frames", "constant-values.html",
             },
-            new String[] {                        // nav4
+            new String[] {                     // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            null,                                 // nav5
-            null,                                 // nav6
-            () -> {                               // renderBody
+            null,                              // nav5
+            null,                              // nav6
+            () -> {                            // renderBody
                 ConstantValuesHtml.this.rBody(allPackages);
             }
         );

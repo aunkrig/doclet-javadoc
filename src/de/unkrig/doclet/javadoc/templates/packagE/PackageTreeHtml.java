@@ -44,46 +44,43 @@ class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocume
     render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
         super.rClassFrameHtml(
-            "Package " + packagE.current().name(), // title
-            options,                               // options
-            new String[] { "stylesheet.css" },     // stylesheetLinks
-            new String[] {                         // nav1
+            packagE.current().name() + " Class Hierarchy", // windowTitle
+            options,                                       // options
+            new String[] { home + "stylesheet.css" },      // stylesheetLinks
+            new String[] {                                 // nav1
                 "Overview",   home + "overview-summary.html",
-                "Package",    home + "package-summary.html",
+                "Package",    "package-summary.html",
                 "Class",      AbstractClassFrameHtml.DISABLED,
-                "Use",        "package-use.html",
                 "Tree",       AbstractClassFrameHtml.HIGHLIT,
                 "Deprecated", home + "deprecated-list.html",
                 "Index",      home + "index-all.html",
                 "Help",       home + "help-doc.html",
             },
-            new String[] {                         // nav2
-                "Prev", PackageTreeHtml.packageTreeLink(home, packagE.previous()),
-                "Next", PackageTreeHtml.packageTreeLink(home, packagE.next()),
+            new String[] {                                 // nav2
+                PackageTreeHtml.packageTreeLink("Prev", home, packagE.previous()),
+                PackageTreeHtml.packageTreeLink("Next", home, packagE.next()),
             },
-            new String[] {                         // nav3
+            new String[] {                                 // nav3
                 "Frames",    home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-tree.html",
                 "No Frames", "package-tree.html",
             },
-            new String[] {                         // nav4
+            new String[] {                                 // nav4
                 "All Classes", home + "allclasses-noframe.html",
             },
-            null,                                  // nav5
-            null,                                  // nav6
-            () -> {                                // renderBody
+            null,                                          // nav5
+            null,                                          // nav6
+            () -> {                                        // renderBody
                 PackageTreeHtml.this.rBody(packagE, home);
             }
         );
     }
 
     private static String
-    packageTreeLink(final String home, @Nullable PackageDoc pd) {
+    packageTreeLink(String labelHtml, String home, @Nullable PackageDoc pd) {
 
-        return (
-            pd != null
-            ? home + pd.name().replace('.', '/') + "/package-tree.html"
-            : AbstractClassFrameHtml.DISABLED
-        );
+        if (pd == null) return labelHtml;
+
+        return "<a href=\"" + home + pd.name().replace('.', '/') + "/package-tree.html\">" + labelHtml + "</a>";
     }
 
     private void
@@ -104,6 +101,10 @@ class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocume
             home,
             Arrays.asList(packagE.current().ordinaryClasses()),
             Arrays.asList(packagE.current().interfaces())
+        );
+
+        this.l(
+"</div>"
         );
     }
 }

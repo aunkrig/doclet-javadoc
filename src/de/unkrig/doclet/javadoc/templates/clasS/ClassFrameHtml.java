@@ -81,11 +81,8 @@ class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument 
 
     /**
      * Renders this page.
-     * @param home           The relative path to the "home directory", e.g. "{@code ../../}"
-     * @param rootDoc
-     * @param previousClass  Used for the "Prev" links in the top and bottom navigation bars
-     * @param clasS          Subject class
-     * @param nextClass      Used for the "Next" links in the top and bottom navigation bars
+     *
+     * @param home The relative path to the "home directory", e.g. "{@code ../../}"
      */
     @Override public void
     render(
@@ -96,51 +93,64 @@ class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument 
     ) {
 
         super.rClassFrameHtml(
-            "Class " + clasS.current().name(), // title
-            options,                           // options
-            new String[] { "stylesheet.css" }, // stylesheetLinks
-            new String[] {                     // nav1
+            clasS.current().name(),                   // windowTitle
+            options,                                  // options
+            new String[] { home + "stylesheet.css" }, // stylesheetLinks
+            new String[] {                            // nav1
                 "Overview",   home + "overview-summary.html",
-                "Package",    AbstractClassFrameHtml.HIGHLIT,
-                "Class",      AbstractClassFrameHtml.DISABLED,
-                "Use",        "package-use.html",
+                "Package",    "package-summary.html",
+                "Class",      AbstractClassFrameHtml.HIGHLIT,
                 "Tree",       "package-tree.html",
                 "Deprecated", home + "deprecated-list.html",
                 "Index",      home + "index-all.html",
                 "Help",       home + "help-doc.html",
             },
-            new String[] {                     // nav2
-                "Prev Class", ClassFrameHtml.classLink(home, clasS.previous()),
-                "Next Class", ClassFrameHtml.classLink(home, clasS.next()),
+            new String[] {                            // nav2
+                ClassFrameHtml.classLink("Prev Class", home, clasS.previous()),
+                ClassFrameHtml.classLink("Next Class", home, clasS.next()),
             },
-            new String[] {                     // nav3
-                "Frames",    "index.html?" + ClassFrameHtml.classLink("", clasS.current()),
-                "No Frames", ClassFrameHtml.classLink(home, clasS.current()),
+            new String[] {                            // nav3
+                "Frames",    home + "index.html?" + ClassFrameHtml.classHref("", clasS.current()),
+                "No Frames", clasS.current().name() + ".html",
             },
-            new String[] {                     // nav4
+            new String[] {                            // nav4
                 "All Classes", home + "allclasses-noframe.html",
             },
-            new String[] {                     // nav5
-                "Nested", AbstractClassFrameHtml.DISABLED,
-                "Field",  "#field_summary",
-                "Constr", "#constructor_summary",
-                "Method", "#method_summary",
+            new String[] {                            // nav5
+                "Nested", clasS.current().innerClasses().length == 0 ? AbstractClassFrameHtml.DISABLED : "#nested_class_summary",
+                "Field",  clasS.current().fields().length       == 0 ? AbstractClassFrameHtml.DISABLED : "#field_summary",
+                "Constr", clasS.current().constructors().length == 0 ? AbstractClassFrameHtml.DISABLED : "#constructor_summary",
+                "Method", clasS.current().methods().length      == 0 ? AbstractClassFrameHtml.DISABLED : "#method_summary",
             },
-            new String[] {                     // nav6
-                "Field",  "#field_detail",
-                "Constr", "#constructor_detail",
-                "Method", "#method_detail"
+            new String[] {                            // nav6
+                "Field",  clasS.current().fields().length       == 0 ? AbstractClassFrameHtml.DISABLED : "#field_detail",
+                "Constr", clasS.current().constructors().length == 0 ? AbstractClassFrameHtml.DISABLED : "#constructor_detail",
+                "Method", clasS.current().methods().length      == 0 ? AbstractClassFrameHtml.DISABLED : "#method_detail"
             },
-            () -> {                            // renderBody
+            () -> {                                   // renderBody
                 ClassFrameHtml.this.rBody(clasS, home, rootDoc);
             }
         );
     }
 
     private static String
-    classLink(String home, @Nullable ClassDoc clasS) {
+    classLink(String labelHtml, String home, @Nullable ClassDoc clasS) {
 
-        if (clasS == null) return AbstractClassFrameHtml.DISABLED;
+        if (clasS == null) return labelHtml;
+
+        return (
+            "<a href=\""
+            + ClassFrameHtml.classHref(home, clasS)
+            + "\" title=\"" + JavadocUtil.category(clasS) + " in "
+            + clasS.containingPackage().name()
+            + "\"><span class=\"strong\">"
+            + labelHtml
+            + "</span></a>"
+        );
+    }
+
+    private static String
+    classHref(String home, ClassDoc clasS) {
 
         return home + clasS.containingPackage().name().replace('.', '/') + "/" + clasS.name() + ".html";
     }
@@ -476,8 +486,8 @@ class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument 
                 this.p("<td class=\"colFirst\"><code>");
 
                 // Method modifiers.
-                if (md.isStatic()) this.p("static ");
-                if (md.isAbstract()) this.p("abstract ");
+                if (md.isStatic())                                     this.p("static ");
+                if (md.isAbstract() && !clasS.current().isInterface()) this.p("abstract ");
 
                 // Method type parameters.
                 if (md.typeParameters().length > 0) {

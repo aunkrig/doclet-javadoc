@@ -42,7 +42,7 @@ class HelpDocHtml extends AbstractClassFrameHtml implements GlobalDocument {
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
         super.rClassFrameHtml(
-            "API Help",                        // title
+            "API Help",                        // windowTitle
             options,                           // options
             new String[] { "stylesheet.css" }, // stylesheetLinks
             new String[] {                     // nav1
@@ -56,8 +56,8 @@ class HelpDocHtml extends AbstractClassFrameHtml implements GlobalDocument {
                 "Help",       AbstractClassFrameHtml.HIGHLIT,
             },
             new String[] {                     // nav2
-                "Prev", AbstractClassFrameHtml.DISABLED,
-                "Next", AbstractClassFrameHtml.DISABLED,
+                "Prev",
+                "Next",
             },
             new String[] {                     // nav3
                 "Frames",    "index.html?help-doc.html",

@@ -42,7 +42,7 @@ class SerializedFormHtml extends AbstractClassFrameHtml implements GlobalDocumen
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
         super.rClassFrameHtml(
-            "Serialized Form",                 // title
+            "Serialized Form",                 // windowTitle
             options,                           // options
             new String[] { "stylesheet.css" }, // stylesheetLinks
             new String[] {                     // nav1
@@ -56,8 +56,8 @@ class SerializedFormHtml extends AbstractClassFrameHtml implements GlobalDocumen
                 "Help",       "help-doc.html",
             },
             new String[] {                     // nav2
-                "Prev", AbstractClassFrameHtml.DISABLED,
-                "Next", AbstractClassFrameHtml.DISABLED,
+                "Prev",
+                "Next",
             },
             new String[] {                     // nav3
                 "Frames",    "index.html?serialized-form.html",
