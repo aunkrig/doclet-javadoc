@@ -36,15 +36,15 @@ import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.AbstractPackageFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractBottomLeftFrameHtml;
 
 public
-class PackageFrameHtml extends AbstractPackageFrameHtml implements PerPackageDocument {
+class PackageFrameHtml extends AbstractBottomLeftFrameHtml implements PerPackageDocument {
 
     @Override public void
     render(String home, final ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
-        super.rPackageFrameHtml(
+        super.rBottomLeftFrameHtml(
             packagE.current().name(), // heading
             home + packagE.current().name().replace('.', '/') + "/package-summary.html", // headingLink
             options,                  // options

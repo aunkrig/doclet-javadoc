@@ -65,13 +65,13 @@ import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
  * Rendition of the per-class JAVADOC page.
  */
 public
-class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument {
+class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument {
 
     static { AssertionUtil.enableAssertionsForThisClass(); }
 
@@ -92,14 +92,14 @@ class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument 
         final RootDoc                      rootDoc
     ) {
 
-        super.rClassFrameHtml(
+        super.rRightFrameHtml(
             clasS.current().name(),                   // windowTitle
             options,                                  // options
             new String[] { home + "stylesheet.css" }, // stylesheetLinks
             new String[] {                            // nav1
                 "Overview",   home + "overview-summary.html",
                 "Package",    "package-summary.html",
-                "Class",      AbstractClassFrameHtml.HIGHLIT,
+                "Class",      AbstractRightFrameHtml.HIGHLIT,
                 "Tree",       "package-tree.html",
                 "Deprecated", home + "deprecated-list.html",
                 "Index",      home + "index-all.html",
@@ -117,15 +117,15 @@ class ClassFrameHtml extends AbstractClassFrameHtml implements PerClassDocument 
                 "All Classes", home + "allclasses-noframe.html",
             },
             new String[] {                            // nav5
-                "Nested", clasS.current().innerClasses().length == 0 ? AbstractClassFrameHtml.DISABLED : "#nested_class_summary",
-                "Field",  clasS.current().fields().length       == 0 ? AbstractClassFrameHtml.DISABLED : "#field_summary",
-                "Constr", clasS.current().constructors().length == 0 ? AbstractClassFrameHtml.DISABLED : "#constructor_summary",
-                "Method", clasS.current().methods().length      == 0 ? AbstractClassFrameHtml.DISABLED : "#method_summary",
+                "Nested", clasS.current().innerClasses().length == 0 ? AbstractRightFrameHtml.DISABLED : "#nested_class_summary",
+                "Field",  clasS.current().fields().length       == 0 ? AbstractRightFrameHtml.DISABLED : "#field_summary",
+                "Constr", clasS.current().constructors().length == 0 ? AbstractRightFrameHtml.DISABLED : "#constructor_summary",
+                "Method", clasS.current().methods().length      == 0 ? AbstractRightFrameHtml.DISABLED : "#method_summary",
             },
             new String[] {                            // nav6
-                "Field",  clasS.current().fields().length       == 0 ? AbstractClassFrameHtml.DISABLED : "#field_detail",
-                "Constr", clasS.current().constructors().length == 0 ? AbstractClassFrameHtml.DISABLED : "#constructor_detail",
-                "Method", clasS.current().methods().length      == 0 ? AbstractClassFrameHtml.DISABLED : "#method_detail"
+                "Field",  clasS.current().fields().length       == 0 ? AbstractRightFrameHtml.DISABLED : "#field_detail",
+                "Constr", clasS.current().constructors().length == 0 ? AbstractRightFrameHtml.DISABLED : "#constructor_detail",
+                "Method", clasS.current().methods().length      == 0 ? AbstractRightFrameHtml.DISABLED : "#method_detail"
             },
             () -> {                                   // renderBody
                 ClassFrameHtml.this.rBody(clasS, home, rootDoc);

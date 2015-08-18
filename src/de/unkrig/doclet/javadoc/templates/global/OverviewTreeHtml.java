@@ -37,10 +37,10 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.doclet.javadoc.templates.include.HierarchiesHtml;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 public
-class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument {
+class OverviewTreeHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
     @Override public void
     render(
@@ -50,16 +50,16 @@ class OverviewTreeHtml extends AbstractClassFrameHtml implements GlobalDocument 
         RootDoc                     rootDoc
     ) {
 
-        super.rClassFrameHtml(
+        super.rRightFrameHtml(
             "Class Hierarchy",                 // windowTitle
             options,                           // options
             new String[] { "stylesheet.css" }, // stylesheetLinks
             new String[] {                     // nav1
                 "Overview",   "overview-summary.html",
-                "Package",    AbstractClassFrameHtml.DISABLED,
-                "Class",      AbstractClassFrameHtml.DISABLED,
-                "Use",        AbstractClassFrameHtml.DISABLED,
-                "Tree",       AbstractClassFrameHtml.HIGHLIT,
+                "Package",    AbstractRightFrameHtml.DISABLED,
+                "Class",      AbstractRightFrameHtml.DISABLED,
+                "Use",        AbstractRightFrameHtml.DISABLED,
+                "Tree",       AbstractRightFrameHtml.HIGHLIT,
                 "Deprecated", "deprecated-list.html",
                 "Index",      "index-all.html",
                 "Help",       "help-doc.html",

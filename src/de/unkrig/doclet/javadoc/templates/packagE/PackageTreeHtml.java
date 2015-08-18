@@ -35,23 +35,23 @@ import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.include.HierarchiesHtml;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 public
-class PackageTreeHtml extends AbstractClassFrameHtml implements PerPackageDocument {
+class PackageTreeHtml extends AbstractRightFrameHtml implements PerPackageDocument {
 
     @Override public void
     render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
-        super.rClassFrameHtml(
+        super.rRightFrameHtml(
             packagE.current().name() + " Class Hierarchy", // windowTitle
             options,                                       // options
             new String[] { home + "stylesheet.css" },      // stylesheetLinks
             new String[] {                                 // nav1
                 "Overview",   home + "overview-summary.html",
                 "Package",    "package-summary.html",
-                "Class",      AbstractClassFrameHtml.DISABLED,
-                "Tree",       AbstractClassFrameHtml.HIGHLIT,
+                "Class",      AbstractRightFrameHtml.DISABLED,
+                "Tree",       AbstractRightFrameHtml.HIGHLIT,
                 "Deprecated", home + "deprecated-list.html",
                 "Index",      home + "index-all.html",
                 "Help",       home + "help-doc.html",

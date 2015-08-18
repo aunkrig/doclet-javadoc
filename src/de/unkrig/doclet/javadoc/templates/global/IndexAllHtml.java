@@ -42,10 +42,10 @@ import com.sun.javadoc.RootDoc;
 
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 public
-class IndexAllHtml extends AbstractClassFrameHtml implements GlobalDocument {
+class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
     @Override public void
     render(
@@ -55,17 +55,17 @@ class IndexAllHtml extends AbstractClassFrameHtml implements GlobalDocument {
         final RootDoc             rootDoc
     ) {
 
-        super.rClassFrameHtml(
+        super.rRightFrameHtml(
             "Index",                           // windowTitle
             options,                           // options
             new String[] { "stylesheet.css" }, // stylesheetLinks
             new String[] {                     // nav1
                 "Overview",   "overview-summary.html",
-                "Package",    AbstractClassFrameHtml.DISABLED,
-                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Package",    AbstractRightFrameHtml.DISABLED,
+                "Class",      AbstractRightFrameHtml.DISABLED,
                 "Tree",       "overview-tree.html",
                 "Deprecated", "deprecated-list.html",
-                "Index",      AbstractClassFrameHtml.HIGHLIT,
+                "Index",      AbstractRightFrameHtml.HIGHLIT,
                 "Help",       "help-doc.html",
             },
             new String[] {                     // nav2

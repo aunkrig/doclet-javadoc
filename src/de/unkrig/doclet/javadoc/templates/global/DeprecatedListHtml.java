@@ -33,25 +33,25 @@ import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 public
-class DeprecatedListHtml extends AbstractClassFrameHtml implements GlobalDocument {
+class DeprecatedListHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
-        super.rClassFrameHtml(
+        super.rRightFrameHtml(
             "Deprecated List",                 // windowTitle
             options,                           // options
             new String[] { "stylesheet.css" }, // stylesheetLinks
             new String[] {                     // nav1
                 "Overview",   "overview-summary.html",
-                "Package",    AbstractClassFrameHtml.DISABLED,
-                "Class",      AbstractClassFrameHtml.DISABLED,
-                "Use",        AbstractClassFrameHtml.DISABLED,
+                "Package",    AbstractRightFrameHtml.DISABLED,
+                "Class",      AbstractRightFrameHtml.DISABLED,
+                "Use",        AbstractRightFrameHtml.DISABLED,
                 "Tree",       "overview-tree.html",
-                "Deprecated", AbstractClassFrameHtml.HIGHLIT,
+                "Deprecated", AbstractRightFrameHtml.HIGHLIT,
                 "Index",      "index-all.html",
                 "Help",       "help-doc.html",
             },
