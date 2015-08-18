@@ -39,22 +39,22 @@ import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 public
-class PackageSummaryHtml extends AbstractClassFrameHtml implements PerPackageDocument {
+class PackageSummaryHtml extends AbstractRightFrameHtml implements PerPackageDocument {
 
     @Override public void
     render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, final RootDoc rootDoc) {
 
-        super.rClassFrameHtml(
+        super.rRightFrameHtml(
             packagE.current().name(),                 // windowTitle
             options,                                  // options
             new String[] { home + "stylesheet.css" }, // stylesheetLinks
             new String[] {                            // nav1
                 "Overview",   home + "overview-summary.html",
-                "Package",    AbstractClassFrameHtml.HIGHLIT,
-                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Package",    AbstractRightFrameHtml.HIGHLIT,
+                "Class",      AbstractRightFrameHtml.DISABLED,
                 "Tree",       "package-tree.html",
                 "Deprecated", home + "deprecated-list.html",
                 "Index",      home + "index-all.html",

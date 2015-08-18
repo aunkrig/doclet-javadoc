@@ -39,10 +39,10 @@ import de.unkrig.commons.lang.protocol.Producer;
 import de.unkrig.commons.lang.protocol.ProducerUtil;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.AbstractClassFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 public
-class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocument {
+class OverviewSummaryHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
     @Override public void
     render(
@@ -52,14 +52,14 @@ class OverviewSummaryHtml extends AbstractClassFrameHtml implements GlobalDocume
         final RootDoc               rootDoc
     ) {
 
-        this.rClassFrameHtml(
+        this.rRightFrameHtml(
             "Overview",                        // windowTitle
             options,                           // options
             new String[] { "stylesheet.css" }, // stylesheetLinks
             new String[] {                     // nav1
-                "Overview",   AbstractClassFrameHtml.HIGHLIT,
-                "Package",    AbstractClassFrameHtml.DISABLED,
-                "Class",      AbstractClassFrameHtml.DISABLED,
+                "Overview",   AbstractRightFrameHtml.HIGHLIT,
+                "Package",    AbstractRightFrameHtml.DISABLED,
+                "Class",      AbstractRightFrameHtml.DISABLED,
                 "Tree",       "overview-tree.html",
                 "Deprecated", "deprecated-list.html",
                 "Index",      "index-all.html",
