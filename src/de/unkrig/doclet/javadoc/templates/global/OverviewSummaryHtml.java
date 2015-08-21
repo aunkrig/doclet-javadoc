@@ -87,10 +87,15 @@ class OverviewSummaryHtml extends AbstractRightFrameHtml implements GlobalDocume
     private void
     rBody(Options options, SortedSet<PackageDoc> allPackages, RootDoc rootDoc) {
 
-        this.l(
+        if (options.docTitle != null) {
+            this.l(
 "<div class=\"header\">",
 "<h1 class=\"title\">" + options.docTitle + "</h1>",
-"</div>",
+"</div>"
+            );
+        }
+
+        this.l(
 "<div class=\"contentContainer\">",
 "<table class=\"overviewSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Packages table, listing packages, and an explanation\">",
 "<caption><span>Packages</span><span class=\"tabEnd\">&nbsp;</span></caption>",
