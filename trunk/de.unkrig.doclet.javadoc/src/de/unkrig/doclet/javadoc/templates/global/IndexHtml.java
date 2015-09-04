@@ -35,6 +35,9 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
 
+/**
+ * Renders the frame set document.
+ */
 public
 class IndexHtml extends NoTemplate implements GlobalDocument {
 

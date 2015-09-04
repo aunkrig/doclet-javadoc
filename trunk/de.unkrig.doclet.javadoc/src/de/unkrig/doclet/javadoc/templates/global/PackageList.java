@@ -35,6 +35,9 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
 
+/**
+ * Renders the list of all packages that is displayed in the top left frame.
+ */
 public
 class PackageList extends NoTemplate implements GlobalDocument {
 

@@ -35,9 +35,15 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
+/**
+ * Renders the "API Help" page.
+ */
 public
 class HelpDocHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
+    /**
+     * Renders the "API Help" page.
+     */
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 

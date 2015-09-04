@@ -38,6 +38,9 @@ import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractBottomLeftFrameHtml;
 
+/**
+ * Renders the "Package Summary" page.
+ */
 public
 class PackageFrameHtml extends AbstractBottomLeftFrameHtml implements PerPackageDocument {
 

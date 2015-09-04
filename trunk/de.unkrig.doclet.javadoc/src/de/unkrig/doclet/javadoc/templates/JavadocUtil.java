@@ -52,6 +52,9 @@ import de.unkrig.commons.util.collections.IterableUtil;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.NoTemplate.Once;
 
+/**
+ * Javadoc-related utility methods.
+ */
 public final
 class JavadocUtil {
 
@@ -71,6 +74,7 @@ class JavadocUtil {
             return "???";
         }
     }
+
     /**
      * <dl>
      *   <dt>Mode &amp; 1:</dt>

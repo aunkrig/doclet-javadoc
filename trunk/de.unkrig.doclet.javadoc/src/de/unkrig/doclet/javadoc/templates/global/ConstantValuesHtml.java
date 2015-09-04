@@ -43,9 +43,15 @@ import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
+/**
+ * Renders the "Constant Values" page.
+ */
 public
 class ConstantValuesHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
+    /**
+     * Renders the "Constant Values" page.
+     */
     @Override public void
     render(
         Options                     options,

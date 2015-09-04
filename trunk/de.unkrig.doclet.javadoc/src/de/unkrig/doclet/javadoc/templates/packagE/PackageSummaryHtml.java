@@ -41,6 +41,9 @@ import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
+/**
+ * Renders the "Package Summary" page.
+ */
 public
 class PackageSummaryHtml extends AbstractRightFrameHtml implements PerPackageDocument {
 

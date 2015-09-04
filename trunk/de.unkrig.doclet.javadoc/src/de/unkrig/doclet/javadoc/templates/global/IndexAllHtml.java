@@ -44,6 +44,9 @@ import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
+/**
+ * Renders the single-page index.
+ */
 public
 class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
 

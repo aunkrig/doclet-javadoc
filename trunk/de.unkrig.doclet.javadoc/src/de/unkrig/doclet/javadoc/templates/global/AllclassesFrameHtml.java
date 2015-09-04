@@ -42,9 +42,17 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.include.BottomHtml;
 import de.unkrig.notemplate.javadocish.templates.include.TopHtml;
 
+/**
+ * Renders the "all classes frame", i.e. the document that appears in the bottom left frame when NO package is
+ * selected in the top left frame.
+ */
 public
 class AllclassesFrameHtml extends NoTemplate implements GlobalDocument {
 
+    /**
+     * Renders the "all classes frame", i.e. the document that appears in the bottom left frame when NO package is
+     * selected in the top left frame.
+     */
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 

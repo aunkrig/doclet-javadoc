@@ -41,6 +41,9 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.include.BottomHtml;
 import de.unkrig.notemplate.javadocish.templates.include.TopHtml;
 
+/**
+ * Renders the list of all classes in the bottom left frame.
+ */
 public
 class OverviewFrameHtml extends NoTemplate implements GlobalDocument {
 

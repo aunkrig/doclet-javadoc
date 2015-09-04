@@ -40,9 +40,15 @@ import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.NoTemplate;
 
+/**
+ * Renders the "Hierarchy For All Packages" page and the "Hierarchy For Package xyz" pages.
+ */
 public
 class HierarchiesHtml extends NoTemplate {
 
+    /**
+     * Renders the "Hierarchy For All Packages" page and the "Hierarchy For Package xyz" pages.
+     */
     public void
     render(String home, Collection<ClassDoc> classes, Collection<ClassDoc> interfaces) {
 

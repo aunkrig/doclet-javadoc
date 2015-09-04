@@ -32,6 +32,9 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.notemplate.javadocish.Options;
 
+/**
+ * Base for all "per-package" documents (e.g. "Package Summary").
+ */
 public
 interface PerPackageDocument {
 
