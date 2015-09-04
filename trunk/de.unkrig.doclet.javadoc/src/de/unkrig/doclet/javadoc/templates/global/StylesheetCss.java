@@ -616,6 +616,6 @@ class StylesheetCss extends NoTemplate implements GlobalDocument {
 "div.contentContainer ul.blockList li.blockList h2{",
 "    padding-bottom:0px;",
 "}"
-		);
-	}
+        );
+    }
 }
