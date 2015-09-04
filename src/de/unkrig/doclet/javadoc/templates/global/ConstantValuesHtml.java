@@ -133,7 +133,7 @@ class ConstantValuesHtml extends AbstractRightFrameHtml implements GlobalDocumen
 "</tr>",
 "<tbody>"
                     );
-                    Producer<String> cls = ProducerUtil.alternate("altColor", "rowColor");
+                    Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
                     for (FieldDoc c : JavadocUtil.constantsOf(coi)) {
                         this.l(
 "<tr class=\"" + cls.produce() + "\">",

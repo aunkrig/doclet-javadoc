@@ -56,41 +56,46 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
     ) {
 
         super.rRightFrameHtml(
-            "Index",                           // windowTitle
-            options,                           // options
-            new String[] { "stylesheet.css" }, // stylesheetLinks
-            new String[] {                     // nav1
-                "Overview",   "overview-summary.html",
+            "Index",                             // windowTitle
+            options,                             // options
+            new String[] { "./stylesheet.css" }, // stylesheetLinks
+            new String[] {                       // nav1
+                "Overview",   "./overview-summary.html",
                 "Package",    AbstractRightFrameHtml.DISABLED,
                 "Class",      AbstractRightFrameHtml.DISABLED,
-                "Tree",       "overview-tree.html",
-                "Deprecated", "deprecated-list.html",
+                "Tree",       "./overview-tree.html",
+                "Deprecated", "./deprecated-list.html",
                 "Index",      AbstractRightFrameHtml.HIGHLIT,
-                "Help",       "help-doc.html",
+                "Help",       "./help-doc.html",
             },
-            new String[] {                     // nav2
+            new String[] {                       // nav2
                 "Prev",
                 "Next",
             },
-            new String[] {                     // nav3
-                "Frames",    "index.html?index-all.html",
+            new String[] {                       // nav3
+                "Frames",    "./index.html?index-all.html",
                 "No Frames", "index-all.html",
             },
-            new String[] {                     // nav4
-                "All Classes", "allclasses-noframe.html",
+            new String[] {                       // nav4
+                "All Classes", "./allclasses-noframe.html",
             },
-            null,                              // nav5
-            null,                              // nav6
-            () -> {                            // renderBody
-                IndexAllHtml.this.rBody(allClassesAndInterfaces, rootDoc);
+            null,                                // nav5
+            null,                                // nav6
+            () -> {                              // renderBody
+                IndexAllHtml.this.rBody(allPackages, allClassesAndInterfaces, rootDoc);
             }
         );
     }
 
     private void
-    rBody(SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+    rBody(SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 
         Collection<Doc> allDocs = new ArrayList<Doc>();
+
+        for (PackageDoc pd : allPackages) {
+            allDocs.add(pd);
+        }
+
         for (ClassDoc cd : allClassesAndInterfaces) {
             for (MethodDoc md : cd.methods()) {
                 allDocs.add(md);
@@ -118,6 +123,7 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
             this.p("<a href=\"#_" + initial + "_\">" + initial + "</a>&nbsp;");
         }
 
+        // Docs, grouped by initial.
         for (Entry<Character, SortedSet<Doc>> e : allDocsByInitial.entrySet()) {
             Character      initial       = e.getKey();
             SortedSet<Doc> docsOfInitial = e.getValue();
@@ -132,9 +138,9 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
             for (Doc doc : docsOfInitial) {
                 this.l(
-"<dt>" + JavadocUtil.toHtml(rootDoc, doc, true, null, null, rootDoc) + "</dt>"
+"<dt><span class=\"strong\">" + JavadocUtil.toHtml(rootDoc, doc, true, null, null, rootDoc) + "</span></dt>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(doc, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(doc, doc, rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<dd>&nbsp;</dd>"
@@ -173,7 +179,7 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
             );
         }
 
-        // Top list of initials.
+        // Bottom list of initials.
         for (Character initial : allDocsByInitial.keySet()) {
             this.p("<a href=\"#_" + initial + "_\">" + initial + "</a>&nbsp;");
         }

@@ -372,13 +372,13 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
 "<th class=\"colLast\" scope=\"col\">Field and Description</th>",
 "</tr>"
             );
-            Producer<String> cls = ProducerUtil.alternate("altColor", "rowColor");
+            Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
             for (FieldDoc fd : clasS.current().fields()) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">",
 "<td class=\"colFirst\"><code>" + (fd.isStatic() ? "static " : "") + JavadocUtil.toHtml(fd.type(), fd, home, 0) + "</code></td>",
 "<td class=\"colLast\"><code><strong><a href=\"" + home + JavadocUtil.href(fd) + "\">" + fd.name() + "</a></strong></code>",
-"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(fd, rootDoc) + "</div>",
+"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(clasS.current(), fd, rootDoc) + "</div>",
 "</td>",
 "</tr>"
                 );
@@ -404,7 +404,7 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
 "<th class=\"colLast\" scope=\"col\">Class and Description</th>",
 "</tr>"
             );
-            Producer<String> cls = ProducerUtil.alternate("altColor", "rowColor");
+            Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
             for (ClassDoc ncd : clasS.current().innerClasses()) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">",
@@ -412,7 +412,7 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
                 );
                 this.l(
 "<td class=\"colLast\"><code><strong>" + JavadocUtil.toHtml(ncd, clasS.current(), home, 0) + "</strong></code>",
-"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(ncd, rootDoc) + "</div>",
+"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(clasS.current(), ncd, rootDoc) + "</div>",
 "</td>",
 "</tr>"
                 );
@@ -439,7 +439,7 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
 "<th class=\"colOne\" scope=\"col\">Constructor and Description</th>",
 "</tr>"
             );
-            Producer<String>  cls = ProducerUtil.alternate("altColor", "rowColor");
+            Producer<? extends String>  cls = ProducerUtil.alternate("altColor", "rowColor");
             for (ConstructorDoc cd : clasS.current().constructors()) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">"
@@ -478,7 +478,7 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
 "<th class=\"colLast\" scope=\"col\">Method and Description</th>",
 "</tr>"
             );
-            Producer<String>  cls = ProducerUtil.alternate("altColor", "rowColor");
+            Producer<? extends String>  cls = ProducerUtil.alternate("altColor", "rowColor");
             for (MethodDoc md : sortedMethods) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">"
@@ -526,12 +526,12 @@ JavadocUtil.toHtml(md.returnType(), md, home, 0) + "</code></td>"
                 this.pParameters(home, md);
 
                 // First sentence of method description.
-                if (JavadocUtil.firstSentenceOfDescription(md, rootDoc).isEmpty()) {
+                if (JavadocUtil.firstSentenceOfDescription(clasS.current(), md, rootDoc).isEmpty()) {
                     this.p("</code>&nbsp;");
                 } else {
                     this.l(
 "</code>",
-"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(md, rootDoc) + "</div>"
+"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(clasS.current(), md, rootDoc) + "</div>"
                     );
                 }
                 this.l(

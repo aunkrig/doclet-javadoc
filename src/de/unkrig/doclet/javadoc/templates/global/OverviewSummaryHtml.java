@@ -108,13 +108,13 @@ class OverviewSummaryHtml extends AbstractRightFrameHtml implements GlobalDocume
 
         ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
         Collections.sort(aps, Docs.DOCS_BY_NAME_COMPARATOR);
-        Producer<String> cls = ProducerUtil.alternate("altColor", "rowColor");
+        Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
         for (PackageDoc p : aps) {
             this.l(
 "<tr class=\"" + cls.produce() + "\">",
 "<td class=\"colFirst\"><a href=\"" + p.name().replace('.', '/') + "/package-summary.html\">" + p.name() + "</a></td>"
             );
-            String desc = JavadocUtil.firstSentenceOfDescription(p, rootDoc);
+            String desc = JavadocUtil.firstSentenceOfDescription(rootDoc, p, rootDoc);
             if (desc.isEmpty()) {
                 this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -122,7 +122,7 @@ class OverviewSummaryHtml extends AbstractRightFrameHtml implements GlobalDocume
             } else {
                 this.l(
 "<td class=\"colLast\">",
-"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(p, rootDoc) + "</div>",
+"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(rootDoc, p, rootDoc) + "</div>",
 "</td>"
                 );
             }
