@@ -734,7 +734,7 @@ JavadocUtil.toHtml(md.returnType(), md, home, 0) + "</code></td>"
     private void
     pExecutableMemberDetail(ExecutableMemberDoc emd, String home, boolean isLast, RootDoc rootDoc) {
 
-        ClassDoc clasS = emd.containingClass();
+        final ClassDoc clasS = emd.containingClass();
 
         // Executable member anchors.
         for (String f : JavadocUtil.fragments(emd)) {
@@ -811,8 +811,8 @@ JavadocUtil.toHtml(md.returnType(), md, home, 0) + "</code></td>"
         // Executable member parameters.
         Once once = NoTemplate.once();
         for (int i = 0; i < emd.parameters().length; i++) {
-            Parameter p          = emd.parameters()[i];
-            boolean   isEllipsis = emd.isVarArgs() && i == emd.parameters().length - 1;
+            Parameter     p          = emd.parameters()[i];
+            final boolean isEllipsis = emd.isVarArgs() && i == emd.parameters().length - 1;
 
             if (!once.once()) {
                 this.l(
