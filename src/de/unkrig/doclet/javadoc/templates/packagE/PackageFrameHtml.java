@@ -45,13 +45,13 @@ class PackageFrameHtml extends AbstractBottomLeftFrameHtml implements PerPackage
     render(String home, final ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
         super.rBottomLeftFrameHtml(
-            packagE.current().name(), // heading
+            packagE.current().name(),                                                    // heading
             home + packagE.current().name().replace('.', '/') + "/package-summary.html", // headingLink
-            options,                  // options
-            new String[] {            // styleSheetLinks
+            options,                                                                     // options
+            new String[] {                                                               // styleSheetLinks
                 home + "stylesheet.css",
             },
-            () -> {                   // renderBody
+            () -> {                                                                      // renderBody
                 ClassDoc[] interfaces = packagE.current().interfaces();
                 if (interfaces.length > 0) {
                     PackageFrameHtml.this.l(

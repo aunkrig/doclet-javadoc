@@ -51,7 +51,7 @@ class HierarchiesHtml extends NoTemplate {
         subclasses = new TreeMap<ClassDoc, SortedSet<ClassDoc>>(Docs.DOCS_BY_NAME_COMPARATOR);
         for (ClassDoc c : classes) {
             for (;;) {
-                ClassDoc sc = c.superclass();
+                ClassDoc            sc  = c.superclass();
                 SortedSet<ClassDoc> scs = subclasses.get(sc);
                 if (scs == null) {
                     scs = new TreeSet<ClassDoc>(Docs.DOCS_BY_NAME_COMPARATOR);
@@ -70,7 +70,9 @@ class HierarchiesHtml extends NoTemplate {
         }
 
         // Interface hierarchy.
-        SortedMap<ClassDoc, SortedSet<ClassDoc>> subinterfaces = new TreeMap<ClassDoc, SortedSet<ClassDoc>>(Docs.DOCS_BY_NAME_COMPARATOR);
+        SortedMap<ClassDoc, SortedSet<ClassDoc>>
+        subinterfaces = new TreeMap<ClassDoc, SortedSet<ClassDoc>>(Docs.DOCS_BY_NAME_COMPARATOR);
+
         for (ClassDoc i : interfaces) {
             this.addInterface(i, subinterfaces);
         }
