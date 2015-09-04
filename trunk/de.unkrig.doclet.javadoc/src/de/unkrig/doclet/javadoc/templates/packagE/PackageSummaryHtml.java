@@ -107,13 +107,13 @@ class PackageSummaryHtml extends AbstractRightFrameHtml implements PerPackageDoc
 "<tbody>"
             );
             Arrays.sort(is, Docs.DOCS_BY_NAME_COMPARATOR);
-            Producer<String> cls = ProducerUtil.alternate("altColor", "rowColor");
+            Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
             for (ClassDoc i : is) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">",
 "<td class=\"colFirst\">" + JavadocUtil.toHtml(i, packagE.current(), home, 1) + "</td>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(i, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(packagE.current(), i, rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -149,13 +149,13 @@ class PackageSummaryHtml extends AbstractRightFrameHtml implements PerPackageDoc
 "<tbody>"
             );
             Arrays.sort(cs, Docs.DOCS_BY_NAME_COMPARATOR);
-            Producer<String> cls = ProducerUtil.alternate("altColor", "rowColor");
+            Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
             for (ClassDoc c : cs) {
                 this.l(
 "<tr class=\"" + cls.produce() + "\">",
 "<td class=\"colFirst\">" + JavadocUtil.toHtml(c, packagE.current(), home, 1) + "</td>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(c, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(packagE.current(), c, rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<td class=\"colLast\">&nbsp;</td>"

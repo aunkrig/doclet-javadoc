@@ -492,13 +492,13 @@ class JavadocUtil {
     }
 
     /**
-     * @return The first sentence of the description of the given <var>doc</var>, with all HTML tags removed
+     * @return The first sentence of the description of <var>to</var>, with all HTML tags removed
      */
     public static String
-    firstSentenceOfDescription(Doc doc, RootDoc rootDoc) {
+    firstSentenceOfDescription(Doc from, Doc to, RootDoc rootDoc) {
 
         try {
-            String result = JavadocUtil.HTML.fromTags(doc.firstSentenceTags(), doc, rootDoc);
+            String result = JavadocUtil.HTML.fromTags(to.firstSentenceTags(), from, rootDoc);
             result = JavadocUtil.ANY_BLOCK_TAG.matcher(result).replaceAll("");
 //            result = Doccs.WHITESPACE.matcher(result).replaceAll(" ");
             return result;
