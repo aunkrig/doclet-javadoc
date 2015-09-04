@@ -37,6 +37,9 @@ import de.unkrig.doclet.javadoc.templates.include.HierarchiesHtml;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
+/**
+ * Renders the per-package "Class Hierarchy" page.
+ */
 public
 class PackageTreeHtml extends AbstractRightFrameHtml implements PerPackageDocument {
 

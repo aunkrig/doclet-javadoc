@@ -35,9 +35,15 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
+/**
+ * Renders the "Deprecated List" page.
+ */
 public
 class DeprecatedListHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
+    /**
+     * Renders the "Deprecated List" page.
+     */
     @Override public void
     render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
 

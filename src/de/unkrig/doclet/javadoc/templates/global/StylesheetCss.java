@@ -35,6 +35,9 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
 
+/**
+ * Renders the "stylesheet.css" document.
+ */
 public
 class StylesheetCss extends NoTemplate implements GlobalDocument {
 

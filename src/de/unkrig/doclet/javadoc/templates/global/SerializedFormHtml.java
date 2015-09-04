@@ -35,6 +35,9 @@ import com.sun.javadoc.RootDoc;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
+/**
+ * Renders the "Serialized Form" page.
+ */
 public
 class SerializedFormHtml extends AbstractRightFrameHtml implements GlobalDocument {
 

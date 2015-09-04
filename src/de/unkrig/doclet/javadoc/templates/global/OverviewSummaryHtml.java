@@ -41,6 +41,9 @@ import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
+/**
+ * Renders the "Overview Summary" page.
+ */
 public
 class OverviewSummaryHtml extends AbstractRightFrameHtml implements GlobalDocument {
 
