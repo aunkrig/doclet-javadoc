@@ -201,8 +201,8 @@ class JavadocDoclet {
     ) throws IOException {
 
         NoTemplate.render(
-            perPackageTemplateClass,                                              // templateClass
-            new File(this.options.destination, fileName),                         // out
+            perPackageTemplateClass,                                      // templateClass
+            new File(this.options.destination, fileName),                 // out
             new ConsumerWhichThrows<GlobalDocument, RuntimeException>() { // renderer
 
                 @Override public void
