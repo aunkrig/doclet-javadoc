@@ -38,6 +38,7 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.Doc;
 import com.sun.javadoc.MethodDoc;
 import com.sun.javadoc.PackageDoc;
+import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
@@ -143,7 +144,11 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
                 this.l(
 "<dt><span class=\"strong\">" + JavadocUtil.toHtml(rootDoc, doc, true, null, null, rootDoc) + "</span></dt>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(doc, doc, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(
+                    doc instanceof MethodDoc ? ((ProgramElementDoc) doc).containingClass() : doc,  // from
+                    doc,                                                                           // to
+                    rootDoc
+                );
                 if (fsod.isEmpty()) {
                     this.l(
 "<dd>&nbsp;</dd>"

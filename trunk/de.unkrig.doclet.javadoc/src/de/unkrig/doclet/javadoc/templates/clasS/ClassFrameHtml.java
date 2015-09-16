@@ -1112,7 +1112,11 @@ JavadocUtil.toHtml(md.returnType(), md, home, 0) + "</code></td>"
     description(Doc doc, RootDoc rootDoc) {
 
         try {
-            return ClassFrameHtml.HTML.fromTags(doc.inlineTags(), doc, rootDoc);
+            return ClassFrameHtml.HTML.fromTags(
+                doc.inlineTags(),                                                             // tags
+                doc instanceof MethodDoc ? ((ProgramElementDoc) doc).containingClass() : doc, // ref
+                rootDoc
+            );
         } catch (Longjump l) {
             return "???";
         }
