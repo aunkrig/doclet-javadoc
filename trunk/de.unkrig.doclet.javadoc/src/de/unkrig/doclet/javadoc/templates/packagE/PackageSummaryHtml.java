@@ -116,7 +116,7 @@ class PackageSummaryHtml extends AbstractRightFrameHtml implements PerPackageDoc
 "<tr class=\"" + cls.produce() + "\">",
 "<td class=\"colFirst\">" + JavadocUtil.toHtml(i, packagE.current(), home, 1) + "</td>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(packagE.current(), i, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(i, i, rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<td class=\"colLast\">&nbsp;</td>"
@@ -158,7 +158,7 @@ class PackageSummaryHtml extends AbstractRightFrameHtml implements PerPackageDoc
 "<tr class=\"" + cls.produce() + "\">",
 "<td class=\"colFirst\">" + JavadocUtil.toHtml(c, packagE.current(), home, 1) + "</td>"
                 );
-                String fsod = JavadocUtil.firstSentenceOfDescription(packagE.current(), c, rootDoc);
+                String fsod = JavadocUtil.firstSentenceOfDescription(c, c, rootDoc);
                 if (fsod.isEmpty()) {
                     this.l(
 "<td class=\"colLast\">&nbsp;</td>"
