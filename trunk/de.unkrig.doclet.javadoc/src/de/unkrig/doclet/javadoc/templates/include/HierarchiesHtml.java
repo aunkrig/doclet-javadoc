@@ -120,7 +120,7 @@ class HierarchiesHtml extends NoTemplate {
         this.l("<ul>");
         for (ClassDoc subtype : subtypes) {
             this.p("<li type=\"circle\">");
-            this.pType(home, subtype, supertype, true);
+            this.pType(home, subtype, supertype, true, true);
 
             this.pTree(home, subtype, subtypesOf);
 
@@ -134,7 +134,7 @@ class HierarchiesHtml extends NoTemplate {
      * printing class/interface hierarchies.
      */
     private void
-    pType(String home, ClassDoc type, @Nullable ClassDoc supertype, boolean strong) {
+    pType(String home, ClassDoc type, @Nullable ClassDoc supertype, boolean strong, boolean withInterfaces) {
 
         if (type.isIncluded()) {
             this.p(type.containingPackage().name() + ".<a href=\"" + home + type.containingPackage().name().replace('.', '/') + "/" + type.name() + ".html\" title=\"" + JavadocUtil.category(type) + " in " + type.containingPackage().name() + "\">");
@@ -154,17 +154,20 @@ class HierarchiesHtml extends NoTemplate {
         } else {
             this.p(type.qualifiedName());
         }
-        Once first = NoTemplate.once();
-        for (ClassDoc i : type.interfaces()) {
-            if (i == supertype) continue;
 
-            if (first.once()) {
-                this.p(type.isInterface() ? " (also extends " : " (implements ");
-            } else {
-                this.p(", ");
+        if (withInterfaces) {
+            Once first = NoTemplate.once();
+            for (ClassDoc i : type.interfaces()) {
+                if (i == supertype) continue;
+
+                if (first.once()) {
+                    this.p(type.isInterface() ? " (also extends " : " (implements ");
+                } else {
+                    this.p(", ");
+                }
+                this.pType(home, i, type, false, false);
             }
-            this.pType(home, i, type, false);
+            if (!first.once()) this.p(")");
         }
-        if (!first.once()) this.p(")");
     }
 }
