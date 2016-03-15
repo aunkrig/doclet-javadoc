@@ -25,7 +25,7 @@
  */
 
 /**
- * A doclet that generates documentation for Java packages, classes, and so forth.
+ * Templates for the JAVADOC doclet.
  */
 @NotNullByDefault
 package de.unkrig.doclet.javadoc.templates;
