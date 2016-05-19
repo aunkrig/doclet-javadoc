@@ -45,7 +45,12 @@ class DeprecatedListHtml extends AbstractRightFrameHtml implements GlobalDocumen
      * Renders the "Deprecated List" page.
      */
     @Override public void
-    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    ) {
 
         super.rRightFrameHtml(
             "Deprecated List",                 // windowTitle
@@ -61,20 +66,20 @@ class DeprecatedListHtml extends AbstractRightFrameHtml implements GlobalDocumen
                 "Index",      "index-all.html",
                 "Help",       "help-doc.html",
             },
-            new String[] {                  // nav2
+            new String[] {                     // nav2
                 "Prev",
                 "Next",
             },
-            new String[] {                  // nav3
+            new String[] {                     // nav3
                 "Frames",    "index.html?overview-tree.html",
                 "No Frames", "overview-tree.html",
             },
-            new String[] {                  // nav4
+            new String[] {                     // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            null,                           // nav5
-            null,                           // nav6
-            () -> {                         // renderBody
+            null,                              // nav5
+            null,                              // nav6
+            () -> {                            // renderBody
                 DeprecatedListHtml.this.rBody();
             }
         );
