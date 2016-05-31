@@ -28,6 +28,7 @@ package de.unkrig.doclet.javadoc.templates.global;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.SortedSet;
 
 import com.sun.javadoc.ClassDoc;
@@ -40,12 +41,13 @@ import de.unkrig.commons.lang.protocol.ProducerUtil;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractSummaryHtml;
 
 /**
  * Renders the "Overview Summary" page.
  */
 public
-class OverviewSummaryHtml extends AbstractRightFrameHtml implements GlobalDocument {
+class OverviewSummaryHtml extends AbstractSummaryHtml implements GlobalDocument {
 
     @Override public void
     render(
@@ -55,7 +57,30 @@ class OverviewSummaryHtml extends AbstractRightFrameHtml implements GlobalDocume
         final RootDoc               rootDoc
     ) {
 
-        this.rRightFrameHtml(
+
+        // There is only one section: "Packages".
+        Section section = new Section();
+
+        section.firstColumnHeading = "Package";
+        section.summary            = "Packages table, listing packages, and an explanation";
+        section.title              = "Packages";
+        section.items              = new ArrayList<>();
+
+
+        ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
+        Collections.sort(aps, Docs.DOCS_BY_NAME_COMPARATOR);
+        for (PackageDoc p : aps) {
+
+            SectionItem item = new SectionItem();
+
+            item.link    = p.name().replace('.', '/') + "/package-summary.html";
+            item.name    = p.name();
+            item.summary = JavadocUtil.firstSentenceOfDescription(rootDoc, p, rootDoc);
+
+            section.items.add(item);
+        }
+
+        this.rSummary(
             "Overview",                        // windowTitle
             options,                           // options
             new String[] { "stylesheet.css" }, // stylesheetLinks
@@ -79,11 +104,16 @@ class OverviewSummaryHtml extends AbstractRightFrameHtml implements GlobalDocume
             new String[] {                     // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            null,                              // nav5
-            null,                              // nav6
-            () -> {                            // renderBody
-                OverviewSummaryHtml.this.rBody(options, allPackages, rootDoc);
-            }
+            () -> {                            // prolog
+                if (options.docTitle != null) {
+                    this.l(
+"<h1 class=\"title\">" + options.docTitle + "</h1>"
+                    );
+                }
+            },
+            () -> {                            // epilog
+            },
+            Collections.singletonList(section) // sections
         );
     }
 

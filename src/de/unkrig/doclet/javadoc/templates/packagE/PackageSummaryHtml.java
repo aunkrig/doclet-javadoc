@@ -26,7 +26,9 @@
 
 package de.unkrig.doclet.javadoc.templates.packagE;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
@@ -40,17 +42,38 @@ import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractSummaryHtml;
 
 /**
  * Renders the "Package Summary" page.
  */
 public
-class PackageSummaryHtml extends AbstractRightFrameHtml implements PerPackageDocument {
+class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocument {
 
     @Override public void
     render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, final RootDoc rootDoc) {
 
-        super.rRightFrameHtml(
+        Section classesSection = new Section();
+
+        classesSection.firstColumnHeading = "Interface";
+        classesSection.items              = new ArrayList<>();
+        classesSection.summary            = "Interface Summary table, listing interfaces, and an explanation";
+        classesSection.title              = "Interface Summary";
+
+        ClassDoc[] interfaces = packagE.current().interfaces();
+        Arrays.sort(interfaces, Docs.DOCS_BY_NAME_COMPARATOR);
+        for (ClassDoc i : interfaces) {
+
+            SectionItem item = new SectionItem();
+
+            item.link    = i.name() + ".html";
+            item.name    = i.name();
+            item.summary = JavadocUtil.firstSentenceOfDescription(i, i, rootDoc);
+
+            classesSection.items.add(item);
+        }
+
+        super.rSummary(
             packagE.current().name(),                 // windowTitle
             options,                                  // options
             new String[] { home + "stylesheet.css" }, // stylesheetLinks
@@ -74,11 +97,18 @@ class PackageSummaryHtml extends AbstractRightFrameHtml implements PerPackageDoc
             new String[] {                            // nav4
                 "All Classes", home + "allclasses-noframe.html",
             },
-            null,                                     // nav5
-            null,                                     // nav6
-            () -> {                                   // renderBody
-                PackageSummaryHtml.this.rBody(packagE, rootDoc, home);
-            }
+            () -> {                                   // prolog
+                this.l(
+"<h1 title=\"Package\" class=\"title\">Package&nbsp;" + packagE.current().name() + "</h1>",
+"<div class=\"docSummary\">",
+"  <div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
+"</div>",
+"<p>See:&nbsp;<a href=\"#package_description\">Description</a></p>"
+                );
+            },
+            () -> {                                   // epilog
+            },
+            Collections.singletonList(classesSection) // sections
         );
     }
 
