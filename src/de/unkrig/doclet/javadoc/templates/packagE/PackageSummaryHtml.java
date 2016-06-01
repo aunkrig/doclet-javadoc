@@ -28,11 +28,12 @@ package de.unkrig.doclet.javadoc.templates.packagE;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.TypeVariable;
 
 import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.lang.protocol.Producer;
@@ -53,24 +54,64 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
     @Override public void
     render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, final RootDoc rootDoc) {
 
-        Section classesSection = new Section();
+        List<Section> sections = new ArrayList<>();
 
-        classesSection.firstColumnHeading = "Interface";
-        classesSection.items              = new ArrayList<>();
-        classesSection.summary            = "Interface Summary table, listing interfaces, and an explanation";
-        classesSection.title              = "Interface Summary";
+        {
+            Section interfacesSection = new Section();
+            sections.add(interfacesSection);
 
-        ClassDoc[] interfaces = packagE.current().interfaces();
-        Arrays.sort(interfaces, Docs.DOCS_BY_NAME_COMPARATOR);
-        for (ClassDoc i : interfaces) {
+            interfacesSection.firstColumnHeading = "Interface";
+            interfacesSection.items              = new ArrayList<>();
+            interfacesSection.summary            = "Interface Summary table, listing interfaces, and an explanation";
+            interfacesSection.title              = "Interface Summary";
 
-            SectionItem item = new SectionItem();
+            ClassDoc[] interfaces = packagE.current().interfaces();
+            Arrays.sort(interfaces, Docs.DOCS_BY_NAME_COMPARATOR);
+            for (ClassDoc i : interfaces) {
 
-            item.link    = i.name() + ".html";
-            item.name    = i.name();
-            item.summary = JavadocUtil.firstSentenceOfDescription(i, i, rootDoc);
+                StringBuilder sb = new StringBuilder(i.name());
+                {
+                    TypeVariable[] typeParameters = i.typeParameters();
+                    if (typeParameters.length > 0) {
+                        sb.append("&lt;").append(typeParameters[0]);
+                        for (int j = 1; j < typeParameters.length; j++) {
+                            sb.append(", ").append(typeParameters[j]);
+                        }
+                        sb.append("&gt;");
+                    }
+                }
 
-            classesSection.items.add(item);
+                SectionItem item = new SectionItem();
+
+                item.link    = i.name() + ".html";
+                item.name    = sb.toString();
+                item.summary = JavadocUtil.firstSentenceOfDescription(packagE.current(), i, rootDoc);
+
+                interfacesSection.items.add(item);
+            }
+        }
+
+        {
+            Section classesSection = new Section();
+            sections.add(classesSection);
+
+            classesSection.firstColumnHeading = "Class";
+            classesSection.items              = new ArrayList<>();
+            classesSection.summary            = "Class Summary table, listing classes, and an explanation";
+            classesSection.title              = "Class Summary";
+
+            ClassDoc[] classes = packagE.current().ordinaryClasses();
+            Arrays.sort(classes, Docs.DOCS_BY_NAME_COMPARATOR);
+            for (ClassDoc c : classes) {
+
+                SectionItem item = new SectionItem();
+
+                item.link    = c.name() + ".html";
+                item.name    = c.name();
+                item.summary = JavadocUtil.firstSentenceOfDescription(c, c, rootDoc);
+
+                classesSection.items.add(item);
+            }
         }
 
         super.rSummary(
@@ -107,8 +148,13 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
                 );
             },
             () -> {                                   // epilog
+                this.l(
+"<a name=\"package.description\" />",
+"<h2 title=\"Package " + packagE.current().name() + "\">Package " + packagE.current().name() + " Description</h2>",
+"<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>"
+                );
             },
-            Collections.singletonList(classesSection) // sections
+            sections                                  // sections
         );
     }
 
