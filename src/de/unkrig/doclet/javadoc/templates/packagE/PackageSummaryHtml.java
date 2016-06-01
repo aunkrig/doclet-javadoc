@@ -85,7 +85,7 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
 
                 item.link    = i.name() + ".html";
                 item.name    = sb.toString();
-                item.summary = JavadocUtil.firstSentenceOfDescription(packagE.current(), i, rootDoc);
+                item.summary = JavadocUtil.firstSentenceOfDescription(i, i, rootDoc);
 
                 interfacesSection.items.add(item);
             }
