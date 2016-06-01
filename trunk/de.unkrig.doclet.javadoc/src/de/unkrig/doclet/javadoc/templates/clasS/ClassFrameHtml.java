@@ -29,6 +29,7 @@ package de.unkrig.doclet.javadoc.templates.clasS;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -59,24 +60,21 @@ import de.unkrig.commons.doclet.html.Html;
 import de.unkrig.commons.lang.AssertionUtil;
 import de.unkrig.commons.lang.StringUtil;
 import de.unkrig.commons.lang.protocol.Longjump;
-import de.unkrig.commons.lang.protocol.Producer;
-import de.unkrig.commons.lang.protocol.ProducerUtil;
 import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
+import de.unkrig.notemplate.javadocish.templates.AbstractDetailHtml;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
  * Rendition of the per-class JAVADOC page.
  */
 public
-class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument {
+class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
 
     static { AssertionUtil.enableAssertionsForThisClass(); }
-
-    enum MemberType { NESTED, FIELD, CONSTR, METHOD }
 
     private static final Html HTML = new Html(Html.STANDARD_LINK_MAKER);
 
@@ -93,563 +91,82 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
         final RootDoc                      rootDoc
     ) {
 
-        super.rRightFrameHtml(
-            clasS.current().name(),                   // windowTitle
-            options,                                  // options
-            new String[] { home + "stylesheet.css" }, // stylesheetLinks
-            new String[] {                            // nav1
-                "Overview",   home + "overview-summary.html",
-                "Package",    "package-summary.html",
-                "Class",      AbstractRightFrameHtml.HIGHLIT,
-                "Tree",       "package-tree.html",
-                "Deprecated", home + "deprecated-list.html",
-                "Index",      home + "index-all.html",
-                "Help",       home + "help-doc.html",
-            },
-            new String[] {                            // nav2
-                ClassFrameHtml.classLink("Prev Class", home, clasS.previous()),
-                ClassFrameHtml.classLink("Next Class", home, clasS.next()),
-            },
-            new String[] {                            // nav3
-                "Frames",    home + "index.html?" + ClassFrameHtml.classHref("", clasS.current()),
-                "No Frames", clasS.current().name() + ".html",
-            },
-            new String[] {                            // nav4
-                "All Classes", home + "allclasses-noframe.html",
-            },
-            new String[] {                            // nav5
-                "Nested", clasS.current().innerClasses().length == 0 ? AbstractRightFrameHtml.DISABLED : "#nested_class_summary",
-                "Field",  clasS.current().fields().length       == 0 ? AbstractRightFrameHtml.DISABLED : "#field_summary",
-                "Constr", clasS.current().constructors().length == 0 ? AbstractRightFrameHtml.DISABLED : "#constructor_summary",
-                "Method", clasS.current().methods().length      == 0 ? AbstractRightFrameHtml.DISABLED : "#method_summary",
-            },
-            new String[] {                            // nav6
-                "Field",  clasS.current().fields().length       == 0 ? AbstractRightFrameHtml.DISABLED : "#field_detail",
-                "Constr", clasS.current().constructors().length == 0 ? AbstractRightFrameHtml.DISABLED : "#constructor_detail",
-                "Method", clasS.current().methods().length      == 0 ? AbstractRightFrameHtml.DISABLED : "#method_detail"
-            },
-            () -> {                                   // renderBody
-                ClassFrameHtml.this.rBody(clasS, home, rootDoc);
-            }
-        );
-    }
+        List<Section> sections = new ArrayList<>();
 
-    private static String
-    classLink(String labelHtml, String home, @Nullable ClassDoc clasS) {
-
-        if (clasS == null) return labelHtml;
-
-        return (
-            "<a href=\""
-            + ClassFrameHtml.classHref(home, clasS)
-            + "\" title=\"" + JavadocUtil.category(clasS) + " in "
-            + clasS.containingPackage().name()
-            + "\"><span class=\"strong\">"
-            + labelHtml
-            + "</span></a>"
-        );
-    }
-
-    private static String
-    classHref(String home, ClassDoc clasS) {
-
-        return home + clasS.containingPackage().name().replace('.', '/') + "/" + clasS.name() + ".html";
-    }
-
-    private void
-    rBody(ElementWithContext<ClassDoc> clasS, String home, RootDoc rootDoc) {
-
-        final MethodDoc[] sortedMethods = clasS.current().methods();
-        Arrays.sort(sortedMethods);
-
-        this.l(
-"    <!-- ======== START OF CLASS DATA ======== -->",
-"    <div class=\"header\">",
-"      <div class=\"subTitle\">" + clasS.current().containingPackage().name() + "</div>",
-"      <h2 title=\"" + ClassFrameHtml.capFirst(JavadocUtil.category(clasS.current())) + " " + clasS.current().name() + "\" class=\"title\">" + ClassFrameHtml.capFirst(JavadocUtil.category(clasS.current())) + " " + clasS.current().name() + NoTemplate.html(ClassFrameHtml.typeParameters(clasS.current())) + "</h2>",
-"    </div>",
-"    <div class=\"contentContainer\">"
-        );
-
-        // Superclass chain.
-        ClassDoc[] scs = ClassFrameHtml.superclassChain(clasS.current());
-        if (scs.length > 0) {
-            for (int sci = scs.length - 1; sci >= 0; sci--) {
-                ClassDoc sc = scs[sci];
-                this.l(
-"      <ul class=\"inheritance\">",
-"        <li>" + sc.qualifiedName() + "</li>",
-"        <li>"
-                );
-            }
-            this.l(
-"          <ul class=\"inheritance\">",
-"            <li>" + JavadocUtil.toHtml(clasS.current(), clasS.current(), home, 0) + "</li>",
-"          </ul>"
-            );
-            for (int i = 0; i < scs.length; i++) {
-                this.l(
-"        </li>",
-"      </ul>"
-                );
-            }
-        }
-        this.l(
-"      <div class=\"description\">",
-"        <ul class=\"blockList\">",
-"          <li class=\"blockList\">"
-        );
-
-        // Class/interface type parameters.
-        if (clasS.current().typeParamTags().length > 0) {
-            this.p("        <dl><dt><span class=\"strong\">Type Parameters:</span></dt>");
-            for (ParamTag tpt : clasS.current().typeParamTags()) {
-                String comment = tpt.parameterComment();
-                try {
-                    comment = ClassFrameHtml.HTML.fromJavadocText(comment, clasS.current(), rootDoc);
-                } catch (Longjump e) {
-                    ;
-                }
-                this.p("<dd><code>" + tpt.parameterName() + "</code> - " + comment + "</dd>");
-            }
-            this.l("</dl>");
-        }
-
-        // Implemented interfaces / superinterfaces.
         {
-            List<Type> sis = this.getImplementedInterfaces(clasS.current());
-            if (sis.size() > 0) {
-                this.l(
-"            <dl>",
-"              <dt>" + (clasS.current().isInterface() && clasS.current().interfaces().length == sis.size() ? "All Superinterfaces" : "All Implemented Interfaces") + ":</dt>"
-                );
-                this.p(
-"              <dd>"
-                );
-                Once first = NoTemplate.once();
-                Collections.sort(sis, Docs.TYPE_COMPARATOR);
-                for (Type si : sis) {
-                    if (!first.once()) this.p(", ");
-                    this.p(JavadocUtil.toHtml(si, clasS.current(), home, 0));
-                }
-                this.l("</dd>");
-                this.l(
-"            </dl>"
-                );
-            }
-        }
+            Section nestedClassesSection = new Section();
+            sections.add(nestedClassesSection);
 
-        // Enclosing clasS.current().
-        if (clasS.current().containingClass() != null) {
-            this.l(
-"            <dl>",
-"              <dt>Enclosing class:</dt>",
-"              <dd>" + JavadocUtil.toHtml(clasS.current().containingClass(), clasS.current(), home, 0) + "</dd>",
-"            </dl>"
-            );
-        }
+            nestedClassesSection.anchor               = "nested_class";
+            nestedClassesSection.navigationLinkLabel  = "Nested";
+            nestedClassesSection.summaryTitle1        = "Nested Class Summary";
+            nestedClassesSection.summaryTitle2        = "Nested Classes";
+            nestedClassesSection.summaryTableHeadings = new String[] { "Modifier and Type", "Class and Description" };
+            nestedClassesSection.detailTitle          = null; // To suppress the "details" part.
+            nestedClassesSection.detailDescription    = null;
 
-        // Known subinterfaces.
-        if (ClassFrameHtml.knownSubinterfaces(clasS.current(), rootDoc).size() > 0) {
-            this.l(
-"            <dl>",
-"              <dt>All Known Subinterfaces:</dt>",
-"              <dd>"
-            );
-            for (Iterator<ClassDoc> it = ClassFrameHtml.knownSubinterfaces(clasS.current(), rootDoc).iterator(); it.hasNext();) {
-                ClassDoc superinterface = it.next();
-                this.l(
-"                <a href=\"" + home + JavadocUtil.href(superinterface) + "\" title=\"" + JavadocUtil.title(superinterface) + "\">" + superinterface.name() + "</a>" + NoTemplate.html(ClassFrameHtml.typeParameters(superinterface)) + (it.hasNext() ? "," : "")
-                );
-            }
-            this.l(
-"              </dd>",
-"            </dl>"
-            );
-        }
-        this.l(
-"            <hr />",
-"            <br />"
-        );
-
-        // Class/interface modifiers.
-        this.p(
-"            <pre>"
-        );
-        this.p("public ");
-        if (clasS.current().isStatic()) this.p("static ");
-        if (clasS.current().isAbstract() && !clasS.current().isInterface()) this.p("abstract ");
-        if (clasS.current().isFinal()) this.p("final ");
-
-        this.p(clasS.current().isClass() ? "class " : "interface ");
-
-        // Class/interface name.
-        // Class/interface type parameters.
-        this.p("<span class=\"strong\">" + clasS.current().name() + NoTemplate.html(ClassFrameHtml.typeParameters(clasS.current())) + "</span>");
-
-        // Class's superclasS.current().
-        if (clasS.current().superclass() != null) {
-            this.l();
-            this.p("extends " + clasS.current().superclass().qualifiedName() + ClassFrameHtml.typeArguments(clasS.current().superclass()));
-        }
-
-        // Interface's superinterfaces.
-        if (clasS.current().interfaces().length > 0) {
-            this.l();
-            this.p("extends ");
-            Once first = NoTemplate.once();
-            for (Type it : clasS.current().interfaceTypes()) {
-                if (!first.once()) this.p(", ");
-                this.p(JavadocUtil.toHtml(it, clasS.current(), home, 0));
-            }
-//            p("<a href=\"../../../../../de/unkrig/commons/lang/protocol/Producer.html\" title=\"interface in de.unkrig.commons.lang.protocol\">Producer</a>&lt;PT&gt;");
-//            p(", ");
-//            p("<a href=\"../../../../../de/unkrig/commons/lang/protocol/Consumer.html\" title=\"interface in de.unkrig.commons.lang.protocol\">Consumer</a>&lt;CT&gt;");
-        }
-
-        this.l(
-"            </pre>"
-        );
-
-        // Class/interface description.
-        if (!ClassFrameHtml.description(clasS.current(), rootDoc).isEmpty()) {
-            this.l(
-"            <div class=\"block\">" + ClassFrameHtml.description(clasS.current(), rootDoc) + "</div>"
-            );
-        }
-
-        // @see pkg.cls#mem
-        boolean implementsSerializable;
-        IS: {
-            for (Type t : this.getImplementedInterfaces(clasS.current())) {
-                if ("java.io.Serializable".equals(t.qualifiedTypeName())) {
-                    implementsSerializable = true;
-                    break IS;
-                }
-            }
-            implementsSerializable = false;
-        }
-        if (clasS.current().seeTags().length > 0 || implementsSerializable) {
-            this.p(
-"            <dl><dt><span class=\"strong\">See Also:</span></dt><dd>");
-            Once once = NoTemplate.once();
-            for (SeeTag st : clasS.current().seeTags()) {
-                if (!once.once()) {
-                    this.l(", ");
-                }
-                Doc reference = ClassFrameHtml.reference(st);
-                this.p("<a href=\"" + home + JavadocUtil.href(reference) + "\"");
-                if (JavadocUtil.title(reference) != null) {
-                    this.p(" title=\"" + JavadocUtil.title(reference) + "\"");
-                }
-                this.p("><code>" + ClassFrameHtml.toString(reference, clasS.current()) + "</code></a>" + st.label());
-            }
-            if (implementsSerializable) {
-                this.p("<a href=\"../../../../../serialized-form.html#de.unkrig.commons.lang.protocol.Longjump\">Serialized Form</a>");
-            }
-            this.l("</dd></dl>");
-        }
-        this.l(
-"          </li>",
-"        </ul>",
-"      </div>",
-"      <div class=\"summary\">",
-"        <ul class=\"blockList\">",
-"          <li class=\"blockList\">"
-        );
-
-        // Class's/interface's fields.
-        if (clasS.current().fields().length > 0) {
-            this.l(
-"            <!-- =========== FIELD SUMMARY =========== -->",
-"            <ul class=\"blockList\">",
-"              <li class=\"blockList\"><a name=\"field_summary\">",
-"                <!--   -->",
-"                </a>",
-"                <h3>Field Summary</h3>",
-"                <table class=\"overviewSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Field Summary table, listing fields, and an explanation\">",
-"                  <caption><span>Fields</span><span class=\"tabEnd\">&nbsp;</span></caption>",
-"                  <tr>",
-"                    <th class=\"colFirst\" scope=\"col\">Modifier and Type</th>",
-"                    <th class=\"colLast\" scope=\"col\">Field and Description</th>",
-"                  </tr>"
-            );
-            Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
-            for (FieldDoc fd : clasS.current().fields()) {
-                this.l(
-"                  <tr class=\"" + cls.produce() + "\">",
-"                    <td class=\"colFirst\"><code>" + (fd.isStatic() ? "static " : "") + JavadocUtil.toHtml(fd.type(), fd, home, 0) + "</code></td>",
-"                    <td class=\"colLast\"><code><strong><a href=\"" + home + JavadocUtil.href(fd) + "\">" + fd.name() + "</a></strong></code>",
-"                      <div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(clasS.current(), fd, rootDoc) + "</div>",
-"                    </td>",
-"                  </tr>"
-                );
-            }
-            this.l(
-"                </table>",
-"              </li>",
-"            </ul>"
-            );
-        }
-        if (clasS.current().innerClasses().length > 0) {
-            this.l(
-"            <!-- ======== NESTED CLASS SUMMARY ======== -->",
-"            <ul class=\"blockList\">",
-"              <li class=\"blockList\"><a name=\"nested_class_summary\">",
-"                <!--   -->",
-"                </a>",
-"                <h3>Nested Class Summary</h3>",
-"                <table class=\"overviewSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Nested Class Summary table, listing nested classes, and an explanation\">",
-"                  <caption><span>Nested Classes</span><span class=\"tabEnd\">&nbsp;</span></caption>",
-"                  <tr>",
-"                    <th class=\"colFirst\" scope=\"col\">Modifier and Type</th>",
-"                    <th class=\"colLast\" scope=\"col\">Class and Description</th>",
-"                  </tr>"
-            );
-            Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
             for (ClassDoc ncd : clasS.current().innerClasses()) {
-                this.l(
-"                  <tr class=\"" + cls.produce() + "\">",
-"                    <td class=\"colFirst\"><code>static " + JavadocUtil.category(ncd) + "&nbsp;</code></td>"
-                );
-                this.l(
-"                    <td class=\"colLast\"><code><strong>" + JavadocUtil.toHtml(ncd, clasS.current(), home, 0) + "</strong></code>",
-"                      <div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(clasS.current(), ncd, rootDoc) + "</div>",
-"                    </td>",
-"                  </tr>"
-                );
+
+                SectionItem item = new SectionItem();
+                nestedClassesSection.items.add(item);
+
+                item.anchor             = null; // TODO
+                item.summaryTableCells  = new String[] {
+                    "<code>static " + JavadocUtil.category(ncd) + "&nbsp;</code>",
+                    (
+                        "<code><strong>"
+                        + JavadocUtil.toHtml(ncd, clasS.current(), home, 0)
+                        + "</strong></code><div class=\"block\">"
+                        + JavadocUtil.firstSentenceOfDescription(clasS.current(), ncd, rootDoc)
+                        + "</div>"
+                    ),
+                };
+                item.detailTitle        = "";
+                item.printDetailContent = () -> {};
             }
-            this.l(
-"                </table>",
-"              </li>",
-"            </ul>"
-            );
         }
 
-        // Constructor summary section.
-        if (clasS.current().constructors().length > 0) {
-            this.l(
-"            <!-- ======== CONSTRUCTOR SUMMARY ======== -->",
-"            <ul class=\"blockList\">",
-"              <li class=\"blockList\"><a name=\"constructor_summary\">",
-"                <!--   -->",
-"                </a>",
-"                <h3>Constructor Summary</h3>",
-"                <table class=\"overviewSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Constructor Summary table, listing constructors, and an explanation\">",
-"                  <caption><span>Constructors</span><span class=\"tabEnd\">&nbsp;</span></caption>",
-"                  <tr>",
-"                    <th class=\"colOne\" scope=\"col\">Constructor and Description</th>",
-"                  </tr>"
-            );
-            Producer<? extends String>  cls = ProducerUtil.alternate("altColor", "rowColor");
-            for (ConstructorDoc cd : clasS.current().constructors()) {
-                this.l(
-"                  <tr class=\"" + cls.produce() + "\">"
-                );
-                this.p(
-"                    <td class=\"colOne\"><code>" + "<strong><a href=\"" + home + JavadocUtil.href(cd) + "\">" + cd.name() + "</a></strong>");
-                this.pParameters(home, cd);
-                this.l("</code>&nbsp;</td>");
-                this.l(
-"                  </tr>"
-                );
-            }
-            this.l(
-"                </table>",
-"              </li>",
-"            </ul>"
-            );
-        }
+        {
+            Section fieldsSection = new Section();
+            sections.add(fieldsSection);
 
-        // Method summary section.
-        this.l(
-"            <!-- ========== METHOD SUMMARY =========== -->",
-"            <ul class=\"blockList\">",
-"              <li class=\"blockList\"><a name=\"method_summary\">",
-"                <!--   -->",
-"                </a>",
-"                <h3>Method Summary</h3>"
-        );
-        if (clasS.current().methods().length > 0) {
+            fieldsSection.anchor               = "field";
+            fieldsSection.navigationLinkLabel  = "Field";
+            fieldsSection.summaryTitle1        = "Field Summary";
+            fieldsSection.summaryTitle2        = "Fields";
+            fieldsSection.summaryTableHeadings = new String[] { "Modifier and Type", "Field and Description" };
+            fieldsSection.detailTitle          = "Field Detail";
+            fieldsSection.detailDescription    = null;
 
-            // Table headers.
-            this.l(
-"                <table class=\"overviewSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Method Summary table, listing methods, and an explanation\">",
-"                  <caption><span>Methods</span><span class=\"tabEnd\">&nbsp;</span></caption>",
-"                  <tr>",
-"                    <th class=\"colFirst\" scope=\"col\">Modifier and Type</th>",
-"                    <th class=\"colLast\" scope=\"col\">Method and Description</th>",
-"                  </tr>"
-            );
-            Producer<? extends String>  cls = ProducerUtil.alternate("altColor", "rowColor");
-            for (MethodDoc md : sortedMethods) {
-                this.l(
-"                  <tr class=\"" + cls.produce() + "\">"
-                );
-                this.p(
-"                    <td class=\"colFirst\"><code>"
-                );
+            for (FieldDoc fd : clasS.current().fields()) {
 
-                // Method modifiers.
-                if (md.isStatic())                                     this.p("static ");
-                if (md.isAbstract() && !clasS.current().isInterface()) this.p("abstract ");
+                SectionItem item = new SectionItem();
+                fieldsSection.items.add(item);
 
-                // Method type parameters.
-                if (md.typeParameters().length > 0) {
-                    this.p("&lt;");
-                    Once once = NoTemplate.once();
-                    for (TypeVariable tp : md.typeParameters()) {
-                        if (!once.once()) this.p(",");
-//                        this.p(NoTemplate.html(tp.toString()));
-                        this.p(JavadocUtil.toHtml(tp, md, home, 1));
-                    }
-                    this.p("&gt;&nbsp;");
-
-                    int l = 0;
-                    if (md.isStatic()) l += 7;
-                    if (md.isAbstract()) l += 9;
-                    if (md.typeParameters().length > 0) {
-                        l++;
-                        for (TypeVariable tp : md.typeParameters()) {
-                            l += tp.toString().length() + 1;
-                        }
-                    }
-                    if (l >= 18) {
-                        this.p("<br>");
-                    }
-                }
-
-                // Method return type.
-                this.l(JavadocUtil.toHtml(md.returnType(), md, home, 0) + "</code></td>");
-
-                // Method name.
-                this.p(
-"                    <td class=\"colLast\"><code><strong><a href=\"" + home + JavadocUtil.href(md) + "\">" + md.name() + "</a></strong>"
-                );
-
-                // Method parameters.
-                this.pParameters(home, md);
-
-                // First sentence of method description.
-                if (JavadocUtil.firstSentenceOfDescription(clasS.current(), md, rootDoc).isEmpty()) {
-                    this.p("</code>&nbsp;");
-                } else {
-                    this.l("</code>");
+                item.anchor             = fd.name();
+                item.summaryTableCells  = new String[] {
+                    (fd.isStatic() ? "static " : "") + JavadocUtil.toHtml(fd.type(), fd, home, 0),
+                    (
+                        "<code><strong><a href=\""
+                        + home
+                        + JavadocUtil.href(fd)
+                        + "\">"
+                        + fd.name()
+                        + "</a></strong></code><div class=\"block\">"
+                        + JavadocUtil.firstSentenceOfDescription(clasS.current(), fd, rootDoc)
+                        + "</div>"
+                    ),
+                };
+                item.detailTitle        = fd.name();
+                item.printDetailContent = () -> {
                     this.l(
-"                      <div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(clasS.current(), md, rootDoc) + "</div>"
-                    );
-                }
-                this.l(
-"                    </td>",
-"                  </tr>"
-                );
-            }
-            this.l(
-"                </table>"
-            );
-        }
-
-        // Methods inherited from base classes and interfaces.
-        Set<String> seen = new HashSet<String>();
-        for (MethodDoc m : clasS.current().methods()) {
-            if (m.isStatic()) continue;
-            seen.add(JavadocUtil.fragments(m)[0]);
-        }
-        List<Type> bcais = this.baseClassesAndInterfaces(clasS.current());
-//        Collections.sort(bcais, Docs.COMPARE_TYPES);
-        for (Type bt : bcais) {
-            List<MethodDoc> btms = new ArrayList<MethodDoc>();
-            for (MethodDoc btm : bt.asClassDoc().methods()) {
-                if (btm.isStatic()) continue;
-                String s = JavadocUtil.fragments(btm)[0];
-                if (seen.add(s)) btms.add(btm);
-            }
-
-            if (btms.isEmpty()) continue;
-
-            this.l(
-"                <ul class=\"blockList\">",
-"                  <li class=\"blockList\"><a name=\"methods_inherited_from_class_" + bt.qualifiedTypeName() + "\">",
-"                    <!--   -->",
-"                    </a>"
-            );
-            this.p(
-"                    <h3>Methods inherited from " + JavadocUtil.category(bt.asClassDoc()) + "&nbsp;" + bt.asClassDoc().containingPackage().name() + '.'
-            );
-            if (bt.asClassDoc().isIncluded()) {
-                this.p("<a href=\"" + home + JavadocUtil.href(bt.asClassDoc()) + "\" title=\"" + JavadocUtil.title(bt.asClassDoc()) + "\">" + bt.typeName() + "</a>");
-            } else {
-                this.p(bt.typeName());
-            }
-            this.l("</h3>");
-
-            this.p(
-"                    <code>"
-            );
-            Once        once = NoTemplate.once();
-            Collections.sort(btms);
-            for (MethodDoc btm : btms) {
-
-                if (!once.once()) this.p(", ");
-
-                if (btm.isIncluded()) {
-                    this.p("<a href=\"" + home + JavadocUtil.href(btm) + "\">" + btm.name() + "</a>");
-                } else {
-                    this.p(btm.name());
-                }
-            }
-            this.l("</code></li>");
-            this.l(
-"                </ul>"
-            );
-        }
-        this.l(
-"              </li>",
-"            </ul>",
-"          </li>",
-"        </ul>",
-"      </div>"
-        );
-
-        // "Details" sections.
-        if (clasS.current().fields().length > 0 || clasS.current().methods().length > 0) {
-            this.l(
-"      <div class=\"details\">",
-"        <ul class=\"blockList\">",
-"          <li class=\"blockList\">"
-            );
-
-            // Class's/interface's fields.
-            if (clasS.current().fields().length > 0) {
-                this.l(
-"            <!-- ============ FIELD DETAIL =========== -->",
-"            <ul class=\"blockList\">",
-"              <li class=\"blockList\"><a name=\"field_detail\">",
-"                <!--   -->",
-"                </a>",
-"                <h3>Field Detail</h3>"
-                );
-                for (int fi = 0; fi < clasS.current().fields().length; fi++) {
-                    FieldDoc fd = clasS.current().fields()[fi];
-                    this.l(
-"                <a name=\"" + fd.name() + "\">",
-"                  <!--   -->",
-"                </a>"
-                    );
-                    String cls = fi == clasS.current().fields().length - 1 ? "blockListLast" : "blockList";
-                    this.l(
-"                <ul class=\"" + cls + "\">",
-"                  <li class=\"blockList\">",
-"                    <h4>" + fd.name() + "</h4>",
 "                    <pre>" + fd.modifiers() + "&nbsp;" + JavadocUtil.toHtml(fd.type(), fd, home, 0) + " " + fd.name() + "</pre>",
 "                    <div class=\"block\">" + ClassFrameHtml.description(fd, rootDoc) + "</div>"
                     );
                     if (fd.seeTags().length > 0 || fd.constantValue() != null) {
                         this.p(
-"                    <dl>"
+"                    <dl><dt><span class=\"strong\">See Also:</span></dt><dd>"
                         );
-                        this.p("<dt><span class=\"strong\">See Also:</span></dt>");
-                        this.p("<dd>");
                         Once first = NoTemplate.once();
                         for (SeeTag st : fd.seeTags()) {
                             if (!first.once()) this.l(", ");
@@ -677,91 +194,481 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
                                 + "\">Constant Field Values</a></dd>"
                             ));
                         }
-                        this.l("                </dl>");
+                        this.l("</dl>");
+                    }
+                };
+            }
+        }
+
+        {
+            Section constructorsSection = new Section();
+            sections.add(constructorsSection);
+
+            constructorsSection.anchor               = "constructor";
+            constructorsSection.navigationLinkLabel  = "Constr";
+            constructorsSection.summaryTitle1        = "Constructor Summary";
+            constructorsSection.summaryTitle2        = "Constructors";
+            constructorsSection.summaryTableHeadings = new String[] { "Constructor and Description" };
+            constructorsSection.detailTitle          = "Constructor Detail";
+            constructorsSection.detailDescription    = null;
+
+            ConstructorDoc[] constructors = clasS.current().constructors();
+            for (int i = 0; i < constructors.length; i++) {
+                ConstructorDoc cd     = constructors[i];
+                int            finalI = i;
+
+                SectionItem item = new SectionItem();
+                constructorsSection.items.add(item);
+
+                item.anchor             = null; // TODO
+                item.summaryTableCells  = new String[] {
+                    (
+                        "<code><strong><a href=\""
+                        + home
+                        + JavadocUtil.href(cd)
+                        + "\">"
+                        + cd.name()
+                        + "</a></strong>"
+                        + ClassFrameHtml.pParameters(home, cd)
+                        + "</code>&nbsp;"
+                    ),
+                };
+                item.detailTitle        = "";
+                item.printDetailContent = () -> {
+                    this.pExecutableMemberDetail(
+                        constructors[finalI],
+                        home,
+                        finalI == constructors.length - 1,
+                        rootDoc
+                    );
+                };
+            }
+        }
+
+        {
+            Section methodsSection = new Section();
+            sections.add(methodsSection);
+
+            methodsSection.anchor               = "method";
+            methodsSection.navigationLinkLabel  = "Method";
+            methodsSection.summaryTitle1        = "Method Summary";
+            methodsSection.summaryTitle2        = "Methods";
+            methodsSection.summaryTableHeadings = new String[] { "Modifier and Type", "Method and Description" };
+            methodsSection.detailTitle          = "Method Detail";
+            methodsSection.detailDescription    = null;
+
+            // The methods' "detail title" is the bare method name, however, we want the to use the complete
+            // "Method and Description" for sorting the method summary table.
+            methodsSection.summaryItemComparator = new Comparator<SectionItem>() {
+
+                @Override public int
+                compare(SectionItem si1, SectionItem si2) {
+                    return si1.summaryTableCells[1].compareTo(si2.summaryTableCells[1]);
+                }
+            };
+
+            final MethodDoc[] methods = clasS.current().methods();
+
+            for (int mi = 0; mi < methods.length; mi++) {
+                MethodDoc md      = methods[mi];
+                int       finalMi = mi;
+
+                String modifierCell;
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.append("<code>");
+                    if (md.isStatic()) sb.append("static ");
+                    if (md.isAbstract() && !clasS.current().isInterface()) sb.append("abstract ");
+
+                    // Method type parameters.
+                    if (md.typeParameters().length > 0) {
+                        sb.append("&lt;");
+                        Once once = NoTemplate.once();
+                        for (TypeVariable tp : md.typeParameters()) {
+                            if (!once.once()) sb.append(",");
+//                            sb.append(NoTemplate.html(tp.toString()));
+                            sb.append(JavadocUtil.toHtml(tp, md, home, 1));
+                        }
+                        sb.append("&gt;&nbsp;");
+
+                        int l = 0;
+                        if (md.isStatic()) l += 7;
+                        if (md.isAbstract()) l += 9;
+                        if (md.typeParameters().length > 0) {
+                            l++;
+                            for (TypeVariable tp : md.typeParameters()) {
+                                l += tp.toString().length() + 1;
+                            }
+                        }
+                        if (l >= 18) {
+                            sb.append("<br />");
+                        }
+                    }
+
+                    // Method return type.
+                    sb.append(JavadocUtil.toHtml(md.returnType(), md, home, 0)).append("</code>");
+
+                    modifierCell = sb.toString();
+                }
+
+                String descriptionCell;
+                {
+                    StringBuilder sb = new StringBuilder();
+
+                    sb.append("<code><strong><a href=\"").append(home).append(JavadocUtil.href(md)).append("\">");
+                    sb.append(md.name()).append("</a></strong>");
+                    sb.append(ClassFrameHtml.pParameters(home, md));
+                    sb.append("</code>");
+
+                    // First sentence of method description.
+                    if (JavadocUtil.firstSentenceOfDescription(clasS.current(), md, rootDoc).isEmpty()) {
+                        sb.append("&nbsp;");
+                    } else {
+                        sb.append("<div class=\"block\">");
+                        sb.append(JavadocUtil.firstSentenceOfDescription(clasS.current(), md, rootDoc));
+                        sb.append("</div>");
+                    }
+
+                    descriptionCell = sb.toString();
+                }
+
+                SectionItem item = new SectionItem();
+                methodsSection.items.add(item);
+
+                item.anchor             = null; // TODO
+                item.summaryTableCells  = new String[] { modifierCell, descriptionCell };
+                item.detailTitle        = md.name();
+                item.printDetailContent = () -> {
+                    this.pExecutableMemberDetail(md, home, finalMi == methods.length - 1, rootDoc);
+                };
+            }
+
+            // Methods inherited from base classes and interfaces.
+            {
+                Set<String> seen = new HashSet<String>();
+                for (MethodDoc m : clasS.current().methods()) {
+                    if (m.isStatic()) continue;
+                    seen.add(JavadocUtil.fragments(m)[0]);
+                }
+                List<Type> bcais = this.baseClassesAndInterfaces(clasS.current());
+    //            Collections.sort(bcais, Docs.COMPARE_TYPES);
+                for (Type bt : bcais) {
+
+                    List<MethodDoc> btms = new ArrayList<MethodDoc>();
+                    for (MethodDoc btm : bt.asClassDoc().methods()) {
+                        if (btm.isStatic()) continue;
+                        String s = JavadocUtil.fragments(btm)[0];
+                        if (seen.add(s)) btms.add(btm);
+                    }
+
+                    if (btms.isEmpty()) continue;
+
+                    SectionAddendum addendum = new SectionAddendum();
+                    methodsSection.addenda.add(addendum);
+
+                    addendum.title   = (
+                        "Methods inherited from "
+                        + JavadocUtil.category(bt.asClassDoc())
+                        + "&nbsp;"
+                        + bt.asClassDoc().containingPackage().name()
+                        + '.'
+                        + (
+                            bt.asClassDoc().isIncluded()
+                            ? (
+                                "<a href=\""
+                                + home
+                                + JavadocUtil.href(bt.asClassDoc())
+                                + "\" title=\""
+                                + JavadocUtil.title(bt.asClassDoc())
+                                + "\">"
+                                + bt.typeName()
+                                + "</a>"
+                            )
+                            : bt.typeName()
+                        )
+                    );
+                    addendum.content = "<code>";
+                    Once        once = NoTemplate.once();
+                    Collections.sort(btms);
+                    for (MethodDoc btm : btms) {
+
+                        if (!once.once()) addendum.content += ", ";
+
+                        if (btm.isIncluded()) {
+                            addendum.content += (
+                                "<a href=\""
+                                + home
+                                + JavadocUtil.href(btm)
+                                + "\">"
+                                + btm.name()
+                                + "</a>"
+                            );
+                        } else {
+                            addendum.content += btm.name();
+                        }
+                    }
+                    addendum.content += "</code>";
+                    addendum.anchor  = "methods_inherited_from_class_" + bt.qualifiedTypeName();
+                }
+            }
+        }
+
+        super.rDetail(
+            clasS.current().name(),                     // windowTitle
+            options,                                    // options
+            new String[] { home + "stylesheet.css" },   // stylesheetLinks
+            new String[] {                              // nav1
+                "Overview",   home + "overview-summary.html",
+                "Package",    "package-summary.html",
+                "Class",      AbstractRightFrameHtml.HIGHLIT,
+                "Tree",       "package-tree.html",
+                "Deprecated", home + "deprecated-list.html",
+                "Index",      home + "index-all.html",
+                "Help",       home + "help-doc.html",
+            },
+            new String[] {                              // nav2
+                ClassFrameHtml.classLink("Prev Class", home, clasS.previous()),
+                ClassFrameHtml.classLink("Next Class", home, clasS.next()),
+            },
+            new String[] {                              // nav3
+                "Frames",    home + "index.html?" + ClassFrameHtml.classHref("", clasS.current()),
+                "No Frames", clasS.current().name() + ".html",
+            },
+            new String[] {                              // nav4
+                "All Classes", home + "allclasses-noframe.html",
+            },
+            clasS.current().containingPackage().name(), // subtitle
+            (                                           // heading
+                ClassFrameHtml.capFirst(JavadocUtil.category(clasS.current()))
+                + " "
+                + clasS.current().name()
+                + NoTemplate.html(ClassFrameHtml.typeParameters(clasS.current()))
+            ),
+            (                                           // headingTitle
+                ClassFrameHtml.capFirst(JavadocUtil.category(clasS.current()))
+                + " "
+                + clasS.current().name()
+            ),
+            () -> {                                     // prolog
+                final MethodDoc[] sortedMethods = clasS.current().methods();
+                Arrays.sort(sortedMethods);
+
+                // Superclass chain.
+                ClassDoc[] scs = ClassFrameHtml.superclassChain(clasS.current());
+                if (scs.length > 0) {
+                    for (int sci = scs.length - 1; sci >= 0; sci--) {
+                        ClassDoc sc = scs[sci];
+                        this.l(
+"      <ul class=\"inheritance\">",
+"        <li>" + sc.qualifiedName() + "</li>",
+"        <li>"
+                        );
                     }
                     this.l(
-"                  </li>",
-"                </ul>"
+"          <ul class=\"inheritance\">",
+"            <li>" + JavadocUtil.toHtml(clasS.current(), clasS.current(), home, 0) + "</li>",
+"          </ul>"
+                    );
+                    for (int i = 0; i < scs.length; i++) {
+                        this.l(
+"        </li>",
+"      </ul>"
+                        );
+                    }
+                }
+                this.l(
+"      <div class=\"description\">",
+"        <ul class=\"blockList\">",
+"          <li class=\"blockList\">"
+                );
+
+                // Class/interface type parameters.
+                if (clasS.current().typeParamTags().length > 0) {
+                    this.p("        <dl><dt><span class=\"strong\">Type Parameters:</span></dt>");
+                    for (ParamTag tpt : clasS.current().typeParamTags()) {
+                        String comment = tpt.parameterComment();
+                        try {
+                            comment = ClassFrameHtml.HTML.fromJavadocText(comment, clasS.current(), rootDoc);
+                        } catch (Longjump e) {
+                            ;
+                        }
+                        this.p("<dd><code>" + tpt.parameterName() + "</code> - " + comment + "</dd>");
+                    }
+                    this.l("</dl>");
+                }
+
+                // Implemented interfaces / superinterfaces.
+                {
+                    List<Type> sis = this.getImplementedInterfaces(clasS.current());
+                    if (sis.size() > 0) {
+                        this.l(
+"            <dl>",
+"              <dt>" + (clasS.current().isInterface() && clasS.current().interfaces().length == sis.size() ? "All Superinterfaces" : "All Implemented Interfaces") + ":</dt>"
+                        );
+                        this.p(
+"              <dd>"
+                        );
+                        Once first = NoTemplate.once();
+                        Collections.sort(sis, Docs.TYPE_COMPARATOR);
+                        for (Type si : sis) {
+                            if (!first.once()) this.p(", ");
+                            this.p(JavadocUtil.toHtml(si, clasS.current(), home, 0));
+                        }
+                        this.l("</dd>");
+                        this.l(
+"            </dl>"
+                        );
+                    }
+                }
+
+                // Enclosing clasS.current().
+                if (clasS.current().containingClass() != null) {
+                    this.l(
+"            <dl>",
+"              <dt>Enclosing class:</dt>",
+"              <dd>" + JavadocUtil.toHtml(clasS.current().containingClass(), clasS.current(), home, 0) + "</dd>",
+"            </dl>"
+                    );
+                }
+
+                // Known subinterfaces.
+                if (ClassFrameHtml.knownSubinterfaces(clasS.current(), rootDoc).size() > 0) {
+                    this.l(
+"            <dl>",
+"              <dt>All Known Subinterfaces:</dt>",
+"              <dd>"
+                    );
+                    for (
+                        Iterator<ClassDoc> it = ClassFrameHtml.knownSubinterfaces(clasS.current(), rootDoc).iterator();
+                        it.hasNext();
+                    ) {
+                        ClassDoc superinterface = it.next();
+                        this.l(
+"                <a href=\"" + home + JavadocUtil.href(superinterface) + "\" title=\"" + JavadocUtil.title(superinterface) + "\">" + superinterface.name() + "</a>" + NoTemplate.html(ClassFrameHtml.typeParameters(superinterface)) + (it.hasNext() ? "," : "")
+                        );
+                    }
+                    this.l(
+"              </dd>",
+"            </dl>"
                     );
                 }
                 this.l(
-"              </li>",
-"            </ul>"
+"            <hr />",
+"            <br />"
                 );
-            }
 
-            // Contructors' details.
-            if (clasS.current().constructors().length > 0) {
-                this.l(
-"            <!-- ========= CONSTRUCTOR DETAIL ======== -->",
-"            <ul class=\"blockList\">",
-"              <li class=\"blockList\"><a name=\"constructor_detail\">",
-"                <!--   -->",
-"                </a>",
-"                <h3>Constructor Detail</h3>"
+                // Class/interface modifiers.
+                this.p(
+"            <pre>"
                 );
-                for (int i = 0; i < clasS.current().constructors().length; i++) {
-                    this.pExecutableMemberDetail(clasS.current().constructors()[i], home, i == clasS.current().constructors().length - 1, rootDoc);
+                this.p("public ");
+                if (clasS.current().isStatic()) this.p("static ");
+                if (clasS.current().isAbstract() && !clasS.current().isInterface()) this.p("abstract ");
+                if (clasS.current().isFinal()) this.p("final ");
+
+                this.p(clasS.current().isClass() ? "class " : "interface ");
+
+                // Class/interface name.
+                // Class/interface type parameters.
+                this.p("<span class=\"strong\">" + clasS.current().name() + NoTemplate.html(ClassFrameHtml.typeParameters(clasS.current())) + "</span>");
+
+                // Class's superclasS.current().
+                if (clasS.current().superclass() != null) {
+                    this.l();
+                    this.p("extends " + clasS.current().superclass().qualifiedName() + ClassFrameHtml.typeArguments(clasS.current().superclass()));
+                }
+
+                // Interface's superinterfaces.
+                if (clasS.current().interfaces().length > 0) {
+                    this.l();
+                    this.p("extends ");
+                    Once first = NoTemplate.once();
+                    for (Type it : clasS.current().interfaceTypes()) {
+                        if (!first.once()) this.p(", ");
+                        this.p(JavadocUtil.toHtml(it, clasS.current(), home, 0));
+                    }
+                }
+
+                this.l(
+"            </pre>"
+                );
+
+                // Class/interface description.
+                if (!ClassFrameHtml.description(clasS.current(), rootDoc).isEmpty()) {
+                    this.l(
+"            <div class=\"block\">" + ClassFrameHtml.description(clasS.current(), rootDoc) + "</div>"
+                    );
+                }
+
+                // @see pkg.cls#mem
+                boolean implementsSerializable;
+                IS: {
+                    for (Type t : this.getImplementedInterfaces(clasS.current())) {
+                        if ("java.io.Serializable".equals(t.qualifiedTypeName())) {
+                            implementsSerializable = true;
+                            break IS;
+                        }
+                    }
+                    implementsSerializable = false;
+                }
+                if (clasS.current().seeTags().length > 0 || implementsSerializable) {
+                    this.p(
+"            <dl><dt><span class=\"strong\">See Also:</span></dt><dd>"
+                    );
+                    Once once = NoTemplate.once();
+                    for (SeeTag st : clasS.current().seeTags()) {
+                        if (!once.once()) {
+                            this.l(", ");
+                        }
+                        Doc reference = ClassFrameHtml.reference(st);
+                        this.p("<a href=\"" + home + JavadocUtil.href(reference) + "\"");
+                        if (JavadocUtil.title(reference) != null) {
+                            this.p(" title=\"" + JavadocUtil.title(reference) + "\"");
+                        }
+                        this.p("><code>" + ClassFrameHtml.toString(reference, clasS.current()) + "</code></a>" + st.label());
+                    }
+                    if (implementsSerializable) {
+                        this.p("<a href=\"../../../../../serialized-form.html#de.unkrig.commons.lang.protocol.Longjump\">Serialized Form</a>");
+                    }
+                    this.l("</dd></dl>");
                 }
                 this.l(
-"              </li>",
-"            </ul>"
-                );
-            }
-
-            // Methods' details.
-            this.l(
-"            <!-- ============ METHOD DETAIL ========== -->",
-"            <ul class=\"blockList\">",
-"              <li class=\"blockList\"><a name=\"method_detail\">",
-"                <!--   -->",
-"                </a>",
-"                <h3>Method Detail</h3>"
-            );
-            for (int mi = 0; mi < clasS.current().methods().length; mi++) {
-                this.pExecutableMemberDetail(clasS.current().methods()[mi], home, mi == clasS.current().methods().length - 1, rootDoc);
-            }
-            this.l(
-"              </li>",
-"            </ul>"
-            );
-
-            // End of "details" sections.
-            this.l(
 "          </li>",
 "        </ul>",
 "      </div>"
-            );
-        }
-        this.l(
-"    </div>",
-"    <!-- ========= END OF CLASS DATA ========= -->"
+                );
+            },
+            sections                                    // sections
         );
+    }
+
+    private static String
+    classLink(String labelHtml, String home, @Nullable ClassDoc clasS) {
+
+        if (clasS == null) return labelHtml;
+
+        return (
+            "<a href=\""
+            + ClassFrameHtml.classHref(home, clasS)
+            + "\" title=\"" + JavadocUtil.category(clasS) + " in "
+            + clasS.containingPackage().name()
+            + "\"><span class=\"strong\">"
+            + labelHtml
+            + "</span></a>"
+        );
+    }
+
+    private static String
+    classHref(String home, ClassDoc clasS) {
+
+        return home + clasS.containingPackage().name().replace('.', '/') + "/" + clasS.name() + ".html";
     }
 
     private void
     pExecutableMemberDetail(ExecutableMemberDoc emd, String home, boolean isLast, RootDoc rootDoc) {
 
         final ClassDoc clasS = emd.containingClass();
-
-        // Executable member anchors.
-        for (String f : JavadocUtil.fragments(emd)) {
-            this.l(
-"            <a name=\"" + f + "\">",
-"              <!--   -->"
-            );
-            this.p(
-"            </a>"
-            );
-        }
-        this.l();
-
-        // Beginning of executable member detail.
-        this.l(
-"            <ul class=\"" + (isLast ? "blockListLast" : "blockList") + "\">",
-"              <li class=\"blockList\">",
-"                <h4>" + emd.name() + "</h4>"
-        );
 
         // Compute indent.
         String indent = emd.modifiers();
@@ -991,12 +898,6 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
                 );
             }
         }
-
-        // End of executable member detail.
-        this.l(
-"              </li>",
-"            </ul>"
-        );
     }
 
     private void
@@ -1027,29 +928,31 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
         }
     }
 
-    private void
+    private static String
     pParameters(String home, ExecutableMemberDoc emd) {
 
-        this.p("(");
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("(");
         Once once = NoTemplate.once();
         for (int i = 0; i < emd.parameters().length; i++) {
             Parameter p          = emd.parameters()[i];
             boolean   isEllipsis = emd.isVarArgs() && i == emd.parameters().length - 1;
 
             if (!once.once()) {
-                this.l(
-","
-                );
-                this.p(StringUtil.repeat(emd.name().length(), ' '));
+                sb.append(", ");
+                sb.append(StringUtil.repeat(emd.name().length(), ' '));
             }
 
             // Parameter type.
-            this.p(JavadocUtil.toHtml(p.type(), emd, home, isEllipsis ? 2 : 0));
+            sb.append(JavadocUtil.toHtml(p.type(), emd, home, isEllipsis ? 2 : 0));
 
             // Parameter name.
-            this.p("&nbsp;" + p.name());
+            sb.append("&nbsp;" + p.name());
         }
-        this.p(")");
+        sb.append(")");
+
+        return sb.toString();
     }
 
     private List<Type>
@@ -1267,14 +1170,12 @@ class ClassFrameHtml extends AbstractRightFrameHtml implements PerClassDocument 
 
     @Nullable private static String
     returnValueDescription(MethodDoc methodDoc, RootDoc rootDoc) {
+        
+        String rtd = Tags.optionalTag(methodDoc, "@return", rootDoc);
+        if (rtd == null) return null;
+
         try {
-            String rtd = Tags.optionalTag(methodDoc, "@return", rootDoc);
-            if (rtd == null) return null;
-            String xxx = ClassFrameHtml.HTML.fromJavadocText(rtd, methodDoc, rootDoc);
-            if (xxx.indexOf("for a given") != -1) { // TODO
-                System.currentTimeMillis();
-            }
-            return xxx;
+            return ClassFrameHtml.HTML.fromJavadocText(rtd, methodDoc, rootDoc);
         } catch (Longjump l) {
             return "???";
         }
