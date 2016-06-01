@@ -43,7 +43,7 @@ import de.unkrig.commons.lang.StringUtil;
 import de.unkrig.commons.lang.protocol.ConsumerWhichThrows;
 import de.unkrig.commons.util.collections.IterableUtil;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
-import de.unkrig.doclet.javadoc.templates.clasS.ClassFrameHtml;
+import de.unkrig.doclet.javadoc.templates.clasS.ClassDetailHtml;
 import de.unkrig.doclet.javadoc.templates.clasS.PerClassDocument;
 import de.unkrig.doclet.javadoc.templates.global.AllclassesFrameHtml;
 import de.unkrig.doclet.javadoc.templates.global.AllclassesNoframeHtml;
@@ -59,7 +59,7 @@ import de.unkrig.doclet.javadoc.templates.global.OverviewTreeHtml;
 import de.unkrig.doclet.javadoc.templates.global.PackageList;
 import de.unkrig.doclet.javadoc.templates.global.SerializedFormHtml;
 import de.unkrig.doclet.javadoc.templates.global.StylesheetCss;
-import de.unkrig.doclet.javadoc.templates.packagE.PackageFrameHtml;
+import de.unkrig.doclet.javadoc.templates.packagE.PackageDetailHtml;
 import de.unkrig.doclet.javadoc.templates.packagE.PackageSummaryHtml;
 import de.unkrig.doclet.javadoc.templates.packagE.PackageTreeHtml;
 import de.unkrig.doclet.javadoc.templates.packagE.PerPackageDocument;
@@ -177,7 +177,7 @@ class JavadocDoclet {
         for (ElementWithContext<PackageDoc> packagE : IterableUtil.iterableWithContext(this.allPackages)) {
 
             // Per-package documents.
-            this.generatePerPackageDocument(packagE, PackageFrameHtml.class,   "package-frame.html");
+            this.generatePerPackageDocument(packagE, PackageDetailHtml.class,  "package-frame.html");
             this.generatePerPackageDocument(packagE, PackageSummaryHtml.class, "package-summary.html");
             this.generatePerPackageDocument(packagE, PackageTreeHtml.class,    "package-tree.html");
 
@@ -186,7 +186,7 @@ class JavadocDoclet {
             for (ElementWithContext<ClassDoc> clasS : IterableUtil.iterableWithContext(Arrays.asList(acs))) {
 
                 // Create per-class document.
-                this.generatePerClassDocument(clasS, ClassFrameHtml.class);
+                this.generatePerClassDocument(clasS, ClassDetailHtml.class);
             }
         }
     }

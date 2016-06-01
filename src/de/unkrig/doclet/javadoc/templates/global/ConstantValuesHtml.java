@@ -44,7 +44,7 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
- * Renders the "Constant Values" page.
+ * Renders the "Constant Values" page, "./constant-values.html".
  */
 public
 class ConstantValuesHtml extends AbstractRightFrameHtml implements GlobalDocument {

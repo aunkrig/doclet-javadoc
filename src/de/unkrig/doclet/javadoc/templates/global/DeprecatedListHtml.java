@@ -36,7 +36,7 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
- * Renders the "Deprecated List" page.
+ * Renders the "Deprecated List" page, "./deprecated-list.html".
  */
 public
 class DeprecatedListHtml extends AbstractRightFrameHtml implements GlobalDocument {

@@ -46,7 +46,7 @@ import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 import de.unkrig.notemplate.javadocish.templates.AbstractSummaryHtml;
 
 /**
- * Renders the "Package Summary" page.
+ * Renders the "Package Summary" page, "./my/package/package-summary.html".
  */
 public
 class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocument {

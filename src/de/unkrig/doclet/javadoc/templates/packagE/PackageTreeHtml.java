@@ -38,7 +38,7 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
- * Renders the per-package "Class Hierarchy" page.
+ * Renders the per-package "Class Hierarchy" page, "./my/package/package-tree.html".
  */
 public
 class PackageTreeHtml extends AbstractRightFrameHtml implements PerPackageDocument {

@@ -44,7 +44,7 @@ import de.unkrig.notemplate.javadocish.templates.include.TopHtml;
 
 /**
  * Renders the "all classes frame", i.e. the document that appears in the bottom left frame when NO package is
- * selected in the top left frame.
+ * selected in the top left frame, "./allclasses-frame.html".
  */
 public
 class AllclassesFrameHtml extends NoTemplate implements GlobalDocument {

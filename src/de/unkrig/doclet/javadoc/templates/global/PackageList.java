@@ -36,7 +36,7 @@ import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
 
 /**
- * Renders the list of all packages that is displayed in the top left frame.
+ * Renders the list of all packages that is displayed in the top left frame, "./package-list".
  */
 public
 class PackageList extends NoTemplate implements GlobalDocument {

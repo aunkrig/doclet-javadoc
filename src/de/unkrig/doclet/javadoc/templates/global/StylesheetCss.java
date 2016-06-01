@@ -36,7 +36,7 @@ import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
 
 /**
- * Renders the "stylesheet.css" document.
+ * Renders the "stylesheet.css" document, "./stylesheet.css".
  */
 public
 class StylesheetCss extends NoTemplate implements GlobalDocument {

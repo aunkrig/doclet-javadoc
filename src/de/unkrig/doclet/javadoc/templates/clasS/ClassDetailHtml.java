@@ -69,10 +69,10 @@ import de.unkrig.notemplate.javadocish.templates.AbstractDetailHtml;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
- * Rendition of the per-class JAVADOC page.
+ * Rendition of the per-class JAVADOC page, "my/package/Outer.Inner.html".
  */
 public
-class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
+class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
 
     static { AssertionUtil.enableAssertionsForThisClass(); }
 
@@ -161,7 +161,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                 item.printDetailContent = () -> {
                     this.l(
 "                    <pre>" + fd.modifiers() + "&nbsp;" + JavadocUtil.toHtml(fd.type(), fd, home, 0) + " " + fd.name() + "</pre>",
-"                    <div class=\"block\">" + ClassFrameHtml.description(fd, rootDoc) + "</div>"
+"                    <div class=\"block\">" + ClassDetailHtml.description(fd, rootDoc) + "</div>"
                     );
                     if (fd.seeTags().length > 0 || fd.constantValue() != null) {
                         this.p(
@@ -170,14 +170,14 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                         Once first = NoTemplate.once();
                         for (SeeTag st : fd.seeTags()) {
                             if (!first.once()) this.l(", ");
-                            Doc reference = ClassFrameHtml.reference(st);
+                            Doc reference = ClassDetailHtml.reference(st);
                             this.p("<a href=\"" + home + JavadocUtil.href(reference) + "\"");
                             if (JavadocUtil.title(reference) != null) {
                                 this.p(" title=\"" + JavadocUtil.title(reference) + "\"");
                             }
                             this.p((
                                 "><code>"
-                                + ClassFrameHtml.toString(ClassFrameHtml.reference(st), clasS.current())
+                                + ClassDetailHtml.toString(ClassDetailHtml.reference(st), clasS.current())
                                 + "</code></a>"
                                 + st.label()
                             ));
@@ -229,7 +229,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                         + "\">"
                         + cd.name()
                         + "</a></strong>"
-                        + ClassFrameHtml.pParameters(home, cd)
+                        + ClassDetailHtml.pParameters(home, cd)
                         + "</code>&nbsp;"
                     ),
                 };
@@ -318,7 +318,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
 
                     sb.append("<code><strong><a href=\"").append(home).append(JavadocUtil.href(md)).append("\">");
                     sb.append(md.name()).append("</a></strong>");
-                    sb.append(ClassFrameHtml.pParameters(home, md));
+                    sb.append(ClassDetailHtml.pParameters(home, md));
                     sb.append("</code>");
 
                     // First sentence of method description.
@@ -428,11 +428,11 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                 "Help",       home + "help-doc.html",
             },
             new String[] {                              // nav2
-                ClassFrameHtml.classLink("Prev Class", home, clasS.previous()),
-                ClassFrameHtml.classLink("Next Class", home, clasS.next()),
+                ClassDetailHtml.classLink("Prev Class", home, clasS.previous()),
+                ClassDetailHtml.classLink("Next Class", home, clasS.next()),
             },
             new String[] {                              // nav3
-                "Frames",    home + "index.html?" + ClassFrameHtml.classHref("", clasS.current()),
+                "Frames",    home + "index.html?" + ClassDetailHtml.classHref("", clasS.current()),
                 "No Frames", clasS.current().name() + ".html",
             },
             new String[] {                              // nav4
@@ -440,13 +440,13 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
             },
             clasS.current().containingPackage().name(), // subtitle
             (                                           // heading
-                ClassFrameHtml.capFirst(JavadocUtil.category(clasS.current()))
+                ClassDetailHtml.capFirst(JavadocUtil.category(clasS.current()))
                 + " "
                 + clasS.current().name()
-                + NoTemplate.html(ClassFrameHtml.typeParameters(clasS.current()))
+                + NoTemplate.html(ClassDetailHtml.typeParameters(clasS.current()))
             ),
             (                                           // headingTitle
-                ClassFrameHtml.capFirst(JavadocUtil.category(clasS.current()))
+                ClassDetailHtml.capFirst(JavadocUtil.category(clasS.current()))
                 + " "
                 + clasS.current().name()
             ),
@@ -455,7 +455,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                 Arrays.sort(sortedMethods);
 
                 // Superclass chain.
-                ClassDoc[] scs = ClassFrameHtml.superclassChain(clasS.current());
+                ClassDoc[] scs = ClassDetailHtml.superclassChain(clasS.current());
                 if (scs.length > 0) {
                     for (int sci = scs.length - 1; sci >= 0; sci--) {
                         ClassDoc sc = scs[sci];
@@ -489,7 +489,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                     for (ParamTag tpt : clasS.current().typeParamTags()) {
                         String comment = tpt.parameterComment();
                         try {
-                            comment = ClassFrameHtml.HTML.fromJavadocText(comment, clasS.current(), rootDoc);
+                            comment = ClassDetailHtml.HTML.fromJavadocText(comment, clasS.current(), rootDoc);
                         } catch (Longjump e) {
                             ;
                         }
@@ -533,19 +533,19 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                 }
 
                 // Known subinterfaces.
-                if (ClassFrameHtml.knownSubinterfaces(clasS.current(), rootDoc).size() > 0) {
+                if (ClassDetailHtml.knownSubinterfaces(clasS.current(), rootDoc).size() > 0) {
                     this.l(
 "            <dl>",
 "              <dt>All Known Subinterfaces:</dt>",
 "              <dd>"
                     );
                     for (
-                        Iterator<ClassDoc> it = ClassFrameHtml.knownSubinterfaces(clasS.current(), rootDoc).iterator();
+                        Iterator<ClassDoc> it = ClassDetailHtml.knownSubinterfaces(clasS.current(), rootDoc).iterator();
                         it.hasNext();
                     ) {
                         ClassDoc superinterface = it.next();
                         this.l(
-"                <a href=\"" + home + JavadocUtil.href(superinterface) + "\" title=\"" + JavadocUtil.title(superinterface) + "\">" + superinterface.name() + "</a>" + NoTemplate.html(ClassFrameHtml.typeParameters(superinterface)) + (it.hasNext() ? "," : "")
+"                <a href=\"" + home + JavadocUtil.href(superinterface) + "\" title=\"" + JavadocUtil.title(superinterface) + "\">" + superinterface.name() + "</a>" + NoTemplate.html(ClassDetailHtml.typeParameters(superinterface)) + (it.hasNext() ? "," : "")
                         );
                     }
                     this.l(
@@ -571,12 +571,12 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
 
                 // Class/interface name.
                 // Class/interface type parameters.
-                this.p("<span class=\"strong\">" + clasS.current().name() + NoTemplate.html(ClassFrameHtml.typeParameters(clasS.current())) + "</span>");
+                this.p("<span class=\"strong\">" + clasS.current().name() + NoTemplate.html(ClassDetailHtml.typeParameters(clasS.current())) + "</span>");
 
                 // Class's superclasS.current().
                 if (clasS.current().superclass() != null) {
                     this.l();
-                    this.p("extends " + clasS.current().superclass().qualifiedName() + ClassFrameHtml.typeArguments(clasS.current().superclass()));
+                    this.p("extends " + clasS.current().superclass().qualifiedName() + ClassDetailHtml.typeArguments(clasS.current().superclass()));
                 }
 
                 // Interface's superinterfaces.
@@ -595,9 +595,9 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                 );
 
                 // Class/interface description.
-                if (!ClassFrameHtml.description(clasS.current(), rootDoc).isEmpty()) {
+                if (!ClassDetailHtml.description(clasS.current(), rootDoc).isEmpty()) {
                     this.l(
-"            <div class=\"block\">" + ClassFrameHtml.description(clasS.current(), rootDoc) + "</div>"
+"            <div class=\"block\">" + ClassDetailHtml.description(clasS.current(), rootDoc) + "</div>"
                     );
                 }
 
@@ -621,12 +621,12 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                         if (!once.once()) {
                             this.l(", ");
                         }
-                        Doc reference = ClassFrameHtml.reference(st);
+                        Doc reference = ClassDetailHtml.reference(st);
                         this.p("<a href=\"" + home + JavadocUtil.href(reference) + "\"");
                         if (JavadocUtil.title(reference) != null) {
                             this.p(" title=\"" + JavadocUtil.title(reference) + "\"");
                         }
-                        this.p("><code>" + ClassFrameHtml.toString(reference, clasS.current()) + "</code></a>" + st.label());
+                        this.p("><code>" + ClassDetailHtml.toString(reference, clasS.current()) + "</code></a>" + st.label());
                     }
                     if (implementsSerializable) {
                         this.p("<a href=\"../../../../../serialized-form.html#de.unkrig.commons.lang.protocol.Longjump\">Serialized Form</a>");
@@ -650,7 +650,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
 
         return (
             "<a href=\""
-            + ClassFrameHtml.classHref(home, clasS)
+            + ClassDetailHtml.classHref(home, clasS)
             + "\" title=\"" + JavadocUtil.category(clasS) + " in "
             + clasS.containingPackage().name()
             + "\"><span class=\"strong\">"
@@ -777,9 +777,9 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
         );
 
         // Executable member description.
-        if (!ClassFrameHtml.description(emd, rootDoc).isEmpty()) {
+        if (!ClassDetailHtml.description(emd, rootDoc).isEmpty()) {
             this.l(
-"                <div class=\"block\">" + ClassFrameHtml.description(emd, rootDoc) + "</div>"
+"                <div class=\"block\">" + ClassDetailHtml.description(emd, rootDoc) + "</div>"
             );
         }
 
@@ -787,7 +787,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
         if (
             emd.typeParamTags().length > 0
             || emd.paramTags().length > 0
-            || (emd.isMethod() && ClassFrameHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null)
+            || (emd.isMethod() && ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null)
             || emd.throwsTags().length > 0
             || emd.thrownExceptionTypes().length > 0
             || emd.seeTags().length > 0
@@ -803,7 +803,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                 for (ParamTag tpt : emd.typeParamTags()) {
                     String comment = tpt.parameterComment();
                     try {
-                        comment = ClassFrameHtml.HTML.fromJavadocText(comment, clasS, rootDoc);
+                        comment = ClassDetailHtml.HTML.fromJavadocText(comment, clasS, rootDoc);
                     } catch (Longjump e) {
                         ;
                     }
@@ -817,20 +817,20 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                 for (ParamTag pt : emd.paramTags()) {
                     String comment = pt.parameterComment();
                     try {
-                        comment = ClassFrameHtml.HTML.fromJavadocText(comment, clasS, rootDoc);
+                        comment = ClassDetailHtml.HTML.fromJavadocText(comment, clasS, rootDoc);
                     } catch (Longjump e) {
                         ;
                     }
                     this.p("<dd><code>" + pt.parameterName() + "</code> - " + comment + "</dd>");
                 }
-                if (emd.isMethod() && ClassFrameHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) this.l();
+                if (emd.isMethod() && ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) this.l();
             }
 
             // @return
-            if (emd.isMethod() && ClassFrameHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) {
+            if (emd.isMethod() && ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) {
                 this.p((
                     "<dt><span class=\"strong\">Returns:</span></dt><dd>"
-                    + ClassFrameHtml.returnValueDescription((MethodDoc) emd, rootDoc)
+                    + ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc)
                     + "</dd>"
                 ));
             }
@@ -838,7 +838,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
             // @throws
             if (emd.throwsTags().length + emd.thrownExceptionTypes().length > 0) {
 
-                if (emd.isMethod() && ClassFrameHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) this.l();
+                if (emd.isMethod() && ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) this.l();
 
                 this.p("<dt><span class=\"strong\">Throws:</span></dt>");
                 for (ThrowsTag tt : emd.throwsTags()) {
@@ -847,7 +847,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
                     String ec = tt.exceptionComment();
                     if (ec != null && ec.length() > 0) {
                         try {
-                            ec = ClassFrameHtml.HTML.fromJavadocText(ec, emd, rootDoc);
+                            ec = ClassDetailHtml.HTML.fromJavadocText(ec, emd, rootDoc);
                         } catch (Longjump e) {
                             ;
                         }
@@ -913,15 +913,15 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
 ", "
                     );
                 }
-                Doc reference = ClassFrameHtml.reference(st);
+                Doc reference = ClassDetailHtml.reference(st);
                 if (reference.isIncluded()) {
                     this.p("<a href=\"" + home + JavadocUtil.href(reference) + "\"");
                     if (JavadocUtil.title(reference) != null) {
                         this.p(" title=\"" + JavadocUtil.title(reference) + "\"");
                     }
-                    this.p("><code>" + ClassFrameHtml.toString(reference, clasS) + "</code></a>" + st.label());
+                    this.p("><code>" + ClassDetailHtml.toString(reference, clasS) + "</code></a>" + st.label());
                 } else {
-                    this.p("<code>" + ClassFrameHtml.toString(reference, clasS) + "</code>" + st.label());
+                    this.p("<code>" + ClassDetailHtml.toString(reference, clasS) + "</code>" + st.label());
                 }
             }
             this.p("</dd>");
@@ -992,7 +992,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
         if (clasS.isInterface()) return this.getAllSuperInterfaces(clasS);
 
         List<Type> result = this.getImplementedInterfaces(clasS);
-        for (ClassDoc sc : ClassFrameHtml.superclassChain(clasS)) {
+        for (ClassDoc sc : ClassDetailHtml.superclassChain(clasS)) {
             result.add(sc);
             for (Type i : this.getImplementedInterfaces(sc)) {
                 if (!result.contains(i)) result.add(i);
@@ -1025,7 +1025,7 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
     description(Doc doc, RootDoc rootDoc) {
 
         try {
-            return ClassFrameHtml.HTML.fromTags(
+            return ClassDetailHtml.HTML.fromTags(
                 doc.inlineTags(),                                                             // tags
                 doc instanceof MethodDoc ? ((ProgramElementDoc) doc).containingClass() : doc, // ref
                 rootDoc
@@ -1110,8 +1110,8 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
     private static String
     toString(Doc doc, Doc ref) {
         if (doc instanceof ClassDoc)   return doc.name() + ((ClassDoc) doc).dimension();
-        if (doc instanceof FieldDoc)   return ClassFrameHtml.toString((FieldDoc) doc, ref);
-        if (doc instanceof MethodDoc)  return ClassFrameHtml.toString((MethodDoc) doc, ref);
+        if (doc instanceof FieldDoc)   return ClassDetailHtml.toString((FieldDoc) doc, ref);
+        if (doc instanceof MethodDoc)  return ClassDetailHtml.toString((MethodDoc) doc, ref);
         if (doc instanceof PackageDoc) return doc.name();
         throw new AssertionError(doc.getClass());
     }
@@ -1170,12 +1170,12 @@ class ClassFrameHtml extends AbstractDetailHtml implements PerClassDocument {
 
     @Nullable private static String
     returnValueDescription(MethodDoc methodDoc, RootDoc rootDoc) {
-        
+
         String rtd = Tags.optionalTag(methodDoc, "@return", rootDoc);
         if (rtd == null) return null;
 
         try {
-            return ClassFrameHtml.HTML.fromJavadocText(rtd, methodDoc, rootDoc);
+            return ClassDetailHtml.HTML.fromJavadocText(rtd, methodDoc, rootDoc);
         } catch (Longjump l) {
             return "???";
         }
