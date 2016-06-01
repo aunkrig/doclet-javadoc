@@ -43,7 +43,8 @@ import de.unkrig.notemplate.javadocish.templates.include.BottomHtml;
 import de.unkrig.notemplate.javadocish.templates.include.TopHtml;
 
 /**
- * Renders a list of ALL classes that appears in the "NO FRAMES" mode when the user hits "All Classes".
+ * Renders a list of ALL classes that appears in the "NO FRAMES" mode when the user hits "All Classes",
+ * "./allclasses-noframe.html".
  */
 public
 class AllclassesNoframeHtml extends NoTemplate implements GlobalDocument {

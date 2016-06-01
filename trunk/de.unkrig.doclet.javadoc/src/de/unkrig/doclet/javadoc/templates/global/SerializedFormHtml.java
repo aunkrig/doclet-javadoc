@@ -36,7 +36,7 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
- * Renders the "Serialized Form" page.
+ * Renders the "Serialized Form" page, "./serialized-form.html".
  */
 public
 class SerializedFormHtml extends AbstractRightFrameHtml implements GlobalDocument {

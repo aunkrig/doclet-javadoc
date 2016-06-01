@@ -40,7 +40,7 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
- * Renders the "Class Hierarchy" page.
+ * Renders the "Class Hierarchy" page, "./overview-tree.html".
  */
 public
 class OverviewTreeHtml extends AbstractRightFrameHtml implements GlobalDocument {

@@ -39,15 +39,16 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractBottomLeftFrameHtml;
 
 /**
- * Renders the "Package Summary" page.
+ * Renders the "Package Summary" page for the bottom left frame, "my/package/package-frame.html".
  */
 public
-class PackageFrameHtml extends AbstractBottomLeftFrameHtml implements PerPackageDocument {
+class PackageDetailHtml extends AbstractBottomLeftFrameHtml implements PerPackageDocument {
 
     @Override public void
     render(String home, final ElementWithContext<PackageDoc> packagE, Options options, RootDoc rootDoc) {
 
         super.rBottomLeftFrameHtml(
+            packagE.current().name(),                                                    // windowTitle
             packagE.current().name(),                                                    // heading
             home + packagE.current().name().replace('.', '/') + "/package-summary.html", // headingLink
             options,                                                                     // options
@@ -57,34 +58,34 @@ class PackageFrameHtml extends AbstractBottomLeftFrameHtml implements PerPackage
             () -> {                                                                      // renderBody
                 ClassDoc[] interfaces = packagE.current().interfaces();
                 if (interfaces.length > 0) {
-                    PackageFrameHtml.this.l(
+                    PackageDetailHtml.this.l(
 "<h2 title=\"Interfaces\">Interfaces</h2>",
 "<ul title=\"Interfaces\">"
                     );
                     Arrays.sort(interfaces, Docs.DOCS_BY_NAME_COMPARATOR);
                     for (ClassDoc i : interfaces) {
-                        PackageFrameHtml.this.l(
+                        PackageDetailHtml.this.l(
 "<li><a href=\"" + i.name() + ".html\" title=\"interface in " + packagE.current().name() + "\" target=\"classFrame\"><i>" + i.name() + "</i></a></li>"
                         );
                     }
-                    PackageFrameHtml.this.l(
+                    PackageDetailHtml.this.l(
 "</ul>"
                     );
                 }
 
                 ClassDoc[] ordinaryClasses = packagE.current().ordinaryClasses();
                 if (ordinaryClasses.length > 0) {
-                    PackageFrameHtml.this.l(
+                    PackageDetailHtml.this.l(
 "<h2 title=\"Classes\">Classes</h2>",
 "<ul title=\"Classes\">"
                     );
                     Arrays.sort(ordinaryClasses, Docs.DOCS_BY_NAME_COMPARATOR);
                     for (ClassDoc oc : ordinaryClasses) {
-                        PackageFrameHtml.this.l(
+                        PackageDetailHtml.this.l(
 "<li><a href=\"" + NoTemplate.html(oc.name()) + ".html\" title=\"class in " + packagE.current().name() + "\" target=\"classFrame\">" + oc.name() + "</a></li>"
                         );
                     }
-                    PackageFrameHtml.this.l(
+                    PackageDetailHtml.this.l(
 "</ul>"
                     );
                 }

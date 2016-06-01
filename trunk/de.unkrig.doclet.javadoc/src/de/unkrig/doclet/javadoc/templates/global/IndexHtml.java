@@ -36,7 +36,7 @@ import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
 
 /**
- * Renders the frame set document.
+ * Renders the frame set document, "index.html".
  */
 public
 class IndexHtml extends NoTemplate implements GlobalDocument {

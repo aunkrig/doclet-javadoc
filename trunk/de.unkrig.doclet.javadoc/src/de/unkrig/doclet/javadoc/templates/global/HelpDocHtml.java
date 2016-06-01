@@ -36,7 +36,7 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
- * Renders the "API Help" page.
+ * Renders the "API Help" page, "./help-doc.html".
  */
 public
 class HelpDocHtml extends AbstractRightFrameHtml implements GlobalDocument {

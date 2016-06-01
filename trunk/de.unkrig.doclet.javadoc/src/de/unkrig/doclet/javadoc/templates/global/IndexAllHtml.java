@@ -46,7 +46,7 @@ import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 
 /**
- * Renders the single-page index.
+ * Renders the single-page index, "./index-all.html".
  */
 public
 class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {

@@ -28,7 +28,6 @@ package de.unkrig.doclet.javadoc.templates.global;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.SortedSet;
 
 import com.sun.javadoc.ClassDoc;
@@ -44,7 +43,7 @@ import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
 import de.unkrig.notemplate.javadocish.templates.AbstractSummaryHtml;
 
 /**
- * Renders the "Overview Summary" page.
+ * Renders the "Overview Summary" page, the one which is intially loaded in the right frame, "./overview-summary.html".
  */
 public
 class OverviewSummaryHtml extends AbstractSummaryHtml implements GlobalDocument {
