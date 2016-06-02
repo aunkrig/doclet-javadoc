@@ -56,24 +56,29 @@ class OverviewFrameHtml extends AbstractTopLeftFrameHtml implements GlobalDocume
         this.rTopLeftFrameHtml(
             "Overview List",                   // windowTitle
             options.header,                    // heading
-            "allclasses-frame.html",           // headingLink
+            null,                              // headingLink
             options,                           // options
             new String[] { "stylesheet.css" }, // styleSheetLinks
-            () -> {                            // renderBody
+            () -> {                            // renderIndexHeader
+                this.l(
+"      <span><a href=\"allclasses-frame.html\" target=\"packageFrame\">All&nbsp;Classes</a></span>"
+                );
+            },
+            () -> {                            // renderIndexContainer
 
                 this.l(
-"<h2 title=\"Packages\">Packages</h2>",
-"<ul title=\"Packages\">"
+"      <h2 title=\"Packages\">Packages</h2>",
+"      <ul title=\"Packages\">"
                 );
                 List<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
                 Collections.sort(aps, Docs.DOCS_BY_NAME_COMPARATOR);
                 for (PackageDoc p : aps) {
                     this.l(
-"<li><a href=\"" + p.name().replace('.', '/') + "/package-frame.html\" target=\"packageFrame\">" + p.name() + "</a></li>"
+"        <li><a href=\"" + p.name().replace('.', '/') + "/package-frame.html\" target=\"packageFrame\">" + p.name() + "</a></li>"
                     );
                 }
                 this.l(
-"</ul>"
+"      </ul>"
                 );
             }
         );

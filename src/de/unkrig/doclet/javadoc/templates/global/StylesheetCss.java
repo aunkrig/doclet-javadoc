@@ -42,7 +42,12 @@ public
 class StylesheetCss extends NoTemplate implements GlobalDocument {
 
     @Override public void
-    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    ) {
 
         this.l(
 "/* Javadoc style sheet */",

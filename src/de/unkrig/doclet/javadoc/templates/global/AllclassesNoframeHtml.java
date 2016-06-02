@@ -36,44 +36,54 @@ import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.commons.doclet.Docs;
+import de.unkrig.commons.lang.AssertionUtil;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
-import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
-import de.unkrig.notemplate.javadocish.templates.include.BottomHtml;
-import de.unkrig.notemplate.javadocish.templates.include.TopHtml;
+import de.unkrig.notemplate.javadocish.templates.AbstractBottomLeftFrameHtml;
 
 /**
  * Renders a list of ALL classes that appears in the "NO FRAMES" mode when the user hits "All Classes",
  * "./allclasses-noframe.html".
  */
 public
-class AllclassesNoframeHtml extends NoTemplate implements GlobalDocument {
+class AllclassesNoframeHtml extends AbstractBottomLeftFrameHtml implements GlobalDocument {
+
+    static { AssertionUtil.enableAssertionsForThisClass(); }
 
     /**
-     * Renders a list of ALL classes that appears in the "NO FRAMES" mode when the user hits "All Classes".
+     * Renders the "all classes frame", i.e. the document that appears in the bottom left frame when NO package is
+     * selected in the top left frame.
      */
     @Override public void
-    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    ) {
 
-        this.include(TopHtml.class).render("All Classes", options, new String[] { "stylesheet.css" });
-
-        this.l(
-"<h1 class=\"bar\">All Classes</h1>",
-"<div class=\"indexContainer\">",
-"<ul>"
+        this.rBottomLeftFrameHtml(
+            "All Classes",                     // windowTitle
+            "All Classes",                     // heading
+            null,                              // headingLink
+            options,                           // options
+            new String[] { "stylesheet.css" }, // styleSheetLinks
+            null,                              // renderIndexHeader
+            () -> {                            // renderIndexContainer
+                this.l(
+"      <ul>"
+                );
+                List<ClassDoc> cais = new ArrayList<ClassDoc>(allClassesAndInterfaces);
+                Collections.sort(cais, Docs.DOCS_BY_NAME_COMPARATOR);
+                for (ClassDoc coi : cais) {
+                    this.l(
+"        <li>" + JavadocUtil.toHtml(coi, null, "", 12, null) + "</li>"
+                    );
+                }
+                this.l(
+"      </ul>"
+                );
+            }
         );
-        List<ClassDoc> cais = new ArrayList<ClassDoc>(allClassesAndInterfaces);
-        Collections.sort(cais, Docs.DOCS_BY_NAME_COMPARATOR);
-        for (ClassDoc coi : cais) {
-            this.l(
-"<li>" + JavadocUtil.toHtml(coi, null, "", 12) + "</li>"
-            );
-        }
-        this.l(
-"</ul>",
-"</div>"
-        );
-
-        this.include(BottomHtml.class).render();
     }
 }

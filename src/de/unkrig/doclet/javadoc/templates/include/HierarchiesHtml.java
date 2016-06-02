@@ -41,13 +41,15 @@ import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.NoTemplate;
 
 /**
- * Renders the "Hierarchy For All Packages" page and the "Hierarchy For Package xyz" pages.
+ * Renders the tree part of the "Hierarchy For All Packages" page ("./overview-tree.html") and the "Hierarchy For
+ * Package my.package" pages ("./my/package/package-tree.html").
  */
 public
 class HierarchiesHtml extends NoTemplate {
 
     /**
-     * Renders the "Hierarchy For All Packages" page and the "Hierarchy For Package xyz" pages.
+     * Renders the tree part of the "Hierarchy For All Packages" page ("./overview-tree.html") and the "Hierarchy For
+     * Package my.package" pages ("./my/package/package-tree.html").
      */
     public void
     render(String home, Collection<ClassDoc> classes, Collection<ClassDoc> interfaces) {

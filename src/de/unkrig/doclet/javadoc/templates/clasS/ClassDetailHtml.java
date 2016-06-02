@@ -93,6 +93,7 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
 
         List<Section> sections = new ArrayList<>();
 
+        // Nested class section (summary only, no detail).
         {
             Section nestedClassesSection = new Section();
             sections.add(nestedClassesSection);
@@ -126,6 +127,7 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             }
         }
 
+        // Field section.
         {
             Section fieldsSection = new Section();
             sections.add(fieldsSection);
@@ -200,6 +202,7 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             }
         }
 
+        // Constructor section.
         {
             Section constructorsSection = new Section();
             sections.add(constructorsSection);
@@ -214,8 +217,7 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
 
             ConstructorDoc[] constructors = clasS.current().constructors();
             for (int i = 0; i < constructors.length; i++) {
-                ConstructorDoc cd     = constructors[i];
-                int            finalI = i;
+                final ConstructorDoc cd = constructors[i];
 
                 SectionItem item = new SectionItem();
                 constructorsSection.items.add(item);
@@ -234,6 +236,8 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                     ),
                 };
                 item.detailTitle        = "";
+
+                int finalI = i;
                 item.printDetailContent = () -> {
                     this.pExecutableMemberDetail(
                         constructors[finalI],
@@ -245,6 +249,7 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             }
         }
 
+        // Method section.
         {
             Section methodsSection = new Section();
             sections.add(methodsSection);
@@ -262,7 +267,9 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             methodsSection.summaryItemComparator = new Comparator<SectionItem>() {
 
                 @Override public int
-                compare(SectionItem si1, SectionItem si2) {
+                compare(@Nullable SectionItem si1, @Nullable SectionItem si2) {
+                    assert si1 != null;
+                    assert si2 != null;
                     return si1.summaryTableCells[1].compareTo(si2.summaryTableCells[1]);
                 }
             };
@@ -270,8 +277,7 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             final MethodDoc[] methods = clasS.current().methods();
 
             for (int mi = 0; mi < methods.length; mi++) {
-                MethodDoc md      = methods[mi];
-                int       finalMi = mi;
+                MethodDoc md = methods[mi];
 
                 String modifierCell;
                 {
@@ -339,6 +345,8 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                 item.anchor             = null; // TODO
                 item.summaryTableCells  = new String[] { modifierCell, descriptionCell };
                 item.detailTitle        = md.name();
+
+                int finalMi = mi;
                 item.printDetailContent = () -> {
                     this.pExecutableMemberDetail(md, home, finalMi == methods.length - 1, rootDoc);
                 };
@@ -823,7 +831,9 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                     }
                     this.p("<dd><code>" + pt.parameterName() + "</code> - " + comment + "</dd>");
                 }
-                if (emd.isMethod() && ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) this.l();
+                if (emd.isMethod() && ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) {
+                    this.l();
+                }
             }
 
             // @return
@@ -838,7 +848,9 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             // @throws
             if (emd.throwsTags().length + emd.thrownExceptionTypes().length > 0) {
 
-                if (emd.isMethod() && ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) this.l();
+                if (emd.isMethod() && ClassDetailHtml.returnValueDescription((MethodDoc) emd, rootDoc) != null) {
+                    this.l();
+                }
 
                 this.p("<dt><span class=\"strong\">Throws:</span></dt>");
                 for (ThrowsTag tt : emd.throwsTags()) {

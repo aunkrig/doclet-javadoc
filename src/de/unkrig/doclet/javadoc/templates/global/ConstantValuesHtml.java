@@ -96,10 +96,10 @@ class ConstantValuesHtml extends AbstractRightFrameHtml implements GlobalDocumen
     rBody(SortedSet<PackageDoc> allPackages) {
 
         this.l(
-"<div class=\"header\">",
-"<h1 title=\"Constant Field Values\" class=\"title\">Constant Field Values</h1>",
-"<h2 title=\"Contents\">Contents</h2>",
-"<ul>"
+"    <div class=\"header\">",
+"      <h1 title=\"Constant Field Values\" class=\"title\">Constant Field Values</h1>",
+"      <h2 title=\"Contents\">Contents</h2>",
+"      <ul>"
         );
         List<PackageDoc> ps = new ArrayList<PackageDoc>(allPackages);
         Collections.sort(ps, Docs.DOCS_BY_NAME_COMPARATOR);
@@ -107,63 +107,62 @@ class ConstantValuesHtml extends AbstractRightFrameHtml implements GlobalDocumen
 
             if (JavadocUtil.classesAndInterfacesWithConstants(p).iterator().hasNext()) {
                 this.l(
-"<li><a href=\"#" + p.name() + "\">" + p.name() + ".*</a></li>"
+"        <li><a href=\"#" + p.name() + "\">" + p.name() + ".*</a></li>"
                 );
             }
         }
         this.l(
-"</ul>",
-"</div>"
+"      </ul>",
+"    </div>"
         );
-        this.p("<div class=\"constantValuesContainer\">");
+
+        this.p(
+"    <div class=\"constantValuesContainer\">"
+        );
         for (PackageDoc p : ps) {
 
             Iterable<ClassDoc> caiwcs = JavadocUtil.classesAndInterfacesWithConstants(p);
             if (caiwcs.iterator().hasNext()) {
+                this.l("<a name=\"" + p.name() + "\" />");
                 this.l(
-"<a name=\"" + p.name() + "\">",
-"<!--   -->",
-"</a>",
-"<h2 title=\"" + p.name() + "\">" + p.name() + ".*</h2>",
-"<ul class=\"blockList\">"
+"      <h2 title=\"" + p.name() + "\">" + p.name() + ".*</h2>",
+"      <ul class=\"blockList\">"
                 );
                 for (ClassDoc coi : caiwcs) {
                     this.l(
-"<li class=\"blockList\">",
-"<table border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Constant Field Values table, listing constant fields, and values\">",
-"<caption><span>" + p.name() + "." + JavadocUtil.toHtml(coi, null, "", 0) + "</span><span class=\"tabEnd\">&nbsp;</span></caption>",
-"<tr>",
-"<th class=\"colFirst\" scope=\"col\">Modifier and Type</th>",
-"<th scope=\"col\">Constant Field</th>",
-"<th class=\"colLast\" scope=\"col\">Value</th>",
-"</tr>",
-"<tbody>"
+"        <li class=\"blockList\">",
+"          <table class=\"constantsSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Constant Field Values table, listing constant fields, and values\">",
+"            <caption><span>" + p.name() + "." + JavadocUtil.toHtml(coi, null, "", 0) + "</span><span class=\"tabEnd\">&nbsp;</span></caption>",
+"            <tr>",
+"              <th class=\"colFirst\" scope=\"col\">Modifier and Type</th>",
+"              <th scope=\"col\">Constant Field</th>",
+"              <th class=\"colLast\" scope=\"col\">Value</th>",
+"            </tr>",
+"            <tbody>"
                     );
                     Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
                     for (FieldDoc c : JavadocUtil.constantsOf(coi)) {
                         this.l(
-"<tr class=\"" + cls.produce() + "\">",
-"<td class=\"colFirst\"><a name=\"" + coi.qualifiedName() + "." + c.name() + "\">",
-"<!--   -->",
-"</a><code>" + c.modifiers().replaceAll(" ", "&nbsp;") + "&nbsp;" + c.type() + "</code></td>",
-"<td><code><a href=\"" + coi.qualifiedName().replace('.', '/') + ".html#" + c.name() + "\">" + c.name() + "</a></code></td>",
-"<td class=\"colLast\"><code>" + c.constantValue() + "</code></td>",
-"</tr>"
+"              <tr class=\"" + cls.produce() + "\">",
+"                <td class=\"colFirst\"><a name=\"" + coi.qualifiedName() + "." + c.name() + "\" /><code>" + c.modifiers().replaceAll(" ", "&nbsp;") + "&nbsp;" + c.type() + "</code></td>",
+"                <td><code><a href=\"" + coi.qualifiedName().replace('.', '/') + ".html#" + c.name() + "\">" + c.name() + "</a></code></td>",
+"                <td class=\"colLast\"><code>" + c.constantValue() + "</code></td>",
+"              </tr>"
                         );
                     }
                     this.l(
-"</tbody>",
-"</table>",
-"</li>"
+"            </tbody>",
+"          </table>",
+"        </li>"
                     );
                 }
                 this.l(
-"</ul>"
+"      </ul>"
                 );
             }
         }
         this.l(
-"</div>"
+"    </div>"
         );
     }
 }

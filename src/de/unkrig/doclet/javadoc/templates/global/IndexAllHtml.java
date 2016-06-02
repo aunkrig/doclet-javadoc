@@ -161,27 +161,6 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
                     );
                 }
             }
-//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/ConsumerUtil.html#addToCollection(java.util.Collection)\">addToCollection(Collection&lt;T&gt;)</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/ConsumerUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">ConsumerUtil</a></dt>",
-//                "<dd>&nbsp;</dd>",
-//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html#after(long)\">after(long)</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">PredicateUtil</a></dt>",
-//                "<dd>",
-//                "<div class=\"block\">Returns a <code>Predicate&lt;Object&gt;</code> that evaluates to <code>true</code> iff the current time is after the given",
-//                " expiration time.</div>",
-//                "</dd>",
-//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/ProducerUtil.html#alternate(T, T)\">alternate(T, T)</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/ProducerUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">ProducerUtil</a></dt>",
-//                "<dd>&nbsp;</dd>",
-//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html#always()\">always()</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">PredicateUtil</a></dt>",
-//                "<dd>&nbsp;</dd>",
-//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html#and(de.unkrig.commons.lang.protocol.Predicate, de.unkrig.commons.lang.protocol.Predicate)\">and(Predicate&lt;? super T&gt;, Predicate&lt;? super T&gt;)</a></span> - Static method in class de.unkrig.commons.lang.protocol.<a href=\"./de/unkrig/commons/lang/protocol/PredicateUtil.html\" title=\"class in de.unkrig.commons.lang.protocol\">PredicateUtil</a></dt>",
-//                "<dd>",
-//                "<div class=\"block\">Returns a <a href=\"./de/unkrig/commons/lang/protocol/Predicate.html\" title=\"interface in de.unkrig.commons.lang.protocol\"><code>Predicate</code></a> which returns <code>true</code> iff both <code>p1</code> and <code>p2</code> return <code>true</code>",
-//                " for any given <code>subject</code>.</div>",
-//                "</dd>",
-//                "<dt><span class=\"strong\"><a href=\"./de/unkrig/commons/lang/PrettyPrinter.html#ARRAY_ELLIPSIS\">ARRAY_ELLIPSIS</a></span> - Static variable in class de.unkrig.commons.lang.<a href=\"./de/unkrig/commons/lang/PrettyPrinter.html\" title=\"class in de.unkrig.commons.lang\">PrettyPrinter</a></dt>",
-//                "<dd>",
-//                "<div class=\"block\">If an array is larger than this threshold (10), then it is printed as",
-//                " { <var>elem-0</var>, <var>elem-1</var>, <var>elem-2</var>, ... }</div>",
-//                "</dd>",
             this.l(
 "</dl>"
             );
