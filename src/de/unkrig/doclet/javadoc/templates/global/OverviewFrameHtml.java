@@ -55,10 +55,10 @@ class OverviewFrameHtml extends AbstractTopLeftFrameHtml implements GlobalDocume
 
         this.rTopLeftFrameHtml(
             "Overview List",                   // windowTitle
-            options.header,                    // heading
-            null,                              // headingLink
             options,                           // options
             new String[] { "stylesheet.css" }, // styleSheetLinks
+            options.header,                    // heading
+            null,                              // headingLink
             () -> {                            // renderIndexHeader
                 this.l(
 "      <span><a href=\"allclasses-frame.html\" target=\"packageFrame\">All&nbsp;Classes</a></span>"
