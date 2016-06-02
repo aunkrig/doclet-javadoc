@@ -49,10 +49,10 @@ class PackageDetailHtml extends AbstractBottomLeftFrameHtml implements PerPackag
 
         super.rBottomLeftFrameHtml(
             packagE.current().name(),                                                    // windowTitle
-            packagE.current().name(),                                                    // heading
-            home + packagE.current().name().replace('.', '/') + "/package-summary.html", // headingLink
             options,                                                                     // options
             new String[] { home + "stylesheet.css", },                                   // styleSheetLinks
+            packagE.current().name(),                                                    // heading
+            home + packagE.current().name().replace('.', '/') + "/package-summary.html", // headingLink
             null,                                                                        // renderIndexHeader
             () -> {                                                                      // renderIndexContainer
                 ClassDoc[] interfaces = packagE.current().interfaces();

@@ -64,10 +64,10 @@ class AllclassesFrameHtml extends AbstractBottomLeftFrameHtml implements GlobalD
 
         this.rBottomLeftFrameHtml(
             "All Classes",                     // windowTitle
-            "All Classes",                     // heading
-            null,                              // headingLink
             options,                           // options
             new String[] { "stylesheet.css" }, // styleSheetLinks
+            "All Classes",                     // heading
+            null,                              // headingLink
             null,                              // renderIndexHeader
             () -> {                            // renderIndexContainer
                 this.l(
