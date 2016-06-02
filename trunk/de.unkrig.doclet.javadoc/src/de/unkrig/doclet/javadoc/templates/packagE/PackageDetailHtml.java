@@ -52,41 +52,40 @@ class PackageDetailHtml extends AbstractBottomLeftFrameHtml implements PerPackag
             packagE.current().name(),                                                    // heading
             home + packagE.current().name().replace('.', '/') + "/package-summary.html", // headingLink
             options,                                                                     // options
-            new String[] {                                                               // styleSheetLinks
-                home + "stylesheet.css",
-            },
-            () -> {                                                                      // renderBody
+            new String[] { home + "stylesheet.css", },                                   // styleSheetLinks
+            null,                                                                        // renderIndexHeader
+            () -> {                                                                      // renderIndexContainer
                 ClassDoc[] interfaces = packagE.current().interfaces();
                 if (interfaces.length > 0) {
                     PackageDetailHtml.this.l(
-"<h2 title=\"Interfaces\">Interfaces</h2>",
-"<ul title=\"Interfaces\">"
+"    <h2 title=\"Interfaces\">Interfaces</h2>",
+"    <ul title=\"Interfaces\">"
                     );
                     Arrays.sort(interfaces, Docs.DOCS_BY_NAME_COMPARATOR);
                     for (ClassDoc i : interfaces) {
                         PackageDetailHtml.this.l(
-"<li><a href=\"" + i.name() + ".html\" title=\"interface in " + packagE.current().name() + "\" target=\"classFrame\"><i>" + i.name() + "</i></a></li>"
+"      <li><a href=\"" + i.name() + ".html\" title=\"interface in " + packagE.current().name() + "\" target=\"classFrame\"><i>" + i.name() + "</i></a></li>"
                         );
                     }
                     PackageDetailHtml.this.l(
-"</ul>"
+"    </ul>"
                     );
                 }
 
                 ClassDoc[] ordinaryClasses = packagE.current().ordinaryClasses();
                 if (ordinaryClasses.length > 0) {
                     PackageDetailHtml.this.l(
-"<h2 title=\"Classes\">Classes</h2>",
-"<ul title=\"Classes\">"
+"    <h2 title=\"Classes\">Classes</h2>",
+"    <ul title=\"Classes\">"
                     );
                     Arrays.sort(ordinaryClasses, Docs.DOCS_BY_NAME_COMPARATOR);
                     for (ClassDoc oc : ordinaryClasses) {
                         PackageDetailHtml.this.l(
-"<li><a href=\"" + NoTemplate.html(oc.name()) + ".html\" title=\"class in " + packagE.current().name() + "\" target=\"classFrame\">" + oc.name() + "</a></li>"
+"      <li><a href=\"" + NoTemplate.html(oc.name()) + ".html\" title=\"class in " + packagE.current().name() + "\" target=\"classFrame\">" + oc.name() + "</a></li>"
                         );
                     }
                     PackageDetailHtml.this.l(
-"</ul>"
+"    </ul>"
                     );
                 }
             }

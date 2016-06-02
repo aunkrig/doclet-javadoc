@@ -36,8 +36,6 @@ import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.TypeVariable;
 
 import de.unkrig.commons.doclet.Docs;
-import de.unkrig.commons.lang.protocol.Producer;
-import de.unkrig.commons.lang.protocol.ProducerUtil;
 import de.unkrig.commons.nullanalysis.Nullable;
 import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
@@ -56,63 +54,53 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
 
         List<Section> sections = new ArrayList<>();
 
-        {
-            Section interfacesSection = new Section();
-            sections.add(interfacesSection);
+        sections.add(PackageSummaryHtml.newSection(
+            "Interface Summary",                                               // title
+            "Interface Summary table, listing interfaces, and an explanation", // summary
+            "Interface",                                                       // firstColumnHeading
+            packagE.current().interfaces(),                                    // classDocs
+            rootDoc                                                            // rootDoc
+        ));
 
-            interfacesSection.firstColumnHeading = "Interface";
-            interfacesSection.items              = new ArrayList<>();
-            interfacesSection.summary            = "Interface Summary table, listing interfaces, and an explanation";
-            interfacesSection.title              = "Interface Summary";
+        sections.add(PackageSummaryHtml.newSection(
+            "Class Summary",                                            // title
+            "Class Summary table, listing classes, and an explanation", // summary
+            "Class",                                                    // firstColumnHeading
+            packagE.current().ordinaryClasses(),                        // classDocs
+            rootDoc                                                     // rootDoc
+        ));
 
-            ClassDoc[] interfaces = packagE.current().interfaces();
-            Arrays.sort(interfaces, Docs.DOCS_BY_NAME_COMPARATOR);
-            for (ClassDoc i : interfaces) {
+        sections.add(PackageSummaryHtml.newSection(
+            "Enum Summary",                                          // title
+            "Enum Summary table, listing enums, and an explanation", // summary
+            "Enum",                                                  // firstColumnHeading
+            packagE.current().enums(),                               // classDocs
+            rootDoc                                                  // rootDoc
+        ));
 
-                StringBuilder sb = new StringBuilder(i.name());
-                {
-                    TypeVariable[] typeParameters = i.typeParameters();
-                    if (typeParameters.length > 0) {
-                        sb.append("&lt;").append(typeParameters[0]);
-                        for (int j = 1; j < typeParameters.length; j++) {
-                            sb.append(", ").append(typeParameters[j]);
-                        }
-                        sb.append("&gt;");
-                    }
-                }
+        sections.add(PackageSummaryHtml.newSection(
+            "Exception Summary",                                               // title
+            "Exception Summary table, listing exceptions, and an explanation", // summary
+            "Exception",                                                       // firstColumnHeading
+            packagE.current().exceptions(),                                    // classDocs
+            rootDoc                                                            // rootDoc
+        ));
 
-                SectionItem item = new SectionItem();
+        sections.add(PackageSummaryHtml.newSection(
+            "Error Summary",                                           // title
+            "Error Summary table, listing errors, and an explanation", // summary
+            "Error",                                                   // firstColumnHeading
+            packagE.current().errors(),                                // classDocs
+            rootDoc                                                    // rootDoc
+        ));
 
-                item.link    = i.name() + ".html";
-                item.name    = sb.toString();
-                item.summary = JavadocUtil.firstSentenceOfDescription(i, i, rootDoc);
-
-                interfacesSection.items.add(item);
-            }
-        }
-
-        {
-            Section classesSection = new Section();
-            sections.add(classesSection);
-
-            classesSection.firstColumnHeading = "Class";
-            classesSection.items              = new ArrayList<>();
-            classesSection.summary            = "Class Summary table, listing classes, and an explanation";
-            classesSection.title              = "Class Summary";
-
-            ClassDoc[] classes = packagE.current().ordinaryClasses();
-            Arrays.sort(classes, Docs.DOCS_BY_NAME_COMPARATOR);
-            for (ClassDoc c : classes) {
-
-                SectionItem item = new SectionItem();
-
-                item.link    = c.name() + ".html";
-                item.name    = c.name();
-                item.summary = JavadocUtil.firstSentenceOfDescription(c, c, rootDoc);
-
-                classesSection.items.add(item);
-            }
-        }
+        sections.add(PackageSummaryHtml.newSection(
+            "Annotation Type Summary",                                                     // title
+            "Annotation Type Summary table, listing annotation types, and an explanation", // summary
+            "Annotation Type",                                                             // firstColumnHeading
+            packagE.current().annotationTypes(),                                           // classDocs
+            rootDoc                                                                        // rootDoc
+        ));
 
         super.rSummary(
             packagE.current().name(),                 // windowTitle
@@ -140,132 +128,63 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
             },
             () -> {                                   // prolog
                 this.l(
-"<h1 title=\"Package\" class=\"title\">Package&nbsp;" + packagE.current().name() + "</h1>",
-"<div class=\"docSummary\">",
-"  <div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
-"</div>",
-"<p>See:&nbsp;<a href=\"#package_description\">Description</a></p>"
+"      <h1 title=\"Package\" class=\"title\">Package&nbsp;" + packagE.current().name() + "</h1>",
+"      <div class=\"docSummary\">",
+"        <div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
+"      </div>",
+"      <p>See:&nbsp;<a href=\"#package_description\">Description</a></p>"
                 );
             },
             () -> {                                   // epilog
                 this.l(
-"<a name=\"package.description\" />",
-"<h2 title=\"Package " + packagE.current().name() + "\">Package " + packagE.current().name() + " Description</h2>",
-"<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>"
+"      <a name=\"package.description\" />",
+"      <h2 title=\"Package " + packagE.current().name() + "\">Package " + packagE.current().name() + " Description</h2>",
+"      <div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>"
                 );
             },
             sections                                  // sections
         );
     }
 
-    private void
-    rBody(ElementWithContext<PackageDoc> packagE, RootDoc rootDoc, String home) {
+    private static Section
+    newSection(
+        String     title,
+        String     summary,
+        String     firstColumnHeading,
+        ClassDoc[] classDocs,
+        RootDoc    rootDoc
+    ) {
+        Section section = new Section();
 
-        this.l(
-"<div class=\"header\">",
-"<h1 title=\"Package\" class=\"title\">Package&nbsp;" + packagE.current().name() + "</h1>",
-"<div class=\"docSummary\">",
-"<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
-"</div>",
-"<p>See:&nbsp;<a href=\"#package_description\">Description</a></p>",
-"</div>",
-"<div class=\"contentContainer\">",
-"<ul class=\"blockList\">"
-        );
+        section.title              = title;
+        section.summary            = summary;
+        section.firstColumnHeading = firstColumnHeading;
 
-        ClassDoc[] is = packagE.current().interfaces();
-        if (is.length > 0) {
-            this.l(
-"<li class=\"blockList\">",
-"<table class=\"packageSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Interface Summary table, listing interfaces, and an explanation\">",
-"<caption><span>Interface Summary</span><span class=\"tabEnd\">&nbsp;</span></caption>",
-"<tr>",
-"<th class=\"colFirst\" scope=\"col\">Interface</th>",
-"<th class=\"colLast\" scope=\"col\">Description</th>",
-"</tr>",
-"<tbody>"
-            );
-            Arrays.sort(is, Docs.DOCS_BY_NAME_COMPARATOR);
-            Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
-            for (ClassDoc i : is) {
-                this.l(
-"<tr class=\"" + cls.produce() + "\">",
-"<td class=\"colFirst\">" + JavadocUtil.toHtml(i, packagE.current(), home, 1) + "</td>"
-                );
-                String fsod = JavadocUtil.firstSentenceOfDescription(i, i, rootDoc);
-                if (fsod.isEmpty()) {
-                    this.l(
-"<td class=\"colLast\">&nbsp;</td>"
-                    );
-                } else {
-                    this.l(
-"<td class=\"colLast\">",
-"<div class=\"block\">" + fsod + "</div>",
-"</td>"
-                    );
+        Arrays.sort(classDocs, Docs.DOCS_BY_NAME_COMPARATOR);
+        for (ClassDoc cd : classDocs) {
+
+            StringBuilder sb = new StringBuilder(cd.name());
+            {
+                TypeVariable[] typeParameters = cd.typeParameters();
+                if (typeParameters.length > 0) {
+                    sb.append("&lt;").append(typeParameters[0]);
+                    for (int j = 1; j < typeParameters.length; j++) {
+                        sb.append(", ").append(typeParameters[j]);
+                    }
+                    sb.append("&gt;");
                 }
-                this.l(
-"</tr>"
-                );
             }
-            this.l(
-"</tbody>",
-"</table>",
-"</li>"
-            );
+
+            SectionItem item = new SectionItem();
+
+            item.link    = cd.name() + ".html";
+            item.name    = sb.toString();
+            item.summary = JavadocUtil.firstSentenceOfDescription(cd, cd, rootDoc);
+
+            section.items.add(item);
         }
 
-        ClassDoc[] cs = packagE.current().ordinaryClasses();
-        if (cs.length > 0) {
-            this.l(
-"<li class=\"blockList\">",
-"<table class=\"packageSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Class Summary table, listing classes, and an explanation\">",
-"<caption><span>Class Summary</span><span class=\"tabEnd\">&nbsp;</span></caption>",
-"<tr>",
-"<th class=\"colFirst\" scope=\"col\">Class</th>",
-"<th class=\"colLast\" scope=\"col\">Description</th>",
-"</tr>",
-"<tbody>"
-            );
-            Arrays.sort(cs, Docs.DOCS_BY_NAME_COMPARATOR);
-            Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
-            for (ClassDoc c : cs) {
-                this.l(
-"<tr class=\"" + cls.produce() + "\">",
-"<td class=\"colFirst\">" + JavadocUtil.toHtml(c, packagE.current(), home, 1) + "</td>"
-                );
-                String fsod = JavadocUtil.firstSentenceOfDescription(c, c, rootDoc);
-                if (fsod.isEmpty()) {
-                    this.l(
-"<td class=\"colLast\">&nbsp;</td>"
-                    );
-                } else {
-                    this.l(
-"<td class=\"colLast\">",
-"<div class=\"block\">" + fsod + "</div>",
-"</td>"
-                    );
-                }
-                this.l(
-"</tr>"
-                );
-            }
-            this.l(
-"</tbody>",
-"</table>",
-"</li>"
-            );
-        }
-
-        this.l(
-"</ul>",
-"<a name=\"package_description\">",
-"<!--   -->",
-"</a>",
-"<h2 title=\"Package " + packagE.current().name() + " Description\">Package " + packagE.current().name() + " Description</h2>",
-"<div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
-"</div>"
-        );
+        return section;
     }
 
     private static String

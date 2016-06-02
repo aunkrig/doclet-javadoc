@@ -35,8 +35,6 @@ import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.commons.doclet.Docs;
-import de.unkrig.commons.lang.protocol.Producer;
-import de.unkrig.commons.lang.protocol.ProducerUtil;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
@@ -63,7 +61,6 @@ class OverviewSummaryHtml extends AbstractSummaryHtml implements GlobalDocument 
         section.firstColumnHeading = "Package";
         section.summary            = "Packages table, listing packages, and an explanation";
         section.title              = "Packages";
-        section.items              = new ArrayList<>();
 
 
         ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
@@ -110,62 +107,8 @@ class OverviewSummaryHtml extends AbstractSummaryHtml implements GlobalDocument 
                     );
                 }
             },
-            () -> {                            // epilog
-            },
+            () -> {},                          // epilog
             Collections.singletonList(section) // sections
-        );
-    }
-
-    private void
-    rBody(Options options, SortedSet<PackageDoc> allPackages, RootDoc rootDoc) {
-
-        if (options.docTitle != null) {
-            this.l(
-"<div class=\"header\">",
-"<h1 class=\"title\">" + options.docTitle + "</h1>",
-"</div>"
-            );
-        }
-
-        this.l(
-"<div class=\"contentContainer\">",
-"<table class=\"overviewSummary\" border=\"0\" cellpadding=\"3\" cellspacing=\"0\" summary=\"Packages table, listing packages, and an explanation\">",
-"<caption><span>Packages</span><span class=\"tabEnd\">&nbsp;</span></caption>",
-"<tr>",
-"<th class=\"colFirst\" scope=\"col\">Package</th>",
-"<th class=\"colLast\" scope=\"col\">Description</th>",
-"</tr>",
-"<tbody>"
-        );
-
-        ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
-        Collections.sort(aps, Docs.DOCS_BY_NAME_COMPARATOR);
-        Producer<? extends String> cls = ProducerUtil.alternate("altColor", "rowColor");
-        for (PackageDoc p : aps) {
-            this.l(
-"<tr class=\"" + cls.produce() + "\">",
-"<td class=\"colFirst\"><a href=\"" + p.name().replace('.', '/') + "/package-summary.html\">" + p.name() + "</a></td>"
-            );
-            String desc = JavadocUtil.firstSentenceOfDescription(rootDoc, p, rootDoc);
-            if (desc.isEmpty()) {
-                this.l(
-"<td class=\"colLast\">&nbsp;</td>"
-                );
-            } else {
-                this.l(
-"<td class=\"colLast\">",
-"<div class=\"block\">" + JavadocUtil.firstSentenceOfDescription(rootDoc, p, rootDoc) + "</div>",
-"</td>"
-                );
-            }
-            this.l(
-"</tr>"
-            );
-        }
-        this.l(
-"</tbody>",
-"</table>",
-"</div>"
         );
     }
 }
