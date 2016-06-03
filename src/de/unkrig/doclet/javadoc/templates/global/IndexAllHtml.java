@@ -120,11 +120,15 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
             docsOfInitial.add(d);
         }
 
-        this.p("<div class=\"contentContainer\">");
+        this.l(
+"    <div class=\"contentContainer\">"
+        );
 
         // Top list of initials.
         for (Character initial : allDocsByInitial.keySet()) {
-            this.p("<a href=\"#_" + initial + "_\">" + initial + "</a>&nbsp;");
+            this.l(
+"      <a href=\"#_" + initial + "_\">" + initial + "</a>&nbsp;"
+            );
         }
 
         // Docs, grouped by initial.
@@ -133,16 +137,16 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
             SortedSet<Doc> docsOfInitial = e.getValue();
 
             this.l(
-                "<a name=\"_" + initial + "_\">",
-                "<!--   -->",
-                "</a>",
-                "<h2 class=\"title\">" + initial + "</h2>",
-                "<dl>"
+"      <a name=\"_" + initial + "_\">",
+"      <!--   -->",
+"      </a>",
+"      <h2 class=\"title\">" + initial + "</h2>",
+"      <dl>"
             );
 
             for (Doc doc : docsOfInitial) {
                 this.l(
-"<dt><span class=\"strong\">" + JavadocUtil.toHtml(rootDoc, doc, true, null, null, rootDoc) + "</span></dt>"
+"        <dt><span class=\"strong\">" + JavadocUtil.toHtml(rootDoc, doc, true, null, null, rootDoc) + "</span></dt>"
                 );
                 String fsod = JavadocUtil.firstSentenceOfDescription(
                     doc instanceof MethodDoc ? ((ProgramElementDoc) doc).containingClass() : doc,  // from
@@ -151,18 +155,18 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
                 );
                 if (fsod.isEmpty()) {
                     this.l(
-"<dd>&nbsp;</dd>"
+"        <dd>&nbsp;</dd>"
                     );
                 } else {
                     this.l(
-"<dd>",
-"<div class=\"block\">" + fsod + "</div>",
-"</dd>"
+"        <dd>",
+"          <div class=\"block\">" + fsod + "</div>",
+"        </dd>"
                     );
                 }
             }
             this.l(
-"</dl>"
+"      </dl>"
             );
         }
 
@@ -171,9 +175,8 @@ class IndexAllHtml extends AbstractRightFrameHtml implements GlobalDocument {
             this.p("<a href=\"#_" + initial + "_\">" + initial + "</a>&nbsp;");
         }
 
-
         this.l(
-"</div>"
+"    </div>"
         );
     }
 }
