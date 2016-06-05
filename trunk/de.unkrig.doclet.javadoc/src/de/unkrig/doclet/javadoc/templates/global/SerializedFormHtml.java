@@ -86,27 +86,27 @@ class SerializedFormHtml extends AbstractRightFrameHtml implements GlobalDocumen
     rBody() {
 
         this.l(
-            "<div class=\"header\">",
-            "<h1 title=\"Serialized Form\" class=\"title\">Serialized Form</h1>",
-            "</div>",
-            "<div class=\"serializedFormContainer\">",
-            "<ul class=\"blockList\">",
-            "<li class=\"blockList\">",
-            "<h2 title=\"Package\">Package&nbsp;de.unkrig.commons.lang.protocol</h2>",
-            "<ul class=\"blockList\">",
-            "<li class=\"blockList\"><a name=\"de.unkrig.commons.lang.protocol.Longjump\">",
-            "<!--   -->",
-            "</a>",
-            "<h3>Class <a href=\"de/unkrig/commons/lang/protocol/Longjump.html\" title=\"class in de.unkrig.commons.lang.protocol\">de.unkrig.commons.lang.protocol.Longjump</a> extends java.lang.Throwable implements Serializable</h3>",
-            "<dl class=\"nameValue\">",
-            "<dt>serialVersionUID:</dt>",
-            "<dd>1L</dd>",
-            "</dl>",
-            "</li>",
-            "</ul>",
-            "</li>",
-            "</ul>",
-            "</div>"
+"    <div class=\"header\">",
+"      <h1 title=\"Serialized Form\" class=\"title\">Serialized Form</h1>",
+"    </div>",
+"    <div class=\"serializedFormContainer\">",
+"      <ul class=\"blockList\">",
+"        <li class=\"blockList\">",
+"          <h2 title=\"Package\">Package&nbsp;de.unkrig.commons.lang.protocol</h2>",
+"          <ul class=\"blockList\">",
+"            <li class=\"blockList\"><a name=\"de.unkrig.commons.lang.protocol.Longjump\">",
+"              <!--   -->",
+"              </a>",
+"              <h3>Class <a href=\"de/unkrig/commons/lang/protocol/Longjump.html\" title=\"class in de.unkrig.commons.lang.protocol\">de.unkrig.commons.lang.protocol.Longjump</a> extends java.lang.Throwable implements Serializable</h3>",
+"              <dl class=\"nameValue\">",
+"                <dt>serialVersionUID:</dt>",
+"                <dd>1L</dd>",
+"              </dl>",
+"            </li>",
+"          </ul>",
+"        </li>",
+"      </ul>",
+"    </div>"
         );
     }
 }
