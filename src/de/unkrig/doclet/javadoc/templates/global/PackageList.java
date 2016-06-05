@@ -42,7 +42,12 @@ public
 class PackageList extends NoTemplate implements GlobalDocument {
 
     @Override public void
-    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    ) {
 
         this.l(
             "de.unkrig.commons.lang",

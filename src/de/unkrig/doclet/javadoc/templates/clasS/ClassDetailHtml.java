@@ -95,184 +95,183 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
 
         // Nested class section (summary only, no detail).
         {
-            Section nestedClassesSection = new Section();
+            Section nestedClassesSection = new Section(
+                "nested_class",                                                // anchor
+                "Nested",                                                      // navigationLinkLabel
+                "Nested Class Summary",                                        // summaryTitle1
+                "Nested Classes",                                              // summaryTitle2
+                new String[] { "Modifier and Type", "Class and Description" }, // summaryTableHeadings
+                null,                                                          // detailTitle
+                null,                                                          // detailDescription
+                null                                                           // summaryItemComparator
+            );
             sections.add(nestedClassesSection);
-
-            nestedClassesSection.anchor               = "nested_class";
-            nestedClassesSection.navigationLinkLabel  = "Nested";
-            nestedClassesSection.summaryTitle1        = "Nested Class Summary";
-            nestedClassesSection.summaryTitle2        = "Nested Classes";
-            nestedClassesSection.summaryTableHeadings = new String[] { "Modifier and Type", "Class and Description" };
-            nestedClassesSection.detailTitle          = null; // To suppress the "details" part.
-            nestedClassesSection.detailDescription    = null;
 
             for (ClassDoc ncd : clasS.current().innerClasses()) {
 
-                SectionItem item = new SectionItem();
-                nestedClassesSection.items.add(item);
-
-                item.anchor             = null; // TODO
-                item.summaryTableCells  = new String[] {
-                    "<code>static " + JavadocUtil.category(ncd) + "&nbsp;</code>",
-                    (
-                        "<code><strong>"
-                        + JavadocUtil.toHtml(ncd, clasS.current(), home, 0)
-                        + "</strong></code><div class=\"block\">"
-                        + JavadocUtil.firstSentenceOfDescription(clasS.current(), ncd, rootDoc)
-                        + "</div>"
-                    ),
-                };
-                item.detailTitle        = "";
-                item.printDetailContent = () -> {};
+                nestedClassesSection.items.add(new SectionItem(
+                    null,          // anchor
+                    new String[] { // summaryTableCells
+                        "<code>static " + JavadocUtil.category(ncd) + "&nbsp;</code>",
+                        (
+                            "<code><strong>"
+                            + JavadocUtil.toHtml(ncd, clasS.current(), home, 0)
+                            + "</strong></code><div class=\"block\">"
+                            + JavadocUtil.firstSentenceOfDescription(clasS.current(), ncd, rootDoc)
+                            + "</div>"
+                        ),
+                    },
+                    "",            // detailTitle
+                    () -> {}       // printDetailContent
+                ));
             }
         }
 
         // Field section.
         {
-            Section fieldsSection = new Section();
-            sections.add(fieldsSection);
+            Section fieldsSection = new Section(
+                "field",                                                       // anchor
+                "Field",                                                       // navigationLinkLabel
+                "Field Summary",                                               // summaryTitle1
+                "Fields",                                                      // summaryTitle2
+                new String[] { "Modifier and Type", "Field and Description" }, // summaryTableHeadings
+                "Field Detail",                                                // detailTitle
+                null,                                                          // detailDescription
+                null                                                           // summaryItemComparator
+            );
 
-            fieldsSection.anchor               = "field";
-            fieldsSection.navigationLinkLabel  = "Field";
-            fieldsSection.summaryTitle1        = "Field Summary";
-            fieldsSection.summaryTitle2        = "Fields";
-            fieldsSection.summaryTableHeadings = new String[] { "Modifier and Type", "Field and Description" };
-            fieldsSection.detailTitle          = "Field Detail";
-            fieldsSection.detailDescription    = null;
+            sections.add(fieldsSection);
 
             for (FieldDoc fd : clasS.current().fields()) {
 
-                SectionItem item = new SectionItem();
-                fieldsSection.items.add(item);
-
-                item.anchor             = fd.name();
-                item.summaryTableCells  = new String[] {
-                    (fd.isStatic() ? "static " : "") + JavadocUtil.toHtml(fd.type(), fd, home, 0),
-                    (
-                        "<code><strong><a href=\""
-                        + home
-                        + JavadocUtil.href(fd)
-                        + "\">"
-                        + fd.name()
-                        + "</a></strong></code><div class=\"block\">"
-                        + JavadocUtil.firstSentenceOfDescription(clasS.current(), fd, rootDoc)
-                        + "</div>"
-                    ),
-                };
-                item.detailTitle        = fd.name();
-                item.printDetailContent = () -> {
-                    this.l(
+                fieldsSection.items.add(new SectionItem(
+                    fd.name(),     // anchor
+                    new String[] { // summaryTableCells
+                        (fd.isStatic() ? "static " : "") + JavadocUtil.toHtml(fd.type(), fd, home, 0),
+                        (
+                            "<code><strong><a href=\""
+                            + home
+                            + JavadocUtil.href(fd)
+                            + "\">"
+                            + fd.name()
+                            + "</a></strong></code><div class=\"block\">"
+                            + JavadocUtil.firstSentenceOfDescription(clasS.current(), fd, rootDoc)
+                            + "</div>"
+                        ),
+                    },
+                    fd.name(),     // detailTitle
+                    () -> {        // printDetailContent
+                        this.l(
 "                    <pre>" + fd.modifiers() + "&nbsp;" + JavadocUtil.toHtml(fd.type(), fd, home, 0) + " " + fd.name() + "</pre>",
 "                    <div class=\"block\">" + ClassDetailHtml.description(fd, rootDoc) + "</div>"
-                    );
-                    if (fd.seeTags().length > 0 || fd.constantValue() != null) {
-                        this.p(
-"                    <dl><dt><span class=\"strong\">See Also:</span></dt><dd>"
                         );
-                        Once first = NoTemplate.once();
-                        for (SeeTag st : fd.seeTags()) {
-                            if (!first.once()) this.l(", ");
-                            Doc reference = ClassDetailHtml.reference(st);
-                            this.p("<a href=\"" + home + JavadocUtil.href(reference) + "\"");
-                            if (JavadocUtil.title(reference) != null) {
-                                this.p(" title=\"" + JavadocUtil.title(reference) + "\"");
+                        if (fd.seeTags().length > 0 || fd.constantValue() != null) {
+                            this.p(
+"                    <dl><dt><span class=\"strong\">See Also:</span></dt><dd>"
+                            );
+                            Once first = NoTemplate.once();
+                            for (SeeTag st : fd.seeTags()) {
+                                if (!first.once()) this.l(", ");
+                                Doc reference = ClassDetailHtml.reference(st);
+                                this.p("<a href=\"" + home + JavadocUtil.href(reference) + "\"");
+                                if (JavadocUtil.title(reference) != null) {
+                                    this.p(" title=\"" + JavadocUtil.title(reference) + "\"");
+                                }
+                                this.p((
+                                    "><code>"
+                                    + ClassDetailHtml.toString(ClassDetailHtml.reference(st), clasS.current())
+                                    + "</code></a>"
+                                    + st.label()
+                                ));
                             }
-                            this.p((
-                                "><code>"
-                                + ClassDetailHtml.toString(ClassDetailHtml.reference(st), clasS.current())
-                                + "</code></a>"
-                                + st.label()
-                            ));
+                            if (fd.constantValue() != null) {
+                                if (!first.once()) this.l(", ");
+                                this.p((
+                                    "<a href=\""
+                                    + home
+                                    + "constant-values.html#"
+                                    + clasS.current().qualifiedName()
+                                    + "."
+                                    + fd.name()
+                                    + "\">Constant Field Values</a></dd>"
+                                ));
+                            }
+                            this.l("</dl>");
                         }
-                        if (fd.constantValue() != null) {
-                            if (!first.once()) this.l(", ");
-                            this.p((
-                                "<a href=\""
-                                + home
-                                + "constant-values.html#"
-                                + clasS.current().qualifiedName()
-                                + "."
-                                + fd.name()
-                                + "\">Constant Field Values</a></dd>"
-                            ));
-                        }
-                        this.l("</dl>");
                     }
-                };
+                ));
             }
         }
 
         // Constructor section.
         {
-            Section constructorsSection = new Section();
-            sections.add(constructorsSection);
+            Section constructorsSection = new Section(
+                "constructor",                                  // anchor
+                "Constr",                                       // navigationLinkLabel
+                "Constructor Summary",                          // summaryTitle1
+                "Constructors",                                 // summaryTitle2
+                new String[] { "Constructor and Description" }, // summaryTableHeadings
+                "Constructor Detail",                           // detailTitle
+                null,                                           // detailDescription
+                null                                            // summaryItemComparator
+            );
 
-            constructorsSection.anchor               = "constructor";
-            constructorsSection.navigationLinkLabel  = "Constr";
-            constructorsSection.summaryTitle1        = "Constructor Summary";
-            constructorsSection.summaryTitle2        = "Constructors";
-            constructorsSection.summaryTableHeadings = new String[] { "Constructor and Description" };
-            constructorsSection.detailTitle          = "Constructor Detail";
-            constructorsSection.detailDescription    = null;
+            sections.add(constructorsSection);
 
             ConstructorDoc[] constructors = clasS.current().constructors();
             for (int i = 0; i < constructors.length; i++) {
                 final ConstructorDoc cd = constructors[i];
 
-                SectionItem item = new SectionItem();
-                constructorsSection.items.add(item);
-
-                item.anchor             = null; // TODO
-                item.summaryTableCells  = new String[] {
-                    (
-                        "<code><strong><a href=\""
-                        + home
-                        + JavadocUtil.href(cd)
-                        + "\">"
-                        + cd.name()
-                        + "</a></strong>"
-                        + ClassDetailHtml.pParameters(home, cd)
-                        + "</code>&nbsp;"
-                    ),
-                };
-                item.detailTitle        = "";
-
                 int finalI = i;
-                item.printDetailContent = () -> {
-                    this.pExecutableMemberDetail(
-                        constructors[finalI],
-                        home,
-                        finalI == constructors.length - 1,
-                        rootDoc
-                    );
-                };
+                constructorsSection.items.add(new SectionItem(
+                    null,          // anchor
+                    new String[] { // summaryTableCells
+                        (
+                            "<code><strong><a href=\""
+                            + home
+                            + JavadocUtil.href(cd)
+                            + "\">"
+                            + cd.name()
+                            + "</a></strong>"
+                            + ClassDetailHtml.pParameters(home, cd)
+                            + "</code>&nbsp;"
+                        ),
+                    },
+                    "",            // detailTitle
+                    () -> {        // printDetailContent
+                        this.pExecutableMemberDetail(
+                            constructors[finalI],
+                            home,
+                            finalI == constructors.length - 1,
+                            rootDoc
+                        );
+                    }
+                ));
             }
         }
 
         // Method section.
         {
-            Section methodsSection = new Section();
-            sections.add(methodsSection);
+            Section methodsSection = new Section(
+                "method",                                                       // anchor
+                "Method",                                                       // navigationLinkLabel
+                "Method Summary",                                               // summaryTitle1
+                "Methods",                                                      // summaryTitle2
+                new String[] { "Modifier and Type", "Method and Description" }, // summaryTableHeadings
+                "Method Detail",                                                // detailTitle
+                null,                                                           // detailDescription
+                new Comparator<SectionItem>() {                                 // summaryItemComparator
 
-            methodsSection.anchor               = "method";
-            methodsSection.navigationLinkLabel  = "Method";
-            methodsSection.summaryTitle1        = "Method Summary";
-            methodsSection.summaryTitle2        = "Methods";
-            methodsSection.summaryTableHeadings = new String[] { "Modifier and Type", "Method and Description" };
-            methodsSection.detailTitle          = "Method Detail";
-            methodsSection.detailDescription    = null;
-
-            // The methods' "detail title" is the bare method name, however, we want the to use the complete
-            // "Method and Description" for sorting the method summary table.
-            methodsSection.summaryItemComparator = new Comparator<SectionItem>() {
-
-                @Override public int
-                compare(@Nullable SectionItem si1, @Nullable SectionItem si2) {
-                    assert si1 != null;
-                    assert si2 != null;
-                    return si1.summaryTableCells[1].compareTo(si2.summaryTableCells[1]);
+                    @Override public int
+                    compare(@Nullable SectionItem si1, @Nullable SectionItem si2) {
+                        assert si1 != null;
+                        assert si2 != null;
+                        return si1.summaryTableCells[1].compareTo(si2.summaryTableCells[1]);
+                    }
                 }
-            };
+            );
+
+            sections.add(methodsSection);
 
             final MethodDoc[] methods = clasS.current().methods();
 
@@ -339,17 +338,15 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                     descriptionCell = sb.toString();
                 }
 
-                SectionItem item = new SectionItem();
-                methodsSection.items.add(item);
-
-                item.anchor             = null; // TODO
-                item.summaryTableCells  = new String[] { modifierCell, descriptionCell };
-                item.detailTitle        = md.name();
-
                 int finalMi = mi;
-                item.printDetailContent = () -> {
-                    this.pExecutableMemberDetail(md, home, finalMi == methods.length - 1, rootDoc);
-                };
+                methodsSection.items.add(new SectionItem(
+                    null,                                           // anchor
+                    new String[] { modifierCell, descriptionCell }, // summaryTableCells
+                    md.name(),                                      // detailTitle
+                    () -> {                                         // printDetailContent
+                        this.pExecutableMemberDetail(md, home, finalMi == methods.length - 1, rootDoc);
+                    }
+                ));
             }
 
             // Methods inherited from base classes and interfaces.
@@ -372,10 +369,7 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
 
                     if (btms.isEmpty()) continue;
 
-                    SectionAddendum addendum = new SectionAddendum();
-                    methodsSection.addenda.add(addendum);
-
-                    addendum.title   = (
+                    String title = (
                         "Methods inherited from "
                         + JavadocUtil.category(bt.asClassDoc())
                         + "&nbsp;"
@@ -396,28 +390,36 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                             : bt.typeName()
                         )
                     );
-                    addendum.content = "<code>";
-                    Once        once = NoTemplate.once();
-                    Collections.sort(btms);
-                    for (MethodDoc btm : btms) {
 
-                        if (!once.once()) addendum.content += ", ";
+                    String content;
+                    {
+                        StringBuilder sb = new StringBuilder();
 
-                        if (btm.isIncluded()) {
-                            addendum.content += (
-                                "<a href=\""
-                                + home
-                                + JavadocUtil.href(btm)
-                                + "\">"
-                                + btm.name()
-                                + "</a>"
-                            );
-                        } else {
-                            addendum.content += btm.name();
+                        sb.append("<code>");
+
+                        Once        once = NoTemplate.once();
+                        Collections.sort(btms);
+                        for (MethodDoc btm : btms) {
+
+                            if (!once.once()) sb.append(", ");
+
+                            if (btm.isIncluded()) {
+                                sb.append("<a href=\"").append(home).append(JavadocUtil.href(btm)).append("\">");
+                                sb.append(btm.name()).append("</a>");
+                            } else {
+                                sb.append(btm.name());
+                            }
                         }
+                        sb.append("</code>");
+
+                        content = sb.toString();
                     }
-                    addendum.content += "</code>";
-                    addendum.anchor  = "methods_inherited_from_class_" + bt.qualifiedTypeName();
+
+                    methodsSection.addenda.add(new SectionAddendum(
+                        title,
+                        content,
+                        "methods_inherited_from_class_" + bt.qualifiedTypeName() // anchor
+                    ));
                 }
             }
         }
@@ -579,12 +581,21 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
 
                 // Class/interface name.
                 // Class/interface type parameters.
-                this.p("<span class=\"strong\">" + clasS.current().name() + NoTemplate.html(ClassDetailHtml.typeParameters(clasS.current())) + "</span>");
+                this.p(
+                    "<span class=\"strong\">"
+                    + clasS.current().name()
+                    + NoTemplate.html(ClassDetailHtml.typeParameters(clasS.current()))
+                    + "</span>"
+                );
 
                 // Class's superclasS.current().
                 if (clasS.current().superclass() != null) {
                     this.l();
-                    this.p("extends " + clasS.current().superclass().qualifiedName() + ClassDetailHtml.typeArguments(clasS.current().superclass()));
+                    this.p(
+                        "extends "
+                        + clasS.current().superclass().qualifiedName()
+                        + ClassDetailHtml.typeArguments(clasS.current().superclass())
+                    );
                 }
 
                 // Interface's superinterfaces.
@@ -634,10 +645,18 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                         if (JavadocUtil.title(reference) != null) {
                             this.p(" title=\"" + JavadocUtil.title(reference) + "\"");
                         }
-                        this.p("><code>" + ClassDetailHtml.toString(reference, clasS.current()) + "</code></a>" + st.label());
+                        this.p(
+                            "><code>"
+                            + ClassDetailHtml.toString(reference, clasS.current())
+                            + "</code></a>"
+                            + st.label()
+                        );
                     }
                     if (implementsSerializable) {
-                        this.p("<a href=\"../../../../../serialized-form.html#de.unkrig.commons.lang.protocol.Longjump\">Serialized Form</a>");
+                        this.p(
+                            "<a href=\"../../../../../serialized-form.html#de.unkrig.commons.lang.protocol.Longjump\">"
+                            + "Serialized Form</a>"
+                        );
                     }
                     this.l("</dd></dl>");
                 }

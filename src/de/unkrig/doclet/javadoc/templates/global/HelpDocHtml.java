@@ -45,7 +45,12 @@ class HelpDocHtml extends AbstractRightFrameHtml implements GlobalDocument {
      * Renders the "API Help" page.
      */
     @Override public void
-    render(Options options, SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces, RootDoc rootDoc) {
+    render(
+        Options               options,
+        SortedSet<PackageDoc> allPackages,
+        SortedSet<ClassDoc>   allClassesAndInterfaces,
+        RootDoc               rootDoc
+    ) {
 
         super.rRightFrameHtml(
             "API Help",                        // windowTitle
