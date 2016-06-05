@@ -56,24 +56,22 @@ class OverviewSummaryHtml extends AbstractSummaryHtml implements GlobalDocument 
 
 
         // There is only one section: "Packages".
-        Section section = new Section();
-
-        section.firstColumnHeading = "Package";
-        section.summary            = "Packages table, listing packages, and an explanation";
-        section.title              = "Packages";
-
+        Section section = new Section(
+            null,                                                   // anchor
+            "Packages",                                             // title
+            "Packages table, listing packages, and an explanation", // summary
+            "Package"                                               // firstColumnHeading
+        );
 
         ArrayList<PackageDoc> aps = new ArrayList<PackageDoc>(allPackages);
         Collections.sort(aps, Docs.DOCS_BY_NAME_COMPARATOR);
         for (PackageDoc p : aps) {
 
-            SectionItem item = new SectionItem();
-
-            item.link    = p.name().replace('.', '/') + "/package-summary.html";
-            item.name    = p.name();
-            item.summary = JavadocUtil.firstSentenceOfDescription(rootDoc, p, rootDoc);
-
-            section.items.add(item);
+            section.items.add(new SectionItem(
+                p.name().replace('.', '/') + "/package-summary.html",       // link
+                p.name(),                                                   // name
+                JavadocUtil.firstSentenceOfDescription(rootDoc, p, rootDoc) // summary
+            ));
         }
 
         this.rSummary(

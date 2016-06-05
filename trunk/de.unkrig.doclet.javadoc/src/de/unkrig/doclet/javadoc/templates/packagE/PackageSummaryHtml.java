@@ -120,7 +120,7 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
                 PackageSummaryHtml.packageSummaryLink("Next Package", home, packagE.next()),
             },
             new String[] {                            // nav3
-                "Frames",    home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-summary.html",
+                "Frames", home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-summary.html",
                 "No Frames", "package-summary.html",
             },
             new String[] {                            // nav4
@@ -154,11 +154,12 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
         ClassDoc[] classDocs,
         RootDoc    rootDoc
     ) {
-        Section section = new Section();
-
-        section.title              = title;
-        section.summary            = summary;
-        section.firstColumnHeading = firstColumnHeading;
+        Section section = new Section(
+            null,              // anchor
+            title,             // title
+            summary,           // summary
+            firstColumnHeading // firstColumnHeading
+        );
 
         Arrays.sort(classDocs, Docs.DOCS_BY_NAME_COMPARATOR);
         for (ClassDoc cd : classDocs) {
@@ -175,13 +176,11 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
                 }
             }
 
-            SectionItem item = new SectionItem();
-
-            item.link    = cd.name() + ".html";
-            item.name    = sb.toString();
-            item.summary = JavadocUtil.firstSentenceOfDescription(cd, cd, rootDoc);
-
-            section.items.add(item);
+            section.items.add(new SectionItem(
+                cd.name() + ".html",                                    // link
+                sb.toString(),                                          // name
+                JavadocUtil.firstSentenceOfDescription(cd, cd, rootDoc) // summary
+            ));
         }
 
         return section;

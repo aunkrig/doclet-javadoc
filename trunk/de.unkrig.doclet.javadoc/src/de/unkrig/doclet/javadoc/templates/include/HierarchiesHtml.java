@@ -139,7 +139,19 @@ class HierarchiesHtml extends NoTemplate {
     pType(String home, ClassDoc type, @Nullable ClassDoc supertype, boolean strong, boolean withInterfaces) {
 
         if (type.isIncluded()) {
-            this.p(type.containingPackage().name() + ".<a href=\"" + home + type.containingPackage().name().replace('.', '/') + "/" + type.name() + ".html\" title=\"" + JavadocUtil.category(type) + " in " + type.containingPackage().name() + "\">");
+            this.p(
+                type.containingPackage().name()
+                + ".<a href=\""
+                + home
+                + type.containingPackage().name().replace('.', '/')
+                + "/"
+                + type.name()
+                + ".html\" title=\""
+                + JavadocUtil.category(type)
+                + " in "
+                + type.containingPackage().name()
+                + "\">"
+            );
             if (strong) this.p("<span class=\"strong\">");
             this.p(type.name());
             if (strong) this.p("</span>");
