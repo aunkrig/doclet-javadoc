@@ -940,9 +940,8 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             Once first = NoTemplate.once();
             for (SeeTag st : doc.seeTags()) {
                 if (!first.once()) {
-                    this.l(
-", "
-                    );
+                    this.p(", ");
+                    this.l();
                 }
                 Doc reference = ClassDetailHtml.reference(st);
                 if (reference.isIncluded()) {
