@@ -56,7 +56,7 @@ class PackageTreeHtml extends AbstractRightFrameHtml implements PerPackageDocume
                 "Class",      AbstractRightFrameHtml.DISABLED,
                 "Tree",       AbstractRightFrameHtml.HIGHLIT,
                 "Deprecated", home + "deprecated-list.html",
-                "Index",      home + "index-all.html",
+                "Index",      home + (options.splitIndex ? "index-files/index-1.html" : "index-all.html"),
                 "Help",       home + "help-doc.html",
             },
             new String[] {                                 // nav2
@@ -90,14 +90,14 @@ class PackageTreeHtml extends AbstractRightFrameHtml implements PerPackageDocume
     rBody(ElementWithContext<PackageDoc> packagE, String home) {
 
         this.l(
-"<div class=\"header\">",
-"<h1 class=\"title\">Hierarchy For Package " + packagE.current().name() + "</h1>",
-"<span class=\"strong\">Package Hierarchies:</span>",
-"<ul class=\"horizontal\">",
-"<li><a href=\"" + home + "overview-tree.html\">All Packages</a></li>",
-"</ul>",
-"</div>",
-"<div class=\"contentContainer\">"
+"    <div class=\"header\">",
+"      <h1 class=\"title\">Hierarchy For Package " + packagE.current().name() + "</h1>",
+"      <span class=\"strong\">Package Hierarchies:</span>",
+"      <ul class=\"horizontal\">",
+"        <li><a href=\"" + home + "overview-tree.html\">All Packages</a></li>",
+"      </ul>",
+"    </div>",
+"    <div class=\"contentContainer\">"
         );
 
         this.include(HierarchiesHtml.class).render(
@@ -107,7 +107,7 @@ class PackageTreeHtml extends AbstractRightFrameHtml implements PerPackageDocume
         );
 
         this.l(
-"</div>"
+"    </div>"
         );
     }
 }

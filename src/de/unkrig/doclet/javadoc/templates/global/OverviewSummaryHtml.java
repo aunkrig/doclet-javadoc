@@ -54,6 +54,8 @@ class OverviewSummaryHtml extends AbstractSummaryHtml implements GlobalDocument 
         final RootDoc               rootDoc
     ) {
 
+        final String overviewFirstSentenceHtml = JavadocUtil.firstSentenceOfDescription(rootDoc, rootDoc, rootDoc);
+        final String overviewHtml              = JavadocUtil.description(rootDoc, rootDoc);
 
         // There is only one section: "Packages".
         Section section = new Section(
@@ -75,38 +77,58 @@ class OverviewSummaryHtml extends AbstractSummaryHtml implements GlobalDocument 
         }
 
         this.rSummary(
-            "Overview",                        // windowTitle
-            options,                           // options
-            new String[] { "stylesheet.css" }, // stylesheetLinks
-            new String[] {                     // nav1
+            "Overview",                             // windowTitle
+            options,                                // options
+            new String[] { "stylesheet.css" },      // stylesheetLinks
+            new String[] {                          // nav1
                 "Overview",   AbstractRightFrameHtml.HIGHLIT,
                 "Package",    AbstractRightFrameHtml.DISABLED,
                 "Class",      AbstractRightFrameHtml.DISABLED,
                 "Tree",       "overview-tree.html",
                 "Deprecated", "deprecated-list.html",
-                "Index",      "index-all.html",
+                "Index",      options.splitIndex ? "index-files/index-1.html" : "index-all.html",
                 "Help",       "help-doc.html",
             },
-            new String[] {                     // nav2
-                "Prev",
-                "Next",
-            },
-            new String[] {                     // nav3
+            new String[] { "Prev", "Next", },       // nav2
+            new String[] {                          // nav3
                 "Frames",    "?overview-summary.html",
                 "No Frames", "overview-summary.html",
             },
-            new String[] {                     // nav4
+            new String[] {                          // nav4
                 "All Classes", "allclasses-noframe.html",
             },
-            () -> {                            // prolog
-                if (options.docTitle != null) {
+            new Runnable[] {                        // renderHeaders
+                () -> {
+                    if (options.docTitle != null) {
+                        this.l(
+"      <h1 class=\"title\">" + options.docTitle + "</h1>"
+                        );
+                    }
+                },
+                overviewFirstSentenceHtml.isEmpty() ? null : () -> {
                     this.l(
-"<h1 class=\"title\">" + options.docTitle + "</h1>"
+"      <div class=\"docSummary\">",
+"        <div class=\"subTitle\">",
+"          <div class=\"block\">" + overviewFirstSentenceHtml + "</div>",
+"        </div>"
+                    );
+                    if (!overviewHtml.isEmpty()) {
+                        this.l(
+"        <p>See: <a href=\"#description\">Description</a></p>"
+                        );
+                    }
+                    this.l(
+"      </div>"
                     );
                 }
             },
-            () -> {},                          // epilog
-            Collections.singletonList(section) // sections
+            overviewHtml.isEmpty() ? null : () -> { // epilog
+                this.l(
+"      <a name=\"description\" />",
+"      " + overviewHtml
+                );
+            },
+            Collections.singletonList(section)      // sections
         );
     }
 }

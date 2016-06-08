@@ -434,7 +434,7 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                 "Class",      AbstractRightFrameHtml.HIGHLIT,
                 "Tree",       "package-tree.html",
                 "Deprecated", home + "deprecated-list.html",
-                "Index",      home + "index-all.html",
+                "Index",      home + (options.splitIndex ? "index-files/index-1.html" : "index-all.html"),
                 "Help",       home + "help-doc.html",
             },
             new String[] {                              // nav2

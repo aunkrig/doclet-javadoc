@@ -60,7 +60,7 @@ class SerializedFormHtml extends AbstractRightFrameHtml implements GlobalDocumen
                 "Class",      AbstractRightFrameHtml.DISABLED,
                 "Tree",       "overview-tree.html",
                 "Deprecated", "deprecated-list.html",
-                "Index",      "index-all.html",
+                "Index",      options.splitIndex ? "index-files/index-1.html" : "index-all.html",
                 "Help",       "help-doc.html",
             },
             new String[] {                     // nav2
