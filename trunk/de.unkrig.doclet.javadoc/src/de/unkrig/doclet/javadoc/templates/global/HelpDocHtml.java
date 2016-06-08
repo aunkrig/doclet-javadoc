@@ -63,7 +63,7 @@ class HelpDocHtml extends AbstractRightFrameHtml implements GlobalDocument {
                 "Use",        AbstractRightFrameHtml.DISABLED,
                 "Tree",       "overview-tree.html",
                 "Deprecated", "deprecated-list.html",
-                "Index",      "index-all.html",
+                "Index",      options.splitIndex ? "index-files/index-1.html" : "index-all.html",
                 "Help",       AbstractRightFrameHtml.HIGHLIT,
             },
             new String[] {                     // nav2

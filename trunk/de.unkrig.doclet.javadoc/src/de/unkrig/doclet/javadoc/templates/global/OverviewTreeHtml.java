@@ -64,7 +64,7 @@ class OverviewTreeHtml extends AbstractRightFrameHtml implements GlobalDocument 
                 "Use",        AbstractRightFrameHtml.DISABLED,
                 "Tree",       AbstractRightFrameHtml.HIGHLIT,
                 "Deprecated", "deprecated-list.html",
-                "Index",      "index-all.html",
+                "Index",      options.splitIndex ? "index-files/index-1.html" : "index-all.html",
                 "Help",       "help-doc.html",
             },
             new String[] {                     // nav2
@@ -90,10 +90,10 @@ class OverviewTreeHtml extends AbstractRightFrameHtml implements GlobalDocument 
     rBody(SortedSet<PackageDoc> allPackages, SortedSet<ClassDoc> allClassesAndInterfaces) {
 
         this.l(
-"<div class=\"header\">",
-"<h1 class=\"title\">Hierarchy For All Packages</h1>",
-"<span class=\"strong\">Package Hierarchies:</span>",
-"<ul class=\"horizontal\">"
+"    <div class=\"header\">",
+"      <h1 class=\"title\">Hierarchy For All Packages</h1>",
+"      <span class=\"strong\">Package Hierarchies:</span>",
+"      <ul class=\"horizontal\">"
         );
         Once first = NoTemplate.once();
         for (PackageDoc p : allPackages) {
@@ -102,9 +102,9 @@ class OverviewTreeHtml extends AbstractRightFrameHtml implements GlobalDocument 
         }
         if (!first.once()) this.l("</li>");
         this.l(
-"</ul>",
-"</div>",
-"<div class=\"contentContainer\">"
+"      </ul>",
+"    </div>",
+"    <div class=\"contentContainer\">"
         );
 
         List<ClassDoc> classes    = new ArrayList<ClassDoc>();
@@ -121,7 +121,7 @@ class OverviewTreeHtml extends AbstractRightFrameHtml implements GlobalDocument 
         this.include(HierarchiesHtml.class).render("", classes, interfaces);
 
         this.l(
-"</div>"
+"    </div>"
         );
     }
 }

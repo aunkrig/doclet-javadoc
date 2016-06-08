@@ -50,7 +50,16 @@ public
 class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocument {
 
     @Override public void
-    render(final String home, final ElementWithContext<PackageDoc> packagE, Options options, final RootDoc rootDoc) {
+    render(
+        final String                         home,
+        final ElementWithContext<PackageDoc> packagE,
+        Options                              options,
+        final RootDoc                        rootDoc
+    ) {
+        PackageDoc pkg = packagE.current();
+
+        final String descriptionFirstSentenceHtml = JavadocUtil.firstSentenceOfDescription(pkg, pkg, rootDoc);
+        final String descriptionHtml              = JavadocUtil.description(pkg, rootDoc);
 
         List<Section> sections = new ArrayList<>();
 
@@ -58,7 +67,7 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
             "Interface Summary",                                               // title
             "Interface Summary table, listing interfaces, and an explanation", // summary
             "Interface",                                                       // firstColumnHeading
-            packagE.current().interfaces(),                                    // classDocs
+            pkg.interfaces(),                                                  // classDocs
             rootDoc                                                            // rootDoc
         ));
 
@@ -66,7 +75,7 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
             "Class Summary",                                            // title
             "Class Summary table, listing classes, and an explanation", // summary
             "Class",                                                    // firstColumnHeading
-            packagE.current().ordinaryClasses(),                        // classDocs
+            pkg.ordinaryClasses(),                                      // classDocs
             rootDoc                                                     // rootDoc
         ));
 
@@ -74,7 +83,7 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
             "Enum Summary",                                          // title
             "Enum Summary table, listing enums, and an explanation", // summary
             "Enum",                                                  // firstColumnHeading
-            packagE.current().enums(),                               // classDocs
+            pkg.enums(),                                             // classDocs
             rootDoc                                                  // rootDoc
         ));
 
@@ -82,7 +91,7 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
             "Exception Summary",                                               // title
             "Exception Summary table, listing exceptions, and an explanation", // summary
             "Exception",                                                       // firstColumnHeading
-            packagE.current().exceptions(),                                    // classDocs
+            pkg.exceptions(),                                                  // classDocs
             rootDoc                                                            // rootDoc
         ));
 
@@ -90,7 +99,7 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
             "Error Summary",                                           // title
             "Error Summary table, listing errors, and an explanation", // summary
             "Error",                                                   // firstColumnHeading
-            packagE.current().errors(),                                // classDocs
+            pkg.errors(),                                              // classDocs
             rootDoc                                                    // rootDoc
         ));
 
@@ -98,12 +107,12 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
             "Annotation Type Summary",                                                     // title
             "Annotation Type Summary table, listing annotation types, and an explanation", // summary
             "Annotation Type",                                                             // firstColumnHeading
-            packagE.current().annotationTypes(),                                           // classDocs
+            pkg.annotationTypes(),                                                         // classDocs
             rootDoc                                                                        // rootDoc
         ));
 
         super.rSummary(
-            packagE.current().name(),                 // windowTitle
+            pkg.name(),                               // windowTitle
             options,                                  // options
             new String[] { home + "stylesheet.css" }, // stylesheetLinks
             new String[] {                            // nav1
@@ -112,7 +121,7 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
                 "Class",      AbstractRightFrameHtml.DISABLED,
                 "Tree",       "package-tree.html",
                 "Deprecated", home + "deprecated-list.html",
-                "Index",      home + "index-all.html",
+                "Index",      home + (options.splitIndex ? "index-files/index-1.html" : "index-all.html"),
                 "Help",       home + "help-doc.html",
             },
             new String[] {                            // nav2
@@ -120,26 +129,26 @@ class PackageSummaryHtml extends AbstractSummaryHtml implements PerPackageDocume
                 PackageSummaryHtml.packageSummaryLink("Next Package", home, packagE.next()),
             },
             new String[] {                            // nav3
-                "Frames", home + "index.html?" + packagE.current().name().replace('.', '/') + "/package-summary.html",
+                "Frames", home + "index.html?" + pkg.name().replace('.', '/') + "/package-summary.html",
                 "No Frames", "package-summary.html",
             },
             new String[] {                            // nav4
                 "All Classes", home + "allclasses-noframe.html",
             },
-            () -> {                                   // prolog
+            new Runnable[] { () -> {                  // renderHeaders
                 this.l(
-"      <h1 title=\"Package\" class=\"title\">Package&nbsp;" + packagE.current().name() + "</h1>",
+"      <h1 title=\"Package\" class=\"title\">Package&nbsp;" + pkg.name() + "</h1>",
 "      <div class=\"docSummary\">",
-"        <div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>",
+"        <div class=\"block\">" + descriptionFirstSentenceHtml + "</div>",
 "      </div>",
 "      <p>See:&nbsp;<a href=\"#package_description\">Description</a></p>"
                 );
-            },
+            } },
             () -> {                                   // epilog
                 this.l(
 "      <a name=\"package.description\" />",
-"      <h2 title=\"Package " + packagE.current().name() + "\">Package " + packagE.current().name() + " Description</h2>",
-"      <div class=\"block\">" + JavadocUtil.description(packagE.current(), rootDoc) + "</div>"
+"      <h2 title=\"Package " + pkg.name() + "\">Package " + pkg.name() + " Description</h2>",
+"      <div class=\"block\">" + descriptionHtml + "</div>"
                 );
             },
             sections                                  // sections

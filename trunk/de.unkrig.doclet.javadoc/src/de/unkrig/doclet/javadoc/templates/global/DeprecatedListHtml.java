@@ -63,7 +63,7 @@ class DeprecatedListHtml extends AbstractRightFrameHtml implements GlobalDocumen
                 "Use",        AbstractRightFrameHtml.DISABLED,
                 "Tree",       "overview-tree.html",
                 "Deprecated", AbstractRightFrameHtml.HIGHLIT,
-                "Index",      "index-all.html",
+                "Index",      options.splitIndex ? "index-files/index-1.html" : "index-all.html",
                 "Help",       "help-doc.html",
             },
             new String[] {                     // nav2
