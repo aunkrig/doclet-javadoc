@@ -91,7 +91,7 @@ class OverviewSummaryHtml extends AbstractSummaryHtml implements GlobalDocument 
             },
             new String[] { "Prev", "Next", },       // nav2
             new String[] {                          // nav3
-                "Frames",    "?overview-summary.html",
+                "Frames",    "index.html?overview-summary.html",
                 "No Frames", "overview-summary.html",
             },
             new String[] {                          // nav4

@@ -71,8 +71,8 @@ class DeprecatedListHtml extends AbstractRightFrameHtml implements GlobalDocumen
                 "Next",
             },
             new String[] {                     // nav3
-                "Frames",    "index.html?overview-tree.html",
-                "No Frames", "overview-tree.html",
+                "Frames",    "index.html?deprecated-list.html",
+                "No Frames", "deprecated-list.html",
             },
             new String[] {                     // nav4
                 "All Classes", "allclasses-noframe.html",
