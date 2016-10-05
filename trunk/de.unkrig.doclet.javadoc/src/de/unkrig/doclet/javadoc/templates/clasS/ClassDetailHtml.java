@@ -50,6 +50,7 @@ import com.sun.javadoc.ParameterizedType;
 import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.RootDoc;
 import com.sun.javadoc.SeeTag;
+import com.sun.javadoc.Tag;
 import com.sun.javadoc.ThrowsTag;
 import com.sun.javadoc.Type;
 import com.sun.javadoc.TypeVariable;
@@ -497,11 +498,11 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                 if (clasS.current().typeParamTags().length > 0) {
                     this.p("        <dl><dt><span class=\"strong\">Type Parameters:</span></dt>");
                     for (ParamTag tpt : clasS.current().typeParamTags()) {
-                        String comment = tpt.parameterComment();
+                        String comment;
                         try {
-                            comment = ClassDetailHtml.HTML.fromJavadocText(comment, clasS.current(), rootDoc);
+                            comment = ClassDetailHtml.HTML.fromTags(tpt.inlineTags(), clasS.current(), rootDoc);
                         } catch (Longjump e) {
-                            ;
+                            comment = "???";
                         }
                         this.p("<dd><code>" + tpt.parameterName() + "</code> - " + comment + "</dd>");
                     }
@@ -828,11 +829,11 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             if (emd.typeParamTags().length > 0) {
                 this.p("<dt><span class=\"strong\">Type Parameters:</span></dt>");
                 for (ParamTag tpt : emd.typeParamTags()) {
-                    String comment = tpt.parameterComment();
+                    String comment;
                     try {
-                        comment = ClassDetailHtml.HTML.fromJavadocText(comment, clasS, rootDoc);
+                        comment = ClassDetailHtml.HTML.fromTags(tpt.inlineTags(), clasS, rootDoc);
                     } catch (Longjump e) {
-                        ;
+                        comment = "???";
                     }
                     this.p("<dd><code>" + tpt.parameterName() + "</code> - " + comment + "</dd>");
                 }
@@ -842,11 +843,11 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
             if (emd.paramTags().length > 0) {
                 this.p("<dt><span class=\"strong\">Parameters:</span></dt>");
                 for (ParamTag pt : emd.paramTags()) {
-                    String comment = pt.parameterComment();
+                    String comment;
                     try {
-                        comment = ClassDetailHtml.HTML.fromJavadocText(comment, clasS, rootDoc);
+                        comment = ClassDetailHtml.HTML.fromTags(pt.inlineTags(), clasS, rootDoc);
                     } catch (Longjump e) {
-                        ;
+                        comment = "???";
                     }
                     this.p("<dd><code>" + pt.parameterName() + "</code> - " + comment + "</dd>");
                 }
@@ -875,13 +876,15 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
                 for (ThrowsTag tt : emd.throwsTags()) {
                     this.l();
                     this.p("<dd><code>" + JavadocUtil.toHtml(tt.exceptionType(), emd, home, 1) + "</code>");
-                    String ec = tt.exceptionComment();
-                    if (ec != null && ec.length() > 0) {
-                        try {
-                            ec = ClassDetailHtml.HTML.fromJavadocText(ec, emd, rootDoc);
-                        } catch (Longjump e) {
-                            ;
-                        }
+
+                    String ec;
+                    try {
+                        ec = ClassDetailHtml.HTML.fromTags(tt.inlineTags(), emd, rootDoc);
+                    } catch (Longjump e) {
+                        ec = "???";
+                    }
+
+                    if (ec.length() > 0) {
                         this.p(" - " + ec);
                     }
                     this.p("</dd>");
@@ -1201,11 +1204,11 @@ class ClassDetailHtml extends AbstractDetailHtml implements PerClassDocument {
     @Nullable private static String
     returnValueDescription(MethodDoc methodDoc, RootDoc rootDoc) {
 
-        String rtd = Tags.optionalTag(methodDoc, "@return", rootDoc);
-        if (rtd == null) return null;
+        Tag returnTag = Tags.optionalTag(methodDoc, "@return", rootDoc);
+        if (returnTag == null) return null;
 
         try {
-            return ClassDetailHtml.HTML.fromJavadocText(rtd, methodDoc, rootDoc);
+            return ClassDetailHtml.HTML.fromTags(returnTag.inlineTags(), methodDoc, rootDoc);
         } catch (Longjump l) {
             return "???";
         }
