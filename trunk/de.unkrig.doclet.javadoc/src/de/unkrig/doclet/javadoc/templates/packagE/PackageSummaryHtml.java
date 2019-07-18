@@ -37,7 +37,7 @@ import com.sun.javadoc.TypeVariable;
 
 import de.unkrig.commons.doclet.Docs;
 import de.unkrig.commons.nullanalysis.Nullable;
-import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
+import de.unkrig.commons.util.collections.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;

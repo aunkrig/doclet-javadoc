@@ -33,7 +33,7 @@ import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.commons.doclet.Docs;
-import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
+import de.unkrig.commons.util.collections.ElementWithContext;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractBottomLeftFrameHtml;
