@@ -62,7 +62,7 @@ import de.unkrig.commons.lang.AssertionUtil;
 import de.unkrig.commons.lang.StringUtil;
 import de.unkrig.commons.lang.protocol.Longjump;
 import de.unkrig.commons.nullanalysis.Nullable;
-import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
+import de.unkrig.commons.util.collections.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.JavadocUtil;
 import de.unkrig.notemplate.NoTemplate;
 import de.unkrig.notemplate.javadocish.Options;

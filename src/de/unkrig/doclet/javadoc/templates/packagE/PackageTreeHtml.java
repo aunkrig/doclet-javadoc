@@ -32,7 +32,7 @@ import com.sun.javadoc.PackageDoc;
 import com.sun.javadoc.RootDoc;
 
 import de.unkrig.commons.nullanalysis.Nullable;
-import de.unkrig.commons.util.collections.IterableUtil.ElementWithContext;
+import de.unkrig.commons.util.collections.ElementWithContext;
 import de.unkrig.doclet.javadoc.templates.include.HierarchiesHtml;
 import de.unkrig.notemplate.javadocish.Options;
 import de.unkrig.notemplate.javadocish.templates.AbstractRightFrameHtml;
