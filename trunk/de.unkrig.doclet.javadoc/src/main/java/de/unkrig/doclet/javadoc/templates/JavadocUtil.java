@@ -466,7 +466,7 @@ class JavadocUtil {
     /**
      * @return Those classes, interfaces, enums and annotation types declared within the given <var>packagE</var>
      *         that declare at least one constant
-     * @rsee   {@link #isConstant(FieldDoc)}
+     * @see    #isConstant(FieldDoc)
      */
     public static Iterable<ClassDoc>
     classesAndInterfacesWithConstants(PackageDoc packagE) {
